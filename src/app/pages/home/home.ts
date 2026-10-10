@@ -1,0 +1,166 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faArrowRight,
+  faBowlRice,
+  faBroom,
+  faClock,
+  faFlask,
+  faLocationCrosshairs,
+  faUserPlus,
+} from '@fortawesome/free-solid-svg-icons';
+import { Customers as CustomersApi } from '../../services/api/customers';
+import { Orders as OrdersApi } from '../../services/api/orders';
+import { CustomerGetResponse } from '../../model/customer-get-res';
+import { OrderGetResponse } from '../../model/order-get-res';
+import { MapMarker, MapView } from '../../components/map-view/map-view';
+import { Notify } from '../../services/notify';
+import { Api } from '../../config/api';
+import { baht, statusBadge, statusColor, statusLabel, toDateInput, today } from '../../utils/format';
+
+// หน้าภาพรวมของเจ้าของร้าน: สรุปออเดอร์วันนี้ + ปุ่มจำลอง/ล้างออเดอร์
+@Component({
+  selector: 'app-home',
+  imports: [RouterModule, FontAwesomeModule, MapView],
+  templateUrl: './home.html',
+  styleUrl: './home.css',
+})
+export class Home {
+  customersApi = inject(CustomersApi);
+  ordersApi = inject(OrdersApi);
+  notify = inject(Notify);
+  api = inject(Api);
+
+  faBowlRice = faBowlRice;
+  faFlask = faFlask;
+  faBroom = faBroom;
+  faClock = faClock;
+  faArrowRight = faArrowRight;
+  faUserPlus = faUserPlus;
+  faLocationCrosshairs = faLocationCrosshairs;
+
+  baht = baht;
+  statusLabel = statusLabel;
+  statusBadge = statusBadge;
+
+  customers = signal<CustomerGetResponse[]>([]);
+  orders = signal<OrderGetResponse[]>([]);
+  loading = signal(true);
+  apiError = signal(false); // true = เรียก API ไม่ได้
+  working = signal(false); // กำลังจำลอง / ล้างออเดอร์
+
+  // วันที่วันนี้แบบไทย เช่น "วันเสาร์ที่ 10 ตุลาคม 2569"
+  todayText = new Date().toLocaleDateString('th-TH', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  // ออเดอร์ที่ต้องส่งวันนี้ (ไม่นับที่ยกเลิก)
+  todayOrders = computed(() => {
+    return this.orders().filter((o) => {
+      return toDateInput(o.delivery_date) === today() && o.status !== 'cancelled';
+    });
+  });
+
+  // สรุปตัวเลขของวันนี้
+  summary = computed(() => {
+    let boxes = 0;
+    let sales = 0;
+    let pending = 0;
+    let delivered = 0;
+    for (const o of this.todayOrders()) {
+      boxes = boxes + o.quantity;
+      sales = sales + Number(o.total_price);
+      if (o.status === 'pending') pending = pending + 1;
+      if (o.status === 'delivered') delivered = delivered + 1;
+    }
+    return {
+      orders: this.todayOrders().length,
+      boxes: boxes,
+      sales: sales,
+      foodCost: boxes * this.api.BOX_COST, // ต้นทุนอาหาร
+      pending: pending,
+      delivered: delivered,
+    };
+  });
+
+  // จำนวนออเดอร์ที่จำลองไว้
+  simulatedCount = computed(() => {
+    return this.orders().filter((o) => o.is_simulated === 1).length;
+  });
+
+  // ออเดอร์ล่าสุด 6 รายการ (รหัสมากสุด = ใหม่สุด)
+  latestOrders = computed(() => {
+    const sorted = [...this.orders()].sort((a, b) => b.id - a.id);
+    return sorted.slice(0, 6);
+  });
+
+  // หมุดจุดส่งวันนี้
+  markers = computed(() => {
+    const markers: MapMarker[] = [];
+    for (const o of this.todayOrders()) {
+      markers.push({
+        id: o.id,
+        lat: Number(o.delivery_latitude),
+        lng: Number(o.delivery_longitude),
+        label: String(o.quantity),
+        color: statusColor[o.status],
+        popup: `#${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${o.delivery_address}`,
+      });
+    }
+    return markers;
+  });
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  async loadData() {
+    this.loading.set(true);
+    try {
+      this.customers.set(await this.customersApi.getAll());
+      this.orders.set(await this.ordersApi.getAll());
+      this.apiError.set(false);
+    } catch (err) {
+      this.apiError.set(true);
+      this.notify.apiError(err, 'โหลดข้อมูลไม่สำเร็จ');
+    }
+    this.loading.set(false);
+  }
+
+  // 3.1 จำลองออเดอร์ 20-30 รายการ
+  async simulate() {
+    if (this.customers().length === 0) {
+      this.notify.error('ต้องมีลูกค้าในระบบก่อน ถึงจะจำลองออเดอร์ได้');
+      return;
+    }
+    this.working.set(true);
+    try {
+      const res = await this.ordersApi.simulate();
+      this.notify.success(`จำลองออเดอร์วันนี้ ${res.affected_row} รายการ`);
+      await this.loadData();
+    } catch (err) {
+      this.notify.apiError(err, 'จำลองออเดอร์ไม่สำเร็จ');
+    }
+    this.working.set(false);
+  }
+
+  // 3.2 ล้างออเดอร์ที่จำลองทั้งหมด
+  async clearSimulated() {
+    if (!confirm(`ลบออเดอร์จำลองทั้งหมด ${this.simulatedCount()} รายการ ใช่หรือไม่?`)) {
+      return;
+    }
+    this.working.set(true);
+    try {
+      const res = await this.ordersApi.clearSimulated();
+      this.notify.success(`ล้างออเดอร์จำลองแล้ว ${res.affected_row} รายการ`);
+      await this.loadData();
+    } catch (err) {
+      this.notify.apiError(err, 'ล้างออเดอร์จำลองไม่สำเร็จ');
+    }
+    this.working.set(false);
+  }
+}

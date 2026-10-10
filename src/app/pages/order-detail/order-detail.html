@@ -1,0 +1,107 @@
+<a routerLink="/orders" class="btn btn-ghost btn-sm mb-3 -ml-2">
+  <fa-icon [icon]="faArrowLeft"></fa-icon>กลับไปหน้าออเดอร์
+</a>
+
+@if (loading()) {
+  <div class="p-16 flex justify-center">
+    <span class="loading loading-dots loading-lg text-primary"></span>
+  </div>
+} @else if (notFound()) {
+  <!-- ไม่พบออเดอร์ -->
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body items-center text-center py-16">
+      <h1 class="font-display text-2xl">ไม่พบออเดอร์ #{{ id() }}</h1>
+      <p class="text-base-content/70">ออเดอร์นี้อาจถูกลบไปแล้ว</p>
+      <a routerLink="/orders" class="btn btn-primary mt-3">ดูออเดอร์ทั้งหมด</a>
+    </div>
+  </div>
+} @else if (order(); as o) {
+  <div class="grid gap-5 lg:grid-cols-5">
+    <!-- ฝั่งซ้าย: ข้อมูลออเดอร์ -->
+    <section class="lg:col-span-2">
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-sm text-base-content/60">ออเดอร์ #{{ o.id }} · ส่ง {{ thaiDate(o.delivery_date) }}</p>
+              <h1 class="font-display text-2xl">{{ o.first_name }} {{ o.last_name }}</h1>
+            </div>
+            <span class="badge {{ statusBadge[o.status] }}">{{ statusLabel[o.status] }}</span>
+          </div>
+
+          <!-- กดเพื่อโทรหาลูกค้า (บนมือถือ) -->
+          <a class="btn btn-outline btn-sm w-fit" href="tel:{{ o.phone }}">
+            <fa-icon [icon]="faPhone"></fa-icon>{{ o.phone }}
+          </a>
+
+          <div class="rounded-box bg-base-200 p-4">
+            <p class="text-sm text-base-content/60">ส่งที่</p>
+            <p>{{ o.delivery_address }}</p>
+          </div>
+
+          @if (o.note) {
+            <div class="alert alert-warning py-2">หมายเหตุ: {{ o.note }}</div>
+          }
+
+          <!-- จำนวนกล่อง และราคา -->
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-base-content/60">จำนวนกล่อง</p>
+              <div class="join mt-1">
+                <button class="btn btn-sm join-item" [disabled]="o.quantity <= 1" (click)="changeQuantity(o, -1)">
+                  <fa-icon [icon]="faMinus"></fa-icon>
+                </button>
+                <span class="join-item w-12 grid place-items-center bg-base-200 font-display text-lg">
+                  {{ o.quantity }}
+                </span>
+                <button class="btn btn-sm join-item" [disabled]="o.quantity >= 3" (click)="changeQuantity(o, 1)">
+                  <fa-icon [icon]="faPlus"></fa-icon>
+                </button>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-base-content/60">{{ o.quantity }} × {{ baht(o.unit_price) }}</p>
+              <p class="font-display text-2xl text-primary">{{ baht(o.total_price) }}</p>
+            </div>
+          </div>
+
+          <!-- เปลี่ยนสถานะ -->
+          <div>
+            <p class="text-sm text-base-content/60 mb-1">เปลี่ยนสถานะ</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              @for (s of statuses; track s) {
+                <button class="btn btn-sm" [class.btn-neutral]="o.status === s" (click)="changeStatus(o, s)">
+                  {{ statusLabel[s] }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- ปุ่มอื่นๆ -->
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-base-300">
+            <a
+              class="btn btn-primary flex-1"
+              target="_blank"
+              [href]="googleMapsLink(o.delivery_latitude, o.delivery_longitude)"
+            >
+              <fa-icon [icon]="faDiamondTurnRight"></fa-icon>นำทางด้วย Google Maps
+            </a>
+            <a class="btn btn-ghost" routerLink="/orders" [queryParams]="{ edit: o.id }">
+              <fa-icon [icon]="faPen"></fa-icon>แก้ไข
+            </a>
+            <button class="btn btn-ghost text-error" (click)="remove(o)"><fa-icon [icon]="faTrash"></fa-icon>ลบ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ฝั่งขวา: แผนที่ -->
+    <section class="lg:col-span-3">
+      <div class="card bg-base-100 shadow-sm">
+        <div class="card-body p-3">
+          <app-map-view class="h-80 lg:h-[70vh]" [markers]="markers()"></app-map-view>
+        </div>
+      </div>
+    </section>
+  </div>
+}

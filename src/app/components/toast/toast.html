@@ -1,0 +1,21 @@
+<div class="toast toast-end toast-bottom z-[2000]">
+  @for (message of notify.messages(); track message.id) {
+    @if (message.type === 'success') {
+      <div role="alert" class="alert alert-success shadow-lg max-w-sm">
+        <fa-icon [icon]="faCircleCheck"></fa-icon>
+        <span class="whitespace-normal">{{ message.text }}</span>
+        <button class="btn btn-ghost btn-xs btn-circle" (click)="notify.close(message.id)">
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
+      </div>
+    } @else {
+      <div role="alert" class="alert alert-error shadow-lg max-w-sm">
+        <fa-icon [icon]="faCircleExclamation"></fa-icon>
+        <span class="whitespace-normal">{{ message.text }}</span>
+        <button class="btn btn-ghost btn-xs btn-circle" (click)="notify.close(message.id)">
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,94 @@
+/* ฟอนต์ภาษาไทย ต้อง import ที่บรรทัดแรก ก่อน tailwindcss */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300..800&family=Mitr:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* ธีมของร้าน "ส่งด่วนมื้อเที่ยง" (ปรับสีแบบเดียวกับ https://daisyui.com/theme-generator)
+   แดงกล่องข้าว / เหลืองป้ายร้าน / น้ำตาลเข้มผ้าใบ */
+@plugin "daisyui/theme" {
+  name: 'lunchbox';
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: oklch(99% 0.006 75);
+  --color-base-200: oklch(96.5% 0.014 75);
+  --color-base-300: oklch(91% 0.025 70);
+  --color-base-content: oklch(26% 0.035 45);
+  --color-primary: oklch(55% 0.19 32);
+  --color-primary-content: oklch(98% 0.01 75);
+  --color-secondary: oklch(85% 0.16 90);
+  --color-secondary-content: oklch(28% 0.05 50);
+  --color-accent: oklch(58% 0.13 150);
+  --color-accent-content: oklch(98% 0.01 150);
+  --color-neutral: oklch(30% 0.04 45);
+  --color-neutral-content: oklch(96% 0.01 75);
+  --color-info: oklch(60% 0.12 240);
+  --color-info-content: oklch(98% 0.01 240);
+  --color-success: oklch(60% 0.14 150);
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(78% 0.15 75);
+  --color-warning-content: oklch(28% 0.05 50);
+  --color-error: oklch(56% 0.2 25);
+  --color-error-content: oklch(98% 0.01 25);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@theme {
+  --font-display: 'Mitr', 'Noto Sans Thai', sans-serif;
+}
+
+:root {
+  --main-font: 'Noto Sans Thai', sans-serif;
+}
+
+body {
+  font-family: var(--main-font);
+}
+
+/* หมุดบนแผนที่ (Leaflet divIcon) */
+.map-pin {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--main-font);
+}
+
+.map-shop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-neutral);
+  color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  font-size: 18px;
+}
+
+.leaflet-container {
+  font-family: var(--main-font);
+}
+
+/* แถวในตารางที่ถูกเลือก */
+.selected-row {
+  background-color: color-mix(in oklab, var(--color-secondary) 35%, transparent);
+}

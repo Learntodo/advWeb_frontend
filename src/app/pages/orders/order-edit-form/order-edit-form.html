@@ -1,0 +1,96 @@
+<div class="modal modal-open" role="dialog">
+  <div class="modal-box max-w-4xl">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="font-display text-xl">แก้ไขออเดอร์ #{{ order().id }}</h3>
+        <p class="text-sm text-base-content/70">
+          {{ order().first_name }} {{ order().last_name }} · {{ order().phone }}
+          (เปลี่ยนลูกค้าไม่ได้)
+        </p>
+      </div>
+      <button class="btn btn-sm btn-circle btn-ghost" (click)="closed.emit()">
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+    </div>
+
+    <form class="grid md:grid-cols-2 gap-x-6 mt-3" (submit)="save(); $event.preventDefault()">
+      <!-- ฝั่งซ้าย: ข้อมูลออเดอร์ -->
+      <div>
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">จำนวนกล่อง</legend>
+          <div class="join">
+            @for (q of quantityChoices; track q) {
+              <button
+                type="button"
+                class="btn join-item w-16"
+                [class.btn-primary]="quantity() === q"
+                (click)="quantity.set(q)"
+              >
+                {{ q }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <div class="grid grid-cols-2 gap-3">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">ราคาต่อกล่อง (บาท)</legend>
+            <input type="number" min="0" class="input outline-0 w-full" name="unitPrice" [(ngModel)]="unitPrice" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">วันที่ส่ง</legend>
+            <input type="date" class="input outline-0 w-full" name="deliveryDate" [(ngModel)]="deliveryDate" />
+          </fieldset>
+        </div>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">สถานะ</legend>
+          <select class="select outline-0 w-full" name="status" [(ngModel)]="status">
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ statusLabel[s] }}</option>
+            }
+          </select>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">ที่อยู่จัดส่ง</legend>
+          <textarea class="textarea outline-0 w-full" rows="2" name="address" [(ngModel)]="address"></textarea>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">หมายเหตุ</legend>
+          <input class="input outline-0 w-full" name="note" [(ngModel)]="note" />
+        </fieldset>
+
+        <div class="mt-3 rounded-box bg-base-200 p-3 flex justify-between items-center">
+          <span>ยอดรวม</span>
+          <span class="font-display text-xl text-primary">{{ baht(quantity() * unitPrice()) }}</span>
+        </div>
+      </div>
+
+      <!-- ฝั่งขวา: แผนที่จุดส่ง -->
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">จุดส่ง (คลิกบนแผนที่เพื่อย้ายหมุด)</legend>
+        <app-map-view
+          class="h-64 md:h-80"
+          [picked]="deliveryPoint()"
+          [focus]="startPoint()"
+          [autoZoom]="false"
+          (mapClick)="pickLocation($event)"
+        ></app-map-view>
+        <p class="label">{{ lat() }}, {{ lng() }}</p>
+      </fieldset>
+
+      <div class="md:col-span-2 flex justify-end gap-2 pt-4">
+        <button type="button" class="btn btn-ghost" (click)="closed.emit()">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary min-w-32" [disabled]="saving()">
+          @if (saving()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          บันทึก
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" (click)="closed.emit()"></div>
+</div>

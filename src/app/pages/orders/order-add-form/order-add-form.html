@@ -1,0 +1,147 @@
+<div class="modal modal-open" role="dialog">
+  <div class="modal-box max-w-4xl">
+    <div class="flex items-center justify-between">
+      <h3 class="font-display text-xl">เพิ่มออเดอร์</h3>
+      <button class="btn btn-sm btn-circle btn-ghost" (click)="closed.emit()">
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+    </div>
+
+    <form class="grid md:grid-cols-2 gap-x-6 mt-3" (submit)="save(); $event.preventDefault()">
+      <!-- ฝั่งซ้าย: ข้อมูลออเดอร์ -->
+      <div>
+        <!-- 1) เลือกลูกค้า -->
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">ลูกค้า *</legend>
+
+          @if (selectedCustomer(); as c) {
+            <!-- เลือกลูกค้าแล้ว -->
+            <div class="flex justify-between gap-2 rounded-box border border-base-300 bg-base-200 p-3">
+              <div>
+                <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
+                <div class="text-sm">{{ c.phone }}</div>
+                <div class="text-sm text-base-content/70">{{ c.address }}</div>
+              </div>
+              <button type="button" class="btn btn-xs btn-ghost" (click)="selectedId.set(null)">เปลี่ยน</button>
+            </div>
+          } @else {
+            <!-- ยังไม่ได้เลือก: ค้นหาลูกค้าเก่าจากเบอร์โทรหรือชื่อ -->
+            <label class="input outline-0 w-full">
+              <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
+              <input
+                name="searchText"
+                placeholder="ลูกค้าเก่า: พิมพ์เบอร์โทรหรือชื่อ"
+                autocomplete="off"
+                [(ngModel)]="searchText"
+              />
+            </label>
+
+            @for (c of searchResults(); track c.id) {
+              <button
+                type="button"
+                class="btn btn-ghost justify-between w-full font-normal"
+                (click)="chooseCustomer(c)"
+              >
+                <span>{{ c.first_name }} {{ c.last_name }}</span>
+                <span class="text-base-content/60">{{ c.phone }}</span>
+              </button>
+            } @empty {
+              @if (searchText().trim() !== '') {
+                <p class="label mt-1">
+                  ไม่พบลูกค้า ·
+                  <a class="link link-primary" routerLink="/customers" [queryParams]="{ add: 1 }"> เพิ่มลูกค้าใหม่ </a>
+                </p>
+              }
+            }
+          }
+        </fieldset>
+
+        <!-- 2) จำนวนกล่อง -->
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">จำนวนกล่อง * (ไม่เกิน 3 กล่อง)</legend>
+          <div class="join">
+            @for (q of quantityChoices; track q) {
+              <button
+                type="button"
+                class="btn join-item w-16"
+                [class.btn-primary]="quantity() === q"
+                (click)="quantity.set(q)"
+              >
+                {{ q }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <!-- 3) ราคา / วันที่ส่ง / หมายเหตุ -->
+        <div class="grid grid-cols-2 gap-3">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">ราคาต่อกล่อง (บาท)</legend>
+            <input type="number" min="0" class="input outline-0 w-full" name="unitPrice" [(ngModel)]="unitPrice" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">วันที่ส่ง</legend>
+            <input type="date" class="input outline-0 w-full" name="deliveryDate" [(ngModel)]="deliveryDate" />
+          </fieldset>
+        </div>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">หมายเหตุ</legend>
+          <input class="input outline-0 w-full" name="note" placeholder="เช่น ไม่ใส่ผัก" [(ngModel)]="note" />
+        </fieldset>
+
+        <div class="mt-3 rounded-box bg-base-200 p-3 flex justify-between items-center">
+          <span>ยอดรวม</span>
+          <span class="font-display text-xl text-primary">{{ baht(quantity() * unitPrice()) }}</span>
+        </div>
+      </div>
+
+      <!-- ฝั่งขวา: จุดส่ง -->
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">จุดส่ง</legend>
+        <label class="label cursor-pointer gap-2">
+          <input
+            type="checkbox"
+            class="toggle toggle-sm toggle-primary"
+            [checked]="otherPlace()"
+            [disabled]="selectedCustomer() === null"
+            (change)="toggleOtherPlace()"
+          />
+          ส่งที่อื่น (ไม่ใช่บ้านลูกค้า)
+        </label>
+
+        @if (otherPlace()) {
+          <textarea
+            class="textarea outline-0 w-full"
+            rows="2"
+            name="address"
+            placeholder="ที่อยู่จัดส่ง"
+            [(ngModel)]="address"
+          ></textarea>
+          <span class="label">คลิกบนแผนที่เพื่อปักหมุดจุดส่ง</span>
+        } @else {
+          <span class="label">ส่งที่บ้านลูกค้า (ใช้ที่อยู่และพิกัดของลูกค้า)</span>
+        }
+
+        <app-map-view
+          class="h-64 md:h-80"
+          [picked]="deliveryPoint()"
+          [focus]="deliveryPoint()"
+          [autoZoom]="false"
+          (mapClick)="pickLocation($event)"
+        ></app-map-view>
+      </fieldset>
+
+      <div class="md:col-span-2 flex justify-end gap-2 pt-4">
+        <button type="button" class="btn btn-ghost" (click)="closed.emit()">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary min-w-32" [disabled]="saving()">
+          @if (saving()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          เพิ่มออเดอร์
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" (click)="closed.emit()"></div>
+</div>

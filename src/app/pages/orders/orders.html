@@ -1,0 +1,218 @@
+<!-- หัวหน้า + ปุ่มหลัก -->
+<div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+  <div>
+    <h1 class="font-display text-2xl sm:text-3xl">ออเดอร์</h1>
+    <p class="text-base-content/70 text-sm">
+      ทั้งหมด {{ orders().length }} รายการ · จำลองไว้ {{ simulatedCount() }} รายการ
+    </p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <button class="btn btn-outline" (click)="simulate()" [disabled]="working()">
+      <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์ 20–30 รายการ
+    </button>
+    <button
+      class="btn btn-outline btn-error"
+      (click)="clearSimulated()"
+      [disabled]="working() || simulatedCount() === 0"
+    >
+      <fa-icon [icon]="faBroom"></fa-icon>ล้างออเดอร์จำลอง
+    </button>
+    <button class="btn btn-primary" (click)="openAdd(null)"><fa-icon [icon]="faPlus"></fa-icon>เพิ่มออเดอร์</button>
+  </div>
+</div>
+
+<!-- สรุปยอด -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body p-4 gap-1">
+      <span class="text-sm text-base-content/70">ออเดอร์ที่แสดง</span>
+      <span class="font-display text-2xl">{{ summary().count }}</span>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body p-4 gap-1">
+      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องส่ง</span>
+      <span class="font-display text-2xl">{{ summary().boxes }} กล่อง</span>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body p-4 gap-1">
+      <span class="text-sm text-base-content/70">ยอดขาย</span>
+      <span class="font-display text-2xl text-primary">{{ baht(summary().sales) }}</span>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body p-4 gap-1">
+      <span class="text-sm text-base-content/70">กำไรก่อนหักค่าไรเดอร์</span>
+      <span class="font-display text-2xl text-accent">{{ baht(summary().profit) }}</span>
+      <span class="text-xs text-base-content/60">หักต้นทุน {{ api.BOX_COST }} บาท/กล่อง</span>
+    </div>
+  </div>
+</div>
+
+<!-- ตัวกรอง -->
+<div class="flex flex-wrap items-center gap-2 mb-3">
+  <label class="input outline-0 w-full sm:w-64">
+    <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
+    <input type="search" placeholder="ชื่อ หรือ เบอร์โทร" [(ngModel)]="keyword" />
+  </label>
+
+  <button class="btn" [class.btn-secondary]="isTodayFilter()" (click)="toggleToday()">
+    <fa-icon [icon]="faCalendarDay"></fa-icon>วันนี้
+  </button>
+  <input type="date" class="input outline-0 w-40" [(ngModel)]="dateFilter" />
+
+  <select class="select outline-0 w-36" [(ngModel)]="statusFilter">
+    <option value="">ทุกสถานะ</option>
+    @for (s of statuses; track s) {
+      <option [value]="s">{{ statusLabel[s] }}</option>
+    }
+  </select>
+
+  <div class="join">
+    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
+      ทั้งหมด
+    </button>
+    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'real'" (click)="typeFilter.set('real')">
+      จริง
+    </button>
+    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'sim'" (click)="typeFilter.set('sim')">
+      จำลอง
+    </button>
+  </div>
+
+  <button class="btn btn-ghost btn-sm" (click)="clearFilters()"><fa-icon [icon]="faXmark"></fa-icon>ล้างตัวกรอง</button>
+</div>
+
+<div class="grid gap-5 xl:grid-cols-5">
+  <!-- ตารางออเดอร์ -->
+  <section class="xl:col-span-3 card bg-base-100 shadow-sm overflow-hidden min-w-0">
+    @if (loading()) {
+      <div class="p-10 flex justify-center">
+        <span class="loading loading-dots loading-lg text-primary"></span>
+      </div>
+    } @else if (filteredOrders().length === 0) {
+      <div class="p-10 text-center text-base-content/70">ไม่มีออเดอร์ (ลองกด “จำลองออเดอร์” หรือล้างตัวกรอง)</div>
+    } @else {
+      <div class="overflow-x-auto max-h-[70vh]">
+        <table class="table table-sm table-pin-rows">
+          <thead>
+            <tr class="bg-base-200">
+              <th>#</th>
+              <th>ลูกค้า</th>
+              <th>กล่อง</th>
+              <th class="text-right">ยอด</th>
+              <th class="hidden sm:table-cell">วันส่ง</th>
+              <th>สถานะ</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of filteredOrders(); track o.id) {
+              <tr
+                [id]="'order-' + o.id"
+                class="cursor-pointer hover:bg-base-200"
+                [class.selected-row]="o.id === selectedId()"
+                (click)="select(o)"
+              >
+                <td class="text-base-content/60">
+                  {{ o.id }}
+                  @if (o.is_simulated === 1) {
+                    <span class="badge badge-xs badge-outline block mt-1">จำลอง</span>
+                  }
+                </td>
+
+                <td class="min-w-36">
+                  <div class="font-medium">{{ o.first_name }} {{ o.last_name }}</div>
+                  <div class="text-xs text-base-content/70">{{ o.phone }}</div>
+                </td>
+
+                <!-- ปุ่ม − / + จำนวนกล่อง (stopPropagation: ไม่ให้นับเป็นการคลิกแถว) -->
+                <td (click)="$event.stopPropagation()">
+                  <div class="join">
+                    <button class="btn btn-xs join-item" [disabled]="o.quantity <= 1" (click)="changeQuantity(o, -1)">
+                      <fa-icon [icon]="faMinus"></fa-icon>
+                    </button>
+                    <span class="join-item w-8 grid place-items-center bg-base-200 font-semibold text-sm">
+                      {{ o.quantity }}
+                    </span>
+                    <button class="btn btn-xs join-item" [disabled]="o.quantity >= 3" (click)="changeQuantity(o, 1)">
+                      <fa-icon [icon]="faPlus"></fa-icon>
+                    </button>
+                  </div>
+                </td>
+
+                <td class="text-right whitespace-nowrap">{{ baht(o.total_price) }}</td>
+                <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(o.delivery_date) }}</td>
+
+                <!-- เปลี่ยนสถานะ: ใช้ #statusSelect อ้างถึง select แล้วส่งค่าเข้า function -->
+                <td (click)="$event.stopPropagation()">
+                  <select
+                    #statusSelect
+                    class="select select-xs w-24 outline-0"
+                    (change)="changeStatus(o, statusSelect.value)"
+                  >
+                    @for (s of statuses; track s) {
+                      <option [value]="s" [selected]="s === o.status">{{ statusLabel[s] }}</option>
+                    }
+                  </select>
+                </td>
+
+                <td (click)="$event.stopPropagation()">
+                  <div class="flex justify-end">
+                    <button class="btn btn-xs btn-ghost" title="ดูรายละเอียด" (click)="goDetail(o)">
+                      <fa-icon [icon]="faEye"></fa-icon>
+                    </button>
+                    <button class="btn btn-xs btn-ghost" title="แก้ไข" (click)="openEdit(o)">
+                      <fa-icon [icon]="faPen"></fa-icon>
+                    </button>
+                    <button class="btn btn-xs btn-ghost text-error" title="ลบ" (click)="remove(o)">
+                      <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- แผนที่จุดส่ง -->
+  <section class="xl:col-span-2">
+    <div class="card bg-base-100 shadow-sm xl:sticky xl:top-24">
+      <div class="card-body p-3 gap-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+          <h2 class="font-display">จุดส่งบนแผนที่ (ตัวเลข = จำนวนกล่อง)</h2>
+          <div class="flex gap-1">
+            @for (s of statuses; track s) {
+              <span class="badge badge-sm {{ statusBadge[s] }}">{{ statusLabel[s] }}</span>
+            }
+          </div>
+        </div>
+        <app-map-view
+          class="h-80 xl:h-[60vh]"
+          [markers]="markers()"
+          [focus]="focus()"
+          (markerClick)="onMarkerClick($event)"
+        ></app-map-view>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ฟอร์มเพิ่มออเดอร์ (component ย่อย) -->
+@if (addOpen()) {
+  <app-order-add-form
+    [customers]="customers()"
+    [customerId]="addCustomerId()"
+    (saved)="onSaved()"
+    (closed)="addOpen.set(false)"
+  ></app-order-add-form>
+}
+
+<!-- ฟอร์มแก้ไขออเดอร์ (component ย่อย) -->
+@if (editingOrder(); as o) {
+  <app-order-edit-form [order]="o" (saved)="onSaved()" (closed)="editingOrder.set(null)"></app-order-edit-form>
+}

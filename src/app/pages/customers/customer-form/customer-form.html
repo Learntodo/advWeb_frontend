@@ -1,0 +1,103 @@
+<div class="modal modal-open" role="dialog">
+  <div class="modal-box max-w-4xl">
+    <!-- หัวฟอร์ม -->
+    <div class="flex items-center justify-between">
+      <h3 class="font-display text-xl">
+        @if (customer(); as c) {
+          แก้ไขข้อมูลลูกค้า #{{ c.id }}
+        } @else {
+          เพิ่มลูกค้าใหม่
+        }
+      </h3>
+      <button class="btn btn-sm btn-circle btn-ghost" (click)="closed.emit()">
+        <fa-icon [icon]="faXmark"></fa-icon>
+      </button>
+    </div>
+
+    <form class="grid md:grid-cols-2 gap-x-6 mt-3" (submit)="save(); $event.preventDefault()">
+      <!-- ฝั่งซ้าย: ข้อมูลลูกค้า -->
+      <div>
+        <div class="grid grid-cols-2 gap-3">
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">ชื่อ *</legend>
+            <input class="input outline-0 w-full" name="firstName" [(ngModel)]="firstName" />
+          </fieldset>
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">นามสกุล *</legend>
+            <input class="input outline-0 w-full" name="lastName" [(ngModel)]="lastName" />
+          </fieldset>
+        </div>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">เบอร์โทร *</legend>
+          <input class="input outline-0 w-full" name="phone" type="tel" placeholder="0812345678" [(ngModel)]="phone" />
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">อีเมล (ไม่บังคับ)</legend>
+          <input class="input outline-0 w-full" name="email" type="email" [(ngModel)]="email" />
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend class="fieldset-legend">ที่อยู่ *</legend>
+          <textarea
+            class="textarea outline-0 w-full"
+            rows="3"
+            name="address"
+            placeholder="เช่น หอพักริมบึง ห้อง 101"
+            [(ngModel)]="address"
+          ></textarea>
+        </fieldset>
+      </div>
+
+      <!-- ฝั่งขวา: เลือกพิกัดบ้านบนแผนที่ -->
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">พิกัดบ้าน * (คลิกบนแผนที่เพื่อปักหมุด)</legend>
+        <app-map-view
+          class="h-64 md:h-72"
+          [picked]="pickedPoint()"
+          [focus]="startPoint()"
+          [autoZoom]="false"
+          (mapClick)="pickLocation($event)"
+        ></app-map-view>
+
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <label class="input outline-0 w-full">
+            <span class="label">lat</span>
+            <input type="number" step="0.000001" name="latitude" [(ngModel)]="latitude" />
+          </label>
+          <label class="input outline-0 w-full">
+            <span class="label">lng</span>
+            <input type="number" step="0.000001" name="longitude" [(ngModel)]="longitude" />
+          </label>
+        </div>
+
+        <div class="flex gap-2 mt-1">
+          <button type="button" class="btn btn-xs btn-ghost" (click)="useMyLocation()">
+            <fa-icon [icon]="faLocationDot"></fa-icon>ใช้ตำแหน่งปัจจุบัน
+          </button>
+          @if (pickedPoint(); as p) {
+            <a class="btn btn-xs btn-ghost" target="_blank" [href]="googleMapsLink(p.lat, p.lng)"> ดูใน Google Maps </a>
+          }
+        </div>
+      </fieldset>
+
+      <!-- ข้อความเมื่อกรอกข้อมูลไม่ครบ -->
+      @if (errorMessage()) {
+        <div role="alert" class="alert alert-error md:col-span-2 mt-3">{{ errorMessage() }}</div>
+      }
+
+      <!-- ปุ่ม -->
+      <div class="md:col-span-2 flex justify-end gap-2 pt-4">
+        <button type="button" class="btn btn-ghost" (click)="closed.emit()">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary min-w-32" [disabled]="saving()">
+          @if (saving()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          บันทึก
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" (click)="closed.emit()"></div>
+</div>

@@ -1,0 +1,110 @@
+<!-- หัวหน้า -->
+<div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+  <div>
+    <h1 class="font-display text-2xl sm:text-3xl">ลูกค้า</h1>
+    <p class="text-base-content/70 text-sm">
+      ทั้งหมด {{ allCustomers().length }} คน · คลิกที่รายชื่อเพื่อดูบ้านลูกค้าบนแผนที่
+    </p>
+  </div>
+  <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มลูกค้า</button>
+</div>
+
+<div class="grid gap-5 lg:grid-cols-5">
+  <!-- ฝั่งซ้าย: ช่องค้นหา + ตารางลูกค้า -->
+  <section class="lg:col-span-3 flex flex-col gap-3 min-w-0">
+    <form class="flex gap-2" (submit)="search(); $event.preventDefault()">
+      <label class="input outline-0 flex-1">
+        <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
+        <input type="search" name="keyword" placeholder="ค้นหาจากชื่อ นามสกุล หรือเบอร์โทร" [(ngModel)]="keyword" />
+      </label>
+      <button type="submit" class="btn btn-neutral">ค้นหา</button>
+    </form>
+
+    @if (searchedText()) {
+      <div class="flex items-center gap-2 text-sm">
+        ผลการค้นหา “{{ searchedText() }}” พบ {{ customers().length }} คน
+        <button class="btn btn-xs btn-ghost" (click)="clearSearch()"><fa-icon [icon]="faXmark"></fa-icon>ล้าง</button>
+      </div>
+    }
+
+    <div class="card bg-base-100 shadow-sm overflow-hidden">
+      @if (loading()) {
+        <div class="p-10 flex justify-center">
+          <span class="loading loading-dots loading-lg text-primary"></span>
+        </div>
+      } @else if (customers().length === 0) {
+        <div class="p-10 text-center text-base-content/70">ไม่พบข้อมูลลูกค้า</div>
+      } @else {
+        <div class="overflow-x-auto max-h-[65vh]">
+          <table class="table table-pin-rows">
+            <thead>
+              <tr class="bg-base-200">
+                <th>#</th>
+                <th>ลูกค้า</th>
+                <th class="hidden md:table-cell">ที่อยู่</th>
+                <th class="text-right">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of customers(); track c.id) {
+                <tr
+                  [id]="'customer-' + c.id"
+                  class="cursor-pointer hover:bg-base-200"
+                  [class.selected-row]="c.id === selectedId()"
+                  (click)="select(c)"
+                >
+                  <td class="text-base-content/60">{{ c.id }}</td>
+                  <td>
+                    <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
+                    <div class="text-sm text-base-content/70">
+                      <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ c.phone }}
+                    </div>
+                  </td>
+                  <td class="hidden md:table-cell text-sm">{{ c.address }}</td>
+                  <td>
+                    <!-- stopPropagation: กดปุ่มแล้วไม่ให้นับเป็นการคลิกแถว -->
+                    <div class="flex justify-end gap-1" (click)="$event.stopPropagation()">
+                      <button class="btn btn-sm btn-ghost text-accent" title="สั่งออเดอร์" (click)="orderFor(c)">
+                        <fa-icon [icon]="faCartPlus"></fa-icon>
+                      </button>
+                      <button class="btn btn-sm btn-ghost" title="แก้ไข" (click)="openEdit(c)">
+                        <fa-icon [icon]="faPen"></fa-icon>
+                      </button>
+                      <button class="btn btn-sm btn-ghost text-error" title="ลบ" (click)="remove(c)">
+                        <fa-icon [icon]="faTrash"></fa-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ฝั่งขวา: แผนที่บ้านลูกค้า -->
+  <section class="lg:col-span-2">
+    <div class="card bg-base-100 shadow-sm lg:sticky lg:top-24">
+      <div class="card-body p-3 gap-2">
+        <h2 class="font-display px-1">บ้านลูกค้าบนแผนที่ (ตัวเลข = รหัสลูกค้า)</h2>
+        <app-map-view
+          class="h-80 lg:h-[60vh]"
+          [markers]="markers()"
+          [focus]="focus()"
+          (markerClick)="onMarkerClick($event)"
+        ></app-map-view>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ฟอร์มเพิ่ม / แก้ไขลูกค้า (component ย่อย) -->
+@if (formOpen()) {
+  <app-customer-form
+    [customer]="editingCustomer()"
+    (saved)="onSaved()"
+    (closed)="formOpen.set(false)"
+  ></app-customer-form>
+}
