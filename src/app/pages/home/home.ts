@@ -5,7 +5,6 @@ import {
   faArrowRight,
   faBowlRice,
   faBroom,
-  faClock,
   faFlask,
   faLocationCrosshairs,
   faUserPlus,
@@ -35,7 +34,6 @@ export class Home {
   faBowlRice = faBowlRice;
   faFlask = faFlask;
   faBroom = faBroom;
-  faClock = faClock;
   faArrowRight = faArrowRight;
   faUserPlus = faUserPlus;
   faLocationCrosshairs = faLocationCrosshairs;

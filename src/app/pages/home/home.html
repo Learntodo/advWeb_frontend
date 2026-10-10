@@ -1,4 +1,4 @@
-<!-- แถบหัว: วันที่ + เวลาส่ง + ปุ่มจำลอง/ล้างออเดอร์ -->
+<!-- แถบหัว: วันที่ + ปุ่มจำลอง/ล้างออเดอร์ -->
 <section class="rounded-box bg-neutral text-neutral-content p-5 sm:p-7 mb-6 relative overflow-hidden">
   <div class="absolute -right-6 -bottom-8 text-[9rem] opacity-10 rotate-12">
     <fa-icon [icon]="faBowlRice"></fa-icon>
@@ -6,11 +6,6 @@
 
   <p class="text-sm opacity-70">{{ todayText }}</p>
   <h1 class="font-display text-3xl sm:text-4xl text-secondary mt-1">ออเดอร์วันนี้</h1>
-
-  <div class="flex flex-wrap gap-x-6 gap-y-2 mt-4">
-    <div><fa-icon [icon]="faClock" class="text-secondary"></fa-icon> ครัวพร้อมออกส่ง <b>11:30 น.</b></div>
-    <div><fa-icon [icon]="faClock" class="text-secondary"></fa-icon> ต้องถึงมือลูกค้าไม่เกิน <b>12:30 น.</b></div>
-  </div>
 
   <div class="flex flex-wrap gap-2 mt-5 relative">
     <button class="btn btn-secondary" (click)="simulate()" [disabled]="working()">
