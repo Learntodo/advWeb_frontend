@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- พื้นหลัง: ป้ายสีเหลือง -->
+  <rect width="64" height="64" rx="15" fill="#f3c437"/>
+  <!-- เส้นความเร็ว (ส่งด่วน) -->
+  <g stroke="#3d2a1f" stroke-width="3" stroke-linecap="round">
+    <line x1="6" y1="35" x2="13" y2="35"/>
+    <line x1="4" y1="41" x2="13" y2="41"/>
+    <line x1="8" y1="47" x2="13" y2="47"/>
+  </g>
+  <!-- ไอร้อนจากอาหาร -->
+  <g fill="none" stroke="#c84a2c" stroke-width="2.6" stroke-linecap="round">
+    <path d="M30 8c-3 3 3 6 0 9s3 4 0 6"/>
+    <path d="M40 8c-3 3 3 6 0 9s3 4 0 6"/>
+  </g>
+  <!-- ตัวกล่องข้าว -->
+  <rect x="17" y="31" width="40" height="22" rx="5" fill="#c84a2c"/>
+  <!-- ฝากล่อง -->
+  <rect x="14" y="25" width="46" height="8" rx="4" fill="#3d2a1f"/>
+  <!-- ริบบิ้นผูกกล่อง -->
+  <rect x="34" y="33" width="6" height="20" fill="#fffaf3"/>
+  <rect x="17" y="40" width="40" height="5" fill="#fffaf3" opacity="0.9"/>
+  <circle cx="37" cy="42.5" r="4" fill="#3d2a1f"/>
+</svg>

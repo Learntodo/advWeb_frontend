@@ -6,7 +6,6 @@ import {
   faBoxOpen,
   faHouse,
   faLocationCrosshairs,
-  faMotorcycle,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,7 +17,6 @@ import {
 })
 export class Header {
   faBars = faBars;
-  faMotorcycle = faMotorcycle;
 
   // เมนูหลักของฝั่งเจ้าของร้าน (เฉพาะส่วนที่ backend มีตอนนี้)
   menus = [

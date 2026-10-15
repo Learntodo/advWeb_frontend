@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- favicon แบบย่อ: กล่องข้าวอย่างเดียว ให้ดูชัดตอนขนาดเล็ก -->
+  <rect width="64" height="64" rx="15" fill="#f3c437"/>
+  <rect x="10" y="26" width="44" height="28" rx="6" fill="#c84a2c"/>
+  <rect x="6" y="17" width="52" height="11" rx="5.5" fill="#3d2a1f"/>
+  <rect x="29" y="28" width="6" height="26" fill="#fffaf3"/>
+  <rect x="10" y="37" width="44" height="6" fill="#fffaf3"/>
+</svg>
