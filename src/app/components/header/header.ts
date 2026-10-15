@@ -4,6 +4,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faBars,
   faBoxOpen,
+  faHammer,
   faHouse,
   faLocationCrosshairs,
   faMotorcycle,
@@ -26,5 +27,6 @@ export class Header {
     { path: '/customers', label: 'ลูกค้า', icon: faUsers, exact: false },
     { path: '/orders', label: 'ออเดอร์', icon: faBoxOpen, exact: false },
     { path: '/nearby', label: 'ค้นหาตามระยะ', icon: faLocationCrosshairs, exact: false },
+    { path: '/coming-soon', label: 'กำลังพัฒนา', icon: faHammer, exact: false },
   ];
 }

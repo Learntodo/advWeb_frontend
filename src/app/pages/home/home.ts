@@ -6,6 +6,7 @@ import {
   faBowlRice,
   faBroom,
   faFlask,
+  faHammer,
   faLocationCrosshairs,
   faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
@@ -35,6 +36,7 @@ export class Home {
   faFlask = faFlask;
   faBroom = faBroom;
   faArrowRight = faArrowRight;
+  faHammer = faHammer;
   faUserPlus = faUserPlus;
   faLocationCrosshairs = faLocationCrosshairs;
 
