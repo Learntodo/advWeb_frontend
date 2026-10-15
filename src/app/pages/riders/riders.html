@@ -1,0 +1,75 @@
+<!-- หัวหน้า -->
+<div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+  <div>
+    <h1 class="font-display text-2xl sm:text-3xl">ไรเดอร์</h1>
+    <p class="text-base-content/70 text-sm">
+      ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · รถแต่ละคันขนได้ 10 กล่อง
+    </p>
+  </div>
+  <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มไรเดอร์</button>
+</div>
+
+<div class="card bg-base-100 shadow-sm overflow-hidden">
+  @if (loading()) {
+    <div class="p-10 flex justify-center">
+      <span class="loading loading-dots loading-lg text-primary"></span>
+    </div>
+  } @else if (riders().length === 0) {
+    <div class="p-10 text-center text-base-content/70">ยังไม่มีไรเดอร์ กด “เพิ่มไรเดอร์” เพื่อเริ่ม</div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr class="bg-base-200">
+            <th>#</th>
+            <th>ไรเดอร์</th>
+            <th class="hidden sm:table-cell">ทะเบียนรถ</th>
+            <th>ใช้งาน</th>
+            <th class="text-right">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of riders(); track r.id) {
+            <tr [class.opacity-60]="r.is_active !== 1">
+              <td class="text-base-content/60">{{ r.id }}</td>
+              <td>
+                <div class="font-medium">{{ r.first_name }} {{ r.last_name }}</div>
+                <div class="text-sm text-base-content/70">
+                  <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ r.phone }}
+                  <span class="sm:hidden"> · {{ r.license_plate || '-' }}</span>
+                </div>
+              </td>
+              <td class="hidden sm:table-cell">
+                <fa-icon [icon]="faMotorcycle" class="text-base-content/50"></fa-icon> {{ r.license_plate || '-' }}
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  class="toggle toggle-success toggle-sm"
+                  [checked]="r.is_active === 1"
+                  [title]="r.is_active === 1 ? 'ใช้งานอยู่ (กดเพื่อปิด)' : 'ปิดใช้งาน (กดเพื่อเปิด)'"
+                  (change)="toggleActive(r)"
+                />
+              </td>
+              <td>
+                <div class="flex justify-end gap-1">
+                  <button class="btn btn-sm btn-ghost" title="แก้ไข" (click)="openEdit(r)">
+                    <fa-icon [icon]="faPen"></fa-icon>
+                  </button>
+                  <button class="btn btn-sm btn-ghost text-error" title="ลบ" (click)="remove(r)">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- ฟอร์มเพิ่ม / แก้ไขไรเดอร์ (component ย่อย) -->
+@if (formOpen()) {
+  <app-rider-form [rider]="editingRider()" (saved)="onSaved()" (closed)="formOpen.set(false)"></app-rider-form>
+}

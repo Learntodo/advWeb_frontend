@@ -1,34 +1,36 @@
 <header class="bg-neutral text-neutral-content shadow-md sticky top-0 z-[1000]">
   <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 min-h-16">
-    <div class="navbar-start gap-1">
-      <!-- เมนูมือถือ -->
-      <div class="dropdown lg:hidden">
-        <button
-          tabindex="0"
-          class="btn btn-ghost btn-square text-neutral-content hover:bg-neutral-content/10"
-          aria-label="เมนู"
-        >
-          <fa-icon [icon]="faBars" size="lg"></fa-icon>
-        </button>
-        <ul
-          tabindex="0"
-          class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-56 p-2 shadow-lg"
-        >
-          @for (menu of menus; track menu.path) {
-            <li>
-              <a
-                [routerLink]="menu.path"
-                routerLinkActive="menu-active"
-                [routerLinkActiveOptions]="{ exact: menu.exact }"
-              >
-                <fa-icon [icon]="menu.icon" class="w-4"></fa-icon>{{ menu.label }}
-              </a>
-            </li>
-          }
-        </ul>
-      </div>
+    <div class="navbar-start w-auto gap-1">
+      <!-- เมนูมือถือ (เฉพาะเจ้าของร้าน) -->
+      @if (auth.isOwner()) {
+        <div class="dropdown lg:hidden">
+          <button
+            tabindex="0"
+            class="btn btn-ghost btn-square text-neutral-content hover:bg-neutral-content/10"
+            aria-label="เมนู"
+          >
+            <fa-icon [icon]="faBars" size="lg"></fa-icon>
+          </button>
+          <ul
+            tabindex="0"
+            class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-56 p-2 shadow-lg"
+          >
+            @for (menu of menus; track menu.path) {
+              <li>
+                <a
+                  [routerLink]="menu.path"
+                  routerLinkActive="menu-active"
+                  [routerLinkActiveOptions]="{ exact: menu.exact }"
+                >
+                  <fa-icon [icon]="menu.icon" class="w-4"></fa-icon>{{ menu.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
 
-      <a routerLink="/" class="flex items-center gap-3">
+      <a [routerLink]="auth.homePath()" class="flex items-center gap-3">
         <!-- โลโก้ร้าน (ไฟล์ public/logo.svg) -->
         <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-10 h-10 -rotate-6" />
         <span class="leading-tight">
@@ -38,21 +40,65 @@
       </a>
     </div>
 
-    <nav class="navbar-end hidden lg:flex">
-      <ul class="menu menu-horizontal gap-1 px-1">
-        @for (menu of menus; track menu.path) {
-          <li>
-            <a
-              [routerLink]="menu.path"
-              routerLinkActive="!bg-secondary !text-secondary-content"
-              [routerLinkActiveOptions]="{ exact: menu.exact }"
-              class="rounded-lg"
-            >
-              <fa-icon [icon]="menu.icon"></fa-icon>{{ menu.label }}
-            </a>
-          </li>
-        }
-      </ul>
-    </nav>
+    <div class="navbar-end w-auto flex-1 gap-1">
+      @if (auth.isOwner()) {
+        <nav class="hidden lg:flex">
+          <ul class="menu menu-horizontal gap-1 px-1">
+            @for (menu of menus; track menu.path) {
+              <li>
+                <a
+                  [routerLink]="menu.path"
+                  routerLinkActive="!bg-secondary !text-secondary-content"
+                  [routerLinkActiveOptions]="{ exact: menu.exact }"
+                  class="rounded-lg"
+                >
+                  <fa-icon [icon]="menu.icon"></fa-icon>{{ menu.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </nav>
+      }
+
+      <!-- เมนูผู้ใช้: ชื่อ, เปลี่ยนรหัสผ่าน, ออกจากระบบ (แสดงเมื่อ login แล้ว) -->
+      @if (auth.user(); as user) {
+        <div class="dropdown dropdown-end">
+          <button
+            tabindex="0"
+            class="btn btn-ghost text-neutral-content hover:bg-neutral-content/10 px-2"
+            aria-label="เมนูผู้ใช้"
+          >
+            <fa-icon [icon]="faCircleUser" size="lg"></fa-icon>
+            <span class="hidden sm:inline max-w-32 truncate">{{ user.first_name }}</span>
+          </button>
+          <ul
+            tabindex="0"
+            class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-56 p-2 shadow-lg"
+          >
+            <li class="menu-title">
+              {{ user.first_name }} {{ user.last_name }}
+              <span class="font-normal"
+                >{{ user.role === 'owner' ? 'เจ้าของร้าน' : 'ไรเดอร์' }} · {{ user.phone }}</span
+              >
+            </li>
+            <li>
+              <button (click)="passwordOpen.set(true)">
+                <fa-icon [icon]="faKey" class="w-4"></fa-icon>เปลี่ยนรหัสผ่าน
+              </button>
+            </li>
+            <li>
+              <button class="text-error" (click)="auth.logout()">
+                <fa-icon [icon]="faRightFromBracket" class="w-4"></fa-icon>ออกจากระบบ
+              </button>
+            </li>
+          </ul>
+        </div>
+      }
+    </div>
   </div>
 </header>
+
+<!-- ฟอร์มเปลี่ยนรหัสผ่าน -->
+@if (passwordOpen()) {
+  <app-password-form (closed)="passwordOpen.set(false)"></app-password-form>
+}

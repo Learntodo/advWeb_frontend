@@ -4,14 +4,28 @@ import { Customers } from './pages/customers/customers';
 import { Orders } from './pages/orders/orders';
 import { OrderDetail } from './pages/order-detail/order-detail';
 import { Nearby } from './pages/nearby/nearby';
+import { Riders } from './pages/riders/riders';
+import { Login } from './pages/login/login';
+import { RiderHome } from './pages/rider-home/rider-home';
 import { Pagenotfound } from './pages/pagenotfound/pagenotfound';
+import { guestGuard, ownerGuard, riderGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  { path: '', component: Home, title: 'ภาพรวม | ส่งด่วนมื้อเที่ยง' },
-  { path: 'customers', component: Customers, title: 'ลูกค้า | ส่งด่วนมื้อเที่ยง' },
-  { path: 'orders', component: Orders, title: 'ออเดอร์ | ส่งด่วนมื้อเที่ยง' },
-  { path: 'orders/:id', component: OrderDetail, title: 'รายละเอียดออเดอร์ | ส่งด่วนมื้อเที่ยง' },
-  { path: 'nearby', component: Nearby, title: 'ค้นหาตามระยะ | ส่งด่วนมื้อเที่ยง' },
+  { path: 'login', component: Login, canActivate: [guestGuard], title: 'เข้าสู่ระบบ | ส่งด่วนมื้อเที่ยง' },
+  // หน้าของเจ้าของร้าน (ต้อง login เป็นเจ้าของร้าน)
+  { path: '', component: Home, canActivate: [ownerGuard], title: 'ภาพรวม | ส่งด่วนมื้อเที่ยง' },
+  { path: 'customers', component: Customers, canActivate: [ownerGuard], title: 'ลูกค้า | ส่งด่วนมื้อเที่ยง' },
+  { path: 'orders', component: Orders, canActivate: [ownerGuard], title: 'ออเดอร์ | ส่งด่วนมื้อเที่ยง' },
+  {
+    path: 'orders/:id',
+    component: OrderDetail,
+    canActivate: [ownerGuard],
+    title: 'รายละเอียดออเดอร์ | ส่งด่วนมื้อเที่ยง',
+  },
+  { path: 'nearby', component: Nearby, canActivate: [ownerGuard], title: 'ค้นหาตามระยะ | ส่งด่วนมื้อเที่ยง' },
+  { path: 'riders', component: Riders, canActivate: [ownerGuard], title: 'ไรเดอร์ | ส่งด่วนมื้อเที่ยง' },
+  // หน้าของไรเดอร์ (ต้อง login เป็นไรเดอร์)
+  { path: 'rider', component: RiderHome, canActivate: [riderGuard], title: 'ใบงานของฉัน | ส่งด่วนมื้อเที่ยง' },
   // Wild Card Route สำหรับหน้าที่ไม่มีอยู่ (404)
   { path: '**', component: Pagenotfound },
 ];

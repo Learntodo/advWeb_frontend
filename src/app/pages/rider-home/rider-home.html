@@ -1,0 +1,28 @@
+@if (auth.user(); as user) {
+  <div class="max-w-md mx-auto flex flex-col gap-4">
+    <div>
+      <p class="text-sm text-base-content/70">สวัสดี</p>
+      <h1 class="font-display text-2xl">{{ user.first_name }} {{ user.last_name }}</h1>
+    </div>
+
+    <!-- ข้อมูลไรเดอร์ -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-4 gap-2">
+        <div><fa-icon [icon]="faPhone" class="w-5 text-base-content/50"></fa-icon> {{ user.phone }}</div>
+        <div>
+          <fa-icon [icon]="faMotorcycle" class="w-5 text-base-content/50"></fa-icon>
+          {{ user.license_plate || 'ยังไม่ได้ใส่ทะเบียนรถ' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ใบงานวันนี้ (รอระบบจัดเส้นทาง) -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-4 items-center text-center gap-2">
+        <fa-icon [icon]="faClipboardList" size="2x" class="text-base-content/40"></fa-icon>
+        <h2 class="font-display text-lg">ใบงานวันนี้</h2>
+        <p class="text-sm text-base-content/70">ยังไม่มีใบงาน รอเจ้าของร้านจัดเส้นทาง</p>
+      </div>
+    </div>
+  </div>
+}
