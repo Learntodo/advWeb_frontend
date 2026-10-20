@@ -16,12 +16,13 @@
       </div>
     </div>
 
-    <!-- ใบงานวันนี้ (รอระบบจัดเส้นทาง) -->
+    <!-- ใบงานวันนี้: กรอกเลขใบงานที่ได้จากร้าน -->
     <div class="card bg-base-100 shadow-sm">
       <div class="card-body p-4 items-center text-center gap-2">
-        <fa-icon [icon]="faClipboardList" size="2x" class="text-base-content/40"></fa-icon>
+        <fa-icon [icon]="faClipboardList" size="2x" class="text-primary"></fa-icon>
         <h2 class="font-display text-lg">ใบงานวันนี้</h2>
-        <p class="text-sm text-base-content/70">ยังไม่มีใบงาน รอเจ้าของร้านจัดเส้นทาง</p>
+        <p class="text-sm text-base-content/70">กรอกเลขใบงานที่ได้จากร้าน เพื่อดูจุดส่งของวันนี้</p>
+        <a routerLink="/job" class="btn btn-primary w-full">กรอกเลขใบงาน</a>
       </div>
     </div>
   </div>

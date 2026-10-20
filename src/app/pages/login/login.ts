@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faLock, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../services/auth';
@@ -9,7 +9,7 @@ import { Notify } from '../../services/notify';
 // หน้าเข้าสู่ระบบ ใช้ร่วมกันทั้งเจ้าของร้านและไรเดอร์ (เบอร์โทร + รหัสผ่าน)
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, FontAwesomeModule],
+  imports: [FormsModule, RouterModule, FontAwesomeModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

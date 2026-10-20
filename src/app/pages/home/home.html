@@ -8,6 +8,7 @@
   <h1 class="font-display text-3xl sm:text-4xl text-secondary mt-1">ออเดอร์วันนี้</h1>
 
   <div class="flex flex-wrap gap-2 mt-5 relative">
+    <a routerLink="/routes" class="btn btn-primary"><fa-icon [icon]="faRoute"></fa-icon>จัดเส้นทางส่ง</a>
     <button class="btn btn-secondary" (click)="simulate()" [disabled]="working()">
       <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์ 20–30 รายการ
     </button>

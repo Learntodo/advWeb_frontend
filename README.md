@@ -31,7 +31,15 @@
 | รายละเอียดออเดอร์ | `/orders/:id` | ข้อมูลออเดอร์ โทรหาลูกค้า แผนที่ ปุ่มนำทาง Google Maps เปลี่ยนสถานะ −/+ กล่อง | GET/PATCH/PUT/DELETE /orders/{id} |
 | ค้นหาตามระยะ | `/nearby` | คลิกแผนที่เลือกจุด แล้วแสดงลูกค้าในระยะ 1 กม. หรือออเดอร์ในระยะ 2 กม. เรียงตามระยะทาง | GET /customers/nearby, GET /orders/nearby |
 
-ส่วนจัดเส้นทางไรเดอร์ / ใบงานไรเดอร์ ยังไม่ได้ทำ เพราะ backend ยังไม่มี API ส่วนนี้
+| จัดเส้นทาง | `/routes` | กด "จัดเส้นทาง" ได้ 3 แผน แผนที่ใหญ่เส้นสีแยกตามไรเดอร์ (คนที่ 1 แดง, 2 เขียว, 3 น้ำเงิน, ...) สรุปยอดขาย ต้นทุน ค่าไรเดอร์ กำไร/ขาดทุน เวลาส่งเสร็จ, ปุ่ม "คำนวณใหม่" เสนอแผนอื่น, "ใช้แผนนี้" ออกใบงานพร้อมเลขใบงาน, กดการ์ดไรเดอร์เพื่อดูเส้นทางคนเดียว | POST /routes/plan, POST/GET/DELETE /routes |
+| ไรเดอร์ | `/riders` | เพิ่ม/แก้/ลบ/ปิดใช้งาน บัญชีไรเดอร์ | GET/POST /riders, PUT/DELETE /riders/{id} |
+| ใบงานไรเดอร์ (มือถือ) | `/job` | ไม่ต้อง login กรอกเลขใบงาน (หรือเปิดลิงก์ `/job?code=...`) เห็นจำนวนกล่องที่ต้องหยิบ จุดส่งเรียงลำดับ เวลาถึง ปุ่มโทร ปุ่มนำทางแต่ละจุด และปุ่มเปิด Google Maps ทั้งเส้นทาง | GET /jobs/{code} |
+
+หน้า `/login` ใช้ร่วมกันทั้งเจ้าของร้านและไรเดอร์ ไรเดอร์ที่ login แล้วไปหน้า `/rider` (มีปุ่มไปกรอกเลขใบงาน)
+
+ความปลอดภัยของหน้าเว็บ (`vercel.json`): Content-Security-Policy (โหลดสคริปต์ได้จากเว็บตัวเองเท่านั้น),
+X-Frame-Options DENY (กันเอาหน้าเว็บไปซ้อนใน iframe), X-Content-Type-Options, Referrer-Policy
+และ Angular แสดงข้อความแบบ escape ให้อัตโนมัติ ข้อความใน popup แผนที่ใช้ `innerText` (กัน XSS)
 
 ## โครงสร้างไฟล์ (src/app)
 
@@ -55,6 +63,9 @@ pages/orders/order-add-form      ฟอร์มเพิ่มออเดอ�
 pages/orders/order-edit-form     ฟอร์มแก้ไขออเดอร์
 pages/order-detail               หน้ารายละเอียดออเดอร์ (/orders/:id)
 pages/nearby                     หน้าค้นหาตามระยะ
+pages/route-plan                 หน้าจัดเส้นทางส่ง (เจ้าของร้าน)
+pages/job-sheet                  หน้าใบงานไรเดอร์ (เปิดด้วยเลขใบงาน)
+services/api/routes.ts           เรียก /routes และ /jobs
 pages/pagenotfound               หน้า 404
 ```
 
@@ -69,5 +80,5 @@ pages/pagenotfound               หน้า 404
 ng build
 ```
 ผลลัพธ์อยู่ใน `dist/frontend/browser` อัปโหลดขึ้น GitHub แล้วเชื่อมกับ Vercel ตามสไลด์
-ก่อน deploy ให้แก้ `API_ENDPOINT` เป็น URL ของ backend บน Render และเพิ่ม URL ของ Vercel
+ก่อน deploy ให้แก้ `API_ENDPOINT` เป็น URL ของ backend บน Vercel และเพิ่ม URL ของหน้าเว็บ
 ลงใน `allowedOrigins` ของ `backend/app.ts` (ไม่อย่างนั้น CORS จะบล็อก)

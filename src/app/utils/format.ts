@@ -36,6 +36,19 @@ export function googleMapsLink(lat: string | number, lng: string | number): stri
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 }
 
+// ลิงก์เปิด Google Maps นำทางหลายจุดตามลำดับ (จุดแรก = ต้นทาง, จุดสุดท้าย = ปลายทาง, ที่เหลือ = จุดแวะ)
+export function googleMapsRouteLink(points: { lat: number; lng: number }[]): string {
+  const text = points.map((p) => `${p.lat},${p.lng}`);
+  const origin = text[0];
+  const destination = text[text.length - 1];
+  const waypoints = text.slice(1, -1).join('|');
+  let url = `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${origin}&destination=${destination}`;
+  if (waypoints !== '') {
+    url = url + `&waypoints=${encodeURIComponent(waypoints)}`;
+  }
+  return url;
+}
+
 // รายการสถานะทั้งหมดของออเดอร์ (ใช้วนลูปสร้างตัวเลือก)
 export const statuses: OrderStatus[] = ['pending', 'delivering', 'delivered', 'cancelled'];
 

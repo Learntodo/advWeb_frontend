@@ -29,6 +29,12 @@ export interface MapMarker {
   popup: string; // ข้อความตอนคลิกหมุด
 }
 
+// เส้นทางวิ่ง 1 เส้น (ใช้ในหน้าจัดเส้นทาง / ใบงาน) ลากจากจุดแรกไปจุดสุดท้ายตามลำดับ
+export interface MapLine {
+  points: LatLng[];
+  color: string;
+}
+
 // วงกลมรัศมี (ใช้ในหน้าค้นหาตามระยะ)
 export interface MapCircle {
   lat: number;
@@ -51,6 +57,7 @@ export class MapView implements AfterViewInit, OnDestroy {
   markers = input<MapMarker[]>([]); // หมุดที่จะแสดง
   picked = input<LatLng | null>(null); // จุดที่ผู้ใช้เลือก (แสดงเป็นจุดสีแดง)
   circle = input<MapCircle | null>(null); // วงกลมรัศมี
+  lines = input<MapLine[]>([]); // เส้นทางวิ่งของไรเดอร์ (แยกสีแต่ละคน)
   focus = input<LatLng | null>(null); // ถ้ามีค่า แผนที่จะเลื่อนไปที่จุดนี้
   autoZoom = input(true); // true = ซูมให้เห็นหมุดทั้งหมด
 
@@ -118,8 +125,15 @@ export class MapView implements AfterViewInit, OnDestroy {
     this.layer.clearLayers();
     this.drawShop();
 
-    // 1) หมุดลูกค้า / ออเดอร์
+    // 0) เส้นทางวิ่ง (วาดก่อนหมุด หมุดจะได้อยู่ด้านบนเส้น)
     const points: L.LatLngExpression[] = [];
+    for (const line of this.lines()) {
+      const latlngs: L.LatLngExpression[] = line.points.map((p) => [p.lat, p.lng]);
+      L.polyline(latlngs, { color: line.color, weight: 5, opacity: 0.85 }).addTo(this.layer);
+      for (const p of latlngs) points.push(p);
+    }
+
+    // 1) หมุดลูกค้า / ออเดอร์
     for (const m of this.markers()) {
       const marker = L.marker([m.lat, m.lng], { icon: this.pinIcon(m.label, m.color) });
 

@@ -1,0 +1,51 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
+import { Api } from '../../config/api';
+import { JobSheet, PlanResponse, SavedPlanResponse, SavePlanResponse } from '../../model/route';
+import { AffectedResponse } from '../../model/api-res';
+
+// เรียก Web API /routes (จัดเส้นทาง เฉพาะเจ้าของร้าน) และ /jobs (ใบงานไรเดอร์)
+@Injectable({
+  providedIn: 'root',
+})
+export class DeliveryRoutes {
+  http = inject(HttpClient);
+  api = inject(Api);
+  apiEndpoint = this.api.API_ENDPOINT;
+
+  // POST /routes/plan คำนวณแผนเส้นทาง 3 แบบ (round = ครั้งที่กดคำนวณใหม่)
+  public async plan(date: string, round: number) {
+    const url = `${this.apiEndpoint}/routes/plan`;
+    const response = await lastValueFrom(this.http.post(url, { date: date, round: round }));
+    return response as PlanResponse;
+  }
+
+  // POST /routes บันทึกแผนที่เลือก เป็นใบงานของวันนั้น (ส่งรหัสออเดอร์ของแต่ละเที่ยว เรียงตามลำดับส่ง)
+  public async save(date: string, routes: number[][]) {
+    const url = `${this.apiEndpoint}/routes`;
+    const response = await lastValueFrom(this.http.post(url, { date: date, routes: routes }));
+    return response as SavePlanResponse;
+  }
+
+  // GET /routes?date=.. ใบงานที่บันทึกไว้ของวันนั้น
+  public async getSaved(date: string) {
+    const url = `${this.apiEndpoint}/routes`;
+    const response = await lastValueFrom(this.http.get(url, { params: { date: date } }));
+    return response as SavedPlanResponse;
+  }
+
+  // DELETE /routes?date=.. ยกเลิกใบงานทั้งหมดของวันนั้น
+  public async deleteSaved(date: string) {
+    const url = `${this.apiEndpoint}/routes`;
+    const response = await lastValueFrom(this.http.delete(url, { params: { date: date } }));
+    return response as AffectedResponse;
+  }
+
+  // GET /jobs/{code} เปิดใบงานด้วยเลขใบงาน (ไม่ต้อง login)
+  public async job(code: string) {
+    const url = `${this.apiEndpoint}/jobs/${encodeURIComponent(code)}`;
+    const response = await lastValueFrom(this.http.get(url));
+    return response as JobSheet;
+  }
+}

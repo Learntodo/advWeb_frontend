@@ -1,0 +1,116 @@
+<div class="max-w-md mx-auto flex flex-col gap-4">
+  @if (job(); as j) {
+    <!-- หัวใบงาน -->
+    <div class="card bg-neutral text-neutral-content shadow-sm">
+      <div class="card-body p-5 gap-1">
+        <p class="text-sm opacity-70">ใบงานวันที่ {{ thaiDate(j.delivery_date) }} · เลขใบงาน {{ j.code }}</p>
+        <h1 class="font-display text-2xl text-secondary">ไรเดอร์คนที่ {{ j.route_no }}</h1>
+        <p class="text-lg">
+          <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าวกล่องไปทั้งหมด
+          <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
+        </p>
+        <p class="text-sm opacity-80">
+          ส่ง {{ j.stops.length }} จุด · {{ j.total_km.toFixed(1) }} กม. · ออก 11:30 น. ถึงจุดสุดท้าย
+          {{ j.finish_time }} น. · ค่าส่งรอบนี้ {{ baht(j.rider_cost) }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ปุ่มเปิดแผนที่ทั้งเส้นทาง -->
+    <a class="btn btn-primary btn-lg" [href]="routeLink()" target="_blank" rel="noopener">
+      <fa-icon [icon]="faMapLocationDot"></fa-icon>เปิดแผนที่ขับตามเส้นทาง
+    </a>
+
+    <!-- จุดส่งเรียงตามลำดับ -->
+    <ol class="flex flex-col gap-3">
+      <li class="flex items-center gap-3 px-1 text-base-content/70">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
+          ><fa-icon [icon]="faHouse"></fa-icon
+        ></span>
+        ออกจากร้าน 11:30 น.
+      </li>
+      @for (s of j.stops; track s.order_id) {
+        <li class="card bg-base-100 shadow-sm">
+          <div class="card-body p-4 gap-2">
+            <div class="flex items-start gap-3">
+              <span
+                class="grid place-items-center w-9 h-9 rounded-full bg-primary text-primary-content font-display text-lg shrink-0"
+              >
+                {{ s.seq }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="font-display text-lg">จุดที่ {{ s.seq }} ส่งบ้านคุณ{{ s.first_name }} {{ s.last_name }}</p>
+                <p class="text-sm text-base-content/70">{{ s.delivery_address }}</p>
+                <p class="text-sm">
+                  <span class="font-bold">{{ s.quantity }} กล่อง</span> · ถึงประมาณ {{ s.eta }} น. ·
+                  {{ s.distance_km.toFixed(1) }} กม. จากจุดก่อน
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a class="btn btn-sm btn-outline" href="tel:{{ s.phone }}"
+                ><fa-icon [icon]="faPhone"></fa-icon>{{ s.phone }}</a
+              >
+              <a
+                class="btn btn-sm btn-outline"
+                [href]="googleMapsLink(s.latitude, s.longitude)"
+                target="_blank"
+                rel="noopener"
+              >
+                <fa-icon [icon]="faLocationArrow"></fa-icon>นำทาง
+              </a>
+            </div>
+          </div>
+        </li>
+      }
+      <li class="flex items-center gap-3 px-1 text-base-content/70">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
+          ><fa-icon [icon]="faHouse"></fa-icon
+        ></span>
+        ส่งครบแล้ว ขับกลับร้าน
+      </li>
+    </ol>
+
+    <!-- แผนที่เส้นทาง -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-3">
+        <app-map-view class="h-72" [markers]="markers()" [lines]="lines()"></app-map-view>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" (click)="reset()">เปิดใบงานอื่น</button>
+  } @else {
+    <!-- กรอกเลขใบงาน -->
+    <div class="card bg-base-100 shadow-md mt-6">
+      <form class="card-body gap-3" (submit)="open(); $event.preventDefault()">
+        <div class="flex flex-col items-center text-center gap-2 mb-2">
+          <fa-icon [icon]="faClipboardList" size="3x" class="text-primary"></fa-icon>
+          <h1 class="font-display text-2xl">ใบงานไรเดอร์</h1>
+          <p class="text-sm text-base-content/70">กรอกเลขใบงาน 8 หลักที่ได้จากร้าน</p>
+        </div>
+        <input
+          class="input input-lg w-full text-center font-mono tracking-widest uppercase"
+          name="code"
+          placeholder="เช่น K7Q2MX9P"
+          maxlength="12"
+          autocomplete="off"
+          [(ngModel)]="codeText"
+        />
+        @if (errorMessage()) {
+          <div role="alert" class="alert alert-error text-sm py-2">{{ errorMessage() }}</div>
+        }
+        <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
+          @if (loading()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          ดูใบงาน
+        </button>
+        @if (auth.user() === null) {
+          <a routerLink="/login" class="link text-sm text-center text-base-content/70"
+            >เจ้าของร้าน / ไรเดอร์ เข้าสู่ระบบ</a
+          >
+        }
+      </form>
+    </div>
+  }
+</div>

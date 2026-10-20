@@ -10,6 +10,7 @@ import {
   faLocationCrosshairs,
   faMotorcycle,
   faRightFromBracket,
+  faRoute,
   faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../services/auth';
@@ -36,6 +37,7 @@ export class Header {
     { path: '/', label: 'ภาพรวม', icon: faHouse, exact: true },
     { path: '/customers', label: 'ลูกค้า', icon: faUsers, exact: false },
     { path: '/orders', label: 'ออเดอร์', icon: faBoxOpen, exact: false },
+    { path: '/routes', label: 'จัดเส้นทาง', icon: faRoute, exact: false },
     { path: '/nearby', label: 'ค้นหาตามระยะ', icon: faLocationCrosshairs, exact: false },
     { path: '/riders', label: 'ไรเดอร์', icon: faMotorcycle, exact: false },
   ];
