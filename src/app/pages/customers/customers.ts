@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faCartPlus,
+  faFlask,
   faMagnifyingGlass,
   faPen,
   faPhone,
@@ -16,6 +17,7 @@ import { Customers as CustomersApi } from '../../services/api/customers';
 import { CustomerGetResponse } from '../../model/customer-get-res';
 import { MapMarker, MapView, LatLng } from '../../components/map-view/map-view';
 import { Notify } from '../../services/notify';
+import { Simulate as SimulateApi } from '../../services/api/simulate';
 import { CustomerForm } from './customer-form/customer-form';
 
 // หน้าจัดการลูกค้า (HW-5 ข้อ 2)
@@ -29,6 +31,7 @@ export class Customers {
   customersApi = inject(CustomersApi);
   notify = inject(Notify);
   router = inject(Router);
+  simulateApi = inject(SimulateApi);
 
   // query param ?add=1 ให้เปิดฟอร์มเพิ่มลูกค้าทันที (ส่งมาจากหน้าอื่น)
   add = input<string>();
@@ -40,10 +43,12 @@ export class Customers {
   faXmark = faXmark;
   faPhone = faPhone;
   faCartPlus = faCartPlus;
+  faFlask = faFlask;
 
   allCustomers = signal<CustomerGetResponse[]>([]); // ลูกค้าทั้งหมด
   customers = signal<CustomerGetResponse[]>([]); // ลูกค้าที่แสดงในตาราง (อาจเป็นผลค้นหา)
   loading = signal(true);
+  simulating = signal(false); // กำลังจำลองลูกค้า
   keyword = signal(''); // ข้อความในช่องค้นหา
   searchedText = signal(''); // คำที่ค้นหาล่าสุด
   selectedId = signal<number | null>(null); // ลูกค้าที่คลิกเลือก
@@ -89,6 +94,19 @@ export class Customers {
       this.notify.apiError(err, 'โหลดข้อมูลลูกค้าไม่สำเร็จ');
     }
     this.loading.set(false);
+  }
+
+  // POST /simulate/customers จำลองลูกค้า 15 คน (ที่อยู่ในระยะ 3 กม. จากร้าน)
+  async simulate() {
+    this.simulating.set(true);
+    try {
+      const res = await this.simulateApi.customers(15);
+      this.notify.success(`เพิ่มลูกค้าจำลอง ${res.affected_row} คน`);
+      await this.loadCustomers();
+    } catch (err) {
+      this.notify.apiError(err, 'จำลองลูกค้าไม่สำเร็จ');
+    }
+    this.simulating.set(false);
   }
 
   // ค้นหาลูกค้า

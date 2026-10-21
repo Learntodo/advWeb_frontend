@@ -6,7 +6,12 @@
       ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · ไรเดอร์รับได้คนละไม่เกิน 3 ออเดอร์
     </p>
   </div>
-  <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มไรเดอร์</button>
+  <div class="flex flex-wrap gap-2">
+    <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">
+      <fa-icon [icon]="faFlask"></fa-icon>จำลองไรเดอร์ 5 คน
+    </button>
+    <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มไรเดอร์</button>
+  </div>
 </div>
 
 <div class="card bg-base-100 shadow-sm overflow-hidden">

@@ -1,10 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faMotorcycle, faPen, faPhone, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faFlask, faMotorcycle, faPen, faPhone, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 // ชื่อ class ซ้ำกับ component นี้ (Riders) จึงตั้งชื่อใหม่ว่า RidersApi
 import { Riders as RidersApi } from '../../services/api/riders';
 import { RiderGetResponse } from '../../model/rider';
 import { Notify } from '../../services/notify';
+import { Simulate as SimulateApi } from '../../services/api/simulate';
 import { RiderForm } from './rider-form/rider-form';
 
 // หน้าจัดการข้อมูลไรเดอร์ (เฉพาะเจ้าของร้าน)
@@ -17,15 +18,18 @@ import { RiderForm } from './rider-form/rider-form';
 export class Riders {
   ridersApi = inject(RidersApi);
   notify = inject(Notify);
+  simulateApi = inject(SimulateApi);
 
   faUserPlus = faUserPlus;
   faPen = faPen;
   faTrash = faTrash;
   faPhone = faPhone;
   faMotorcycle = faMotorcycle;
+  faFlask = faFlask;
 
   riders = signal<RiderGetResponse[]>([]);
   loading = signal(true);
+  simulating = signal(false); // กำลังจำลองไรเดอร์
   activeCount = computed(() => this.riders().filter((r) => r.is_active === 1).length);
 
   // ฟอร์มเพิ่ม / แก้ไข
@@ -34,6 +38,19 @@ export class Riders {
 
   ngOnInit() {
     this.loadRiders();
+  }
+
+  // POST /simulate/riders จำลองไรเดอร์ 5 คน (เบอร์ 0990000001, ... รหัสผ่าน 123456)
+  async simulate() {
+    this.simulating.set(true);
+    try {
+      const res = await this.simulateApi.riders(5);
+      this.notify.success(`เพิ่มไรเดอร์จำลอง ${res.affected_row} คน (รหัสผ่าน 123456)`);
+      await this.loadRiders();
+    } catch (err) {
+      this.notify.apiError(err, 'จำลองไรเดอร์ไม่สำเร็จ');
+    }
+    this.simulating.set(false);
   }
 
   // GET /riders โหลดไรเดอร์ทั้งหมด

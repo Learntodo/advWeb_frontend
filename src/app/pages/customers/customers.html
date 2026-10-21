@@ -6,7 +6,12 @@
       ทั้งหมด {{ allCustomers().length }} คน · คลิกที่รายชื่อเพื่อดูบ้านลูกค้าบนแผนที่
     </p>
   </div>
-  <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มลูกค้า</button>
+  <div class="flex flex-wrap gap-2">
+    <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">
+      <fa-icon [icon]="faFlask"></fa-icon>จำลองลูกค้า 15 คน
+    </button>
+    <button class="btn btn-primary" (click)="openAdd()"><fa-icon [icon]="faUserPlus"></fa-icon>เพิ่มลูกค้า</button>
+  </div>
 </div>
 
 <div class="grid gap-5 lg:grid-cols-5">
