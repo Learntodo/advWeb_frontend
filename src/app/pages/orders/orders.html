@@ -2,43 +2,78 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ออเดอร์</h1>
-    <p class="text-base-content/70 text-sm">
-      ทั้งหมด {{ orders().length }} รายการ · จำลองไว้ {{ simulatedCount() }} รายการ
-    </p>
+    <p class="text-base-content/70 text-sm">รายการสั่งข้าวกล่องของลูกค้า · กดที่แถวเพื่อดูจุดส่งบนแผนที่</p>
   </div>
-  <div class="flex flex-wrap gap-2">
-    <button class="btn btn-outline" (click)="simulate()" [disabled]="working()">
-      <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์ 20–30 รายการ
-    </button>
-    <button
-      class="btn btn-outline btn-error"
-      (click)="clearSimulated()"
-      [disabled]="working() || simulatedCount() === 0"
-    >
-      <fa-icon [icon]="faBroom"></fa-icon>ล้างออเดอร์จำลอง
-    </button>
-    <button class="btn btn-primary" (click)="openAdd(null)"><fa-icon [icon]="faPlus"></fa-icon>เพิ่มออเดอร์</button>
+  <button class="btn btn-primary btn-lg" (click)="openAdd(null)">
+    <fa-icon [icon]="faPlus"></fa-icon>เพิ่มออเดอร์
+  </button>
+</div>
+
+<!-- เลือกวันที่ส่ง + ค้นหา -->
+<div class="card bg-base-100 shadow-sm mb-4">
+  <div class="card-body p-4 gap-3">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="font-medium">วันที่ส่ง</span>
+      <div class="join">
+        <button class="btn join-item" [class.btn-neutral]="isTodayFilter()" (click)="dateFilter.set(today())">
+          <fa-icon [icon]="faCalendarDay"></fa-icon>วันนี้
+        </button>
+        <button class="btn join-item" [class.btn-neutral]="dateFilter() === ''" (click)="dateFilter.set('')">
+          ทุกวัน
+        </button>
+      </div>
+      <input
+        type="date"
+        class="input outline-0 w-44"
+        aria-label="เลือกวันที่ส่ง"
+        [ngModel]="dateFilter()"
+        (ngModelChange)="dateFilter.set($event || '')"
+      />
+      <label class="input outline-0 w-full sm:w-64 sm:ml-auto">
+        <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
+        <input type="search" placeholder="ค้นหาชื่อ เบอร์โทร หรือรหัส" [(ngModel)]="keyword" />
+      </label>
+    </div>
+
+    <!-- แท็บสถานะ พร้อมจำนวน -->
+    <div role="tablist" class="tabs tabs-box flex-wrap">
+      <button role="tab" class="tab gap-2" [class.tab-active]="statusFilter() === ''" (click)="statusFilter.set('')">
+        ทั้งหมด <span class="badge badge-sm">{{ statusCounts()[''] }}</span>
+      </button>
+      @for (s of statuses; track s) {
+        <button role="tab" class="tab gap-2" [class.tab-active]="statusFilter() === s" (click)="statusFilter.set(s)">
+          <span class="w-2.5 h-2.5 rounded-full" [style.background]="statusColor[s]"></span>
+          {{ statusLabel[s] }}
+          <span class="badge badge-sm">{{ statusCounts()[s] }}</span>
+        </button>
+      }
+    </div>
   </div>
 </div>
 
-<!-- สรุปยอด -->
+<!-- สรุปยอดของออเดอร์ที่แสดงอยู่ -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ออเดอร์ที่แสดง</span>
-      <span class="font-display text-2xl">{{ summary().count }}</span>
+      <span class="text-sm text-base-content/70">จำนวนออเดอร์</span>
+      <span class="font-display text-2xl">{{ summary().count }} รายการ</span>
+      <span class="text-xs text-base-content/60">
+        {{ dateFilter() ? 'ส่งวันที่ ' + thaiDate(dateFilter()) : 'ทุกวัน' }}
+      </span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องส่ง</span>
+      <span class="text-sm text-base-content/70">ข้าวกล่อง</span>
       <span class="font-display text-2xl">{{ summary().boxes }} กล่อง</span>
+      <span class="text-xs text-base-content/60">ไม่นับที่ยกเลิก</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ยอดขาย</span>
       <span class="font-display text-2xl text-primary">{{ baht(summary().sales) }}</span>
+      <span class="text-xs text-base-content/60">กล่องละ {{ api.BOX_PRICE }} บาท</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
@@ -50,40 +85,6 @@
   </div>
 </div>
 
-<!-- ตัวกรอง -->
-<div class="flex flex-wrap items-center gap-2 mb-3">
-  <label class="input outline-0 w-full sm:w-64">
-    <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
-    <input type="search" placeholder="ชื่อ หรือ เบอร์โทร" [(ngModel)]="keyword" />
-  </label>
-
-  <button class="btn" [class.btn-secondary]="isTodayFilter()" (click)="toggleToday()">
-    <fa-icon [icon]="faCalendarDay"></fa-icon>วันนี้
-  </button>
-  <input type="date" class="input outline-0 w-40" [(ngModel)]="dateFilter" />
-
-  <select class="select outline-0 w-36" [(ngModel)]="statusFilter">
-    <option value="">ทุกสถานะ</option>
-    @for (s of statuses; track s) {
-      <option [value]="s">{{ statusLabel[s] }}</option>
-    }
-  </select>
-
-  <div class="join">
-    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
-      ทั้งหมด
-    </button>
-    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'real'" (click)="typeFilter.set('real')">
-      จริง
-    </button>
-    <button class="btn join-item" [class.btn-neutral]="typeFilter() === 'sim'" (click)="typeFilter.set('sim')">
-      จำลอง
-    </button>
-  </div>
-
-  <button class="btn btn-ghost btn-sm" (click)="clearFilters()"><fa-icon [icon]="faXmark"></fa-icon>ล้างตัวกรอง</button>
-</div>
-
 <div class="grid gap-5 xl:grid-cols-5">
   <!-- ตารางออเดอร์ -->
   <section class="xl:col-span-3 card bg-base-100 shadow-sm overflow-hidden min-w-0">
@@ -92,19 +93,29 @@
         <span class="loading loading-dots loading-lg text-primary"></span>
       </div>
     } @else if (filteredOrders().length === 0) {
-      <div class="p-10 text-center text-base-content/70">ไม่มีออเดอร์ (ลองกด “จำลองออเดอร์” หรือล้างตัวกรอง)</div>
+      <div class="p-10 text-center text-base-content/70 flex flex-col items-center gap-3">
+        <span>ไม่มีออเดอร์ตามที่เลือก</span>
+        <div class="flex flex-wrap justify-center gap-2">
+          <button class="btn btn-sm btn-outline" (click)="clearFilters(); dateFilter.set('')">ดูทุกวัน ทุกสถานะ</button>
+          <button class="btn btn-sm btn-primary" (click)="openAdd(null)">
+            <fa-icon [icon]="faPlus"></fa-icon>เพิ่มออเดอร์
+          </button>
+        </div>
+      </div>
     } @else {
       <div class="overflow-x-auto max-h-[70vh]">
         <table class="table table-sm table-pin-rows">
           <thead>
             <tr class="bg-base-200">
-              <th>#</th>
+              <th>รหัส</th>
               <th>ลูกค้า</th>
-              <th>กล่อง</th>
+              <th>จำนวนกล่อง</th>
               <th class="text-right">ยอด</th>
-              <th class="hidden sm:table-cell">วันส่ง</th>
+              @if (dateFilter() === '') {
+                <th class="hidden sm:table-cell">วันส่ง</th>
+              }
               <th>สถานะ</th>
-              <th></th>
+              <th class="text-right">จัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -115,16 +126,16 @@
                 [class.selected-row]="o.id === selectedId()"
                 (click)="select(o)"
               >
-                <td class="text-base-content/60">
-                  {{ o.id }}
+                <td>
+                  <span class="font-semibold">#{{ o.id }}</span>
                   @if (o.is_simulated === 1) {
-                    <span class="badge badge-xs badge-outline block mt-1">จำลอง</span>
+                    <span class="badge badge-xs badge-ghost block mt-1">จำลอง</span>
                   }
                 </td>
 
-                <td class="min-w-36">
+                <td class="min-w-32">
                   <div class="font-medium">{{ o.first_name }} {{ o.last_name }}</div>
-                  <div class="text-xs text-base-content/70">{{ o.phone }}</div>
+                  <div class="text-xs text-base-content/70">ลูกค้า #{{ o.customer_id }} · {{ o.phone }}</div>
                 </td>
 
                 <!-- ปุ่ม − / + จำนวนกล่อง (stopPropagation: ไม่ให้นับเป็นการคลิกแถว) ออเดอร์ที่กำลังส่ง (อยู่ในใบงาน) แก้ไม่ได้ -->
@@ -148,16 +159,26 @@
                       <fa-icon [icon]="faPlus"></fa-icon>
                     </button>
                   </div>
+                  @if (o.status === 'delivering') {
+                    <div class="text-xs text-base-content/60 mt-1">
+                      <fa-icon [icon]="faLock"></fa-icon> อยู่ในใบงานแล้ว
+                    </div>
+                  }
                 </td>
 
                 <td class="text-right whitespace-nowrap">{{ baht(o.total_price) }}</td>
-                <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(o.delivery_date) }}</td>
+                @if (dateFilter() === '') {
+                  <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(o.delivery_date) }}</td>
+                }
 
                 <!-- เปลี่ยนสถานะ: ใช้ #statusSelect อ้างถึง select แล้วส่งค่าเข้า function -->
                 <td (click)="$event.stopPropagation()">
                   <select
                     #statusSelect
-                    class="select select-xs w-24 outline-0"
+                    class="select select-sm w-26 outline-0 font-semibold border-2"
+                    [style.border-color]="statusColor[o.status]"
+                    [style.color]="statusColor[o.status]"
+                    title="เปลี่ยนสถานะ"
                     (change)="changeStatus(o, statusSelect.value); statusSelect.value = o.status"
                   >
                     @for (s of statuses; track s) {
@@ -167,15 +188,15 @@
                 </td>
 
                 <td (click)="$event.stopPropagation()">
-                  <div class="flex justify-end">
-                    <button class="btn btn-xs btn-ghost" title="ดูรายละเอียด" (click)="goDetail(o)">
-                      <fa-icon [icon]="faEye"></fa-icon>
+                  <div class="flex justify-end whitespace-nowrap">
+                    <button class="btn btn-xs btn-ghost" (click)="goDetail(o)">
+                      <fa-icon [icon]="faEye"></fa-icon>ดู
                     </button>
-                    <button class="btn btn-xs btn-ghost" title="แก้ไข" (click)="openEdit(o)">
-                      <fa-icon [icon]="faPen"></fa-icon>
+                    <button class="btn btn-xs btn-ghost" (click)="openEdit(o)">
+                      <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                     </button>
-                    <button class="btn btn-xs btn-ghost text-error" title="ลบ" (click)="remove(o)">
-                      <fa-icon [icon]="faTrash"></fa-icon>
+                    <button class="btn btn-xs btn-ghost text-error" (click)="remove(o)">
+                      <fa-icon [icon]="faTrash"></fa-icon>ลบ
                     </button>
                   </div>
                 </td>
@@ -192,7 +213,7 @@
     <div class="card bg-base-100 shadow-sm xl:sticky xl:top-24">
       <div class="card-body p-3 gap-2">
         <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-          <h2 class="font-display">จุดส่งบนแผนที่ (ตัวเลข = จำนวนกล่อง)</h2>
+          <h2 class="font-display">จุดส่งบนแผนที่ (ตัวเลข = รหัสออเดอร์)</h2>
           <div class="flex gap-1">
             @for (s of statuses; track s) {
               <span class="badge badge-sm {{ statusBadge[s] }}">{{ statusLabel[s] }}</span>
@@ -208,6 +229,39 @@
       </div>
     </div>
   </section>
+</div>
+
+<!-- ข้อมูลทดลอง (HW-5 ข้อ 3.1 / 3.2) -->
+<div class="card bg-base-100 shadow-sm mt-5">
+  <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
+    <span class="font-medium mr-2">ข้อมูลทดลอง</span>
+    <span class="text-sm text-base-content/60 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>
+    <div class="join">
+      <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
+        แสดงทั้งหมด
+      </button>
+      <button
+        class="btn btn-sm join-item"
+        [class.btn-neutral]="typeFilter() === 'real'"
+        (click)="typeFilter.set('real')"
+      >
+        เฉพาะจริง
+      </button>
+      <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'sim'" (click)="typeFilter.set('sim')">
+        เฉพาะจำลอง
+      </button>
+    </div>
+    <button class="btn btn-sm btn-outline" (click)="simulate()" [disabled]="working()">
+      <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์วันนี้ 20–30 รายการ
+    </button>
+    <button
+      class="btn btn-sm btn-outline btn-error"
+      (click)="clearSimulated()"
+      [disabled]="working() || simulatedCount() === 0"
+    >
+      <fa-icon [icon]="faBroom"></fa-icon>ล้างออเดอร์จำลอง
+    </button>
+  </div>
 </div>
 
 <!-- ฟอร์มเพิ่มออเดอร์ (component ย่อย) -->

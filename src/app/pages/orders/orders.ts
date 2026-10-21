@@ -7,12 +7,12 @@ import {
   faCalendarDay,
   faEye,
   faFlask,
+  faLock,
   faMagnifyingGlass,
   faMinus,
   faPen,
   faPlus,
   faTrash,
-  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 // ชื่อ class ซ้ำกับ component นี้ (Orders) จึงตั้งชื่อใหม่ว่า OrdersApi
 import { Orders as OrdersApi } from '../../services/api/orders';
@@ -61,15 +61,17 @@ export class Orders {
   faEye = faEye;
   faFlask = faFlask;
   faBroom = faBroom;
-  faXmark = faXmark;
   faMagnifyingGlass = faMagnifyingGlass;
   faCalendarDay = faCalendarDay;
+  faLock = faLock;
 
   baht = baht;
   thaiDate = thaiDate;
+  today = today;
   statuses = statuses;
   statusLabel = statusLabel;
   statusBadge = statusBadge;
+  statusColor = statusColor;
 
   orders = signal<OrderGetResponse[]>([]);
   customers = signal<CustomerGetResponse[]>([]);
@@ -80,7 +82,7 @@ export class Orders {
 
   // ตัวกรอง
   keyword = signal(''); // ชื่อ หรือ เบอร์โทร
-  dateFilter = signal(''); // วันที่ส่ง (YYYY-MM-DD) ว่าง = ทุกวัน
+  dateFilter = signal(today()); // วันที่ส่ง (YYYY-MM-DD) เริ่มที่วันนี้, ว่าง = ทุกวัน
   statusFilter = signal(''); // สถานะ ว่าง = ทุกสถานะ
   typeFilter = signal('all'); // all = ทั้งหมด, real = ออเดอร์จริง, sim = ออเดอร์จำลอง
 
@@ -98,6 +100,18 @@ export class Orders {
       }
     }
     return result.sort((a, b) => b.id - a.id);
+  });
+
+  // จำนวนออเดอร์ของแต่ละสถานะ (ตามตัวกรองอื่น) แสดงบนแท็บสถานะ
+  statusCounts = computed(() => {
+    const counts: Record<string, number> = { '': 0, pending: 0, delivering: 0, delivered: 0, cancelled: 0 };
+    for (const o of this.orders()) {
+      if (this.matchFilter(o, true)) {
+        counts[''] = (counts[''] ?? 0) + 1;
+        counts[o.status] = (counts[o.status] ?? 0) + 1;
+      }
+    }
+    return counts;
   });
 
   // จำนวนออเดอร์ที่จำลองไว้
@@ -119,7 +133,7 @@ export class Orders {
     return { count: this.filteredOrders().length, boxes: boxes, sales: sales, profit: profit };
   });
 
-  // หมุดบนแผนที่ (ตัวเลข = จำนวนกล่อง, สีตามสถานะ)
+  // หมุดบนแผนที่ (ตัวเลข = รหัสออเดอร์ ตรงกับตาราง, สีตามสถานะ)
   markers = computed(() => {
     const markers: MapMarker[] = [];
     for (const o of this.filteredOrders()) {
@@ -127,7 +141,7 @@ export class Orders {
         id: o.id,
         lat: Number(o.delivery_latitude),
         lng: Number(o.delivery_longitude),
-        label: String(o.quantity),
+        label: String(o.id),
         color: o.id === this.selectedId() ? '#dc2626' : statusColor[o.status],
         popup: `#${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${statusLabel[o.status]}\n${o.delivery_address}`,
       });
@@ -171,8 +185,8 @@ export class Orders {
     }
   }
 
-  // ตรวจว่าออเดอร์นี้ผ่านตัวกรองทุกข้อหรือไม่
-  matchFilter(o: OrderGetResponse): boolean {
+  // ตรวจว่าออเดอร์นี้ผ่านตัวกรองทุกข้อหรือไม่ (ignoreStatus = ไม่ดูตัวกรองสถานะ ใช้นับจำนวนบนแท็บ)
+  matchFilter(o: OrderGetResponse, ignoreStatus = false): boolean {
     const keyword = this.keyword().trim();
     if (keyword !== '') {
       const text = `${o.first_name} ${o.last_name} ${o.phone} #${o.id}`;
@@ -181,21 +195,12 @@ export class Orders {
     if (this.dateFilter() !== '' && toDateInput(o.delivery_date) !== this.dateFilter()) {
       return false;
     }
-    if (this.statusFilter() !== '' && o.status !== this.statusFilter()) {
+    if (!ignoreStatus && this.statusFilter() !== '' && o.status !== this.statusFilter()) {
       return false;
     }
     if (this.typeFilter() === 'real' && o.is_simulated === 1) return false;
     if (this.typeFilter() === 'sim' && o.is_simulated === 0) return false;
     return true;
-  }
-
-  // ปุ่ม "วันนี้": กดครั้งแรกกรองเฉพาะวันนี้ กดอีกครั้งยกเลิก
-  toggleToday() {
-    if (this.dateFilter() === today()) {
-      this.dateFilter.set('');
-    } else {
-      this.dateFilter.set(today());
-    }
   }
 
   isTodayFilter() {
@@ -204,7 +209,7 @@ export class Orders {
 
   clearFilters() {
     this.keyword.set('');
-    this.dateFilter.set('');
+    this.dateFilter.set(today());
     this.statusFilter.set('');
     this.typeFilter.set('all');
   }
