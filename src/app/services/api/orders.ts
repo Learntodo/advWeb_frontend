@@ -58,10 +58,11 @@ export class Orders {
     return response as AffectedResponse;
   }
 
-  // 3.1 POST /orders/simulate จำลองออเดอร์ 20-30 รายการ
-  public async simulate() {
+  // 3.1 POST /orders/simulate จำลองออเดอร์ 20-30 รายการของวันนี้
+  // ส่ง date / count มา = จำลองของวันที่นั้น ตามจำนวนที่กำหนด (ใช้ในหน้าจำลองระบบ)
+  public async simulate(date?: string, count?: number) {
     const url = `${this.apiEndpoint}/orders/simulate`;
-    const response = await lastValueFrom(this.http.post(url, {}));
+    const response = await lastValueFrom(this.http.post(url, { date: date, count: count }));
     return response as AffectedResponse;
   }
 

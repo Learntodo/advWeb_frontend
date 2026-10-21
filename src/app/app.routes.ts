@@ -9,6 +9,7 @@ import { Login } from './pages/login/login';
 import { RiderHome } from './pages/rider-home/rider-home';
 import { RoutePlan } from './pages/route-plan/route-plan';
 import { JobSheet } from './pages/job-sheet/job-sheet';
+import { Simulate } from './pages/simulate/simulate';
 import { Pagenotfound } from './pages/pagenotfound/pagenotfound';
 import { guestGuard, ownerGuard, riderGuard } from './guards/auth-guard';
 
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'nearby', component: Nearby, canActivate: [ownerGuard], title: 'ค้นหาตามระยะ | ส่งด่วนมื้อเที่ยง' },
   { path: 'riders', component: Riders, canActivate: [ownerGuard], title: 'ไรเดอร์ | ส่งด่วนมื้อเที่ยง' },
   { path: 'routes', component: RoutePlan, canActivate: [ownerGuard], title: 'จัดเส้นทาง | ส่งด่วนมื้อเที่ยง' },
+  { path: 'simulate', component: Simulate, canActivate: [ownerGuard], title: 'จำลองระบบ | ส่งด่วนมื้อเที่ยง' },
   // หน้าของไรเดอร์ (ต้อง login เป็นไรเดอร์)
   { path: 'rider', component: RiderHome, canActivate: [riderGuard], title: 'ใบงานของฉัน | ส่งด่วนมื้อเที่ยง' },
   // ใบงานไรเดอร์ เปิดด้วยเลขใบงาน (ไม่ต้อง login)

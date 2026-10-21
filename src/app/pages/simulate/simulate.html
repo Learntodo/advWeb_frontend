@@ -1,0 +1,188 @@
+<!-- หัวหน้า: วันที่ที่จะจำลอง + ปุ่มล้างข้อมูลจำลอง -->
+<div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+  <div>
+    <h1 class="font-display text-2xl sm:text-3xl">จำลองระบบ</h1>
+    <p class="text-base-content/70 text-sm">
+      สร้างข้อมูลจำลองไว้ทดสอบทั้งระบบ ทำตามลำดับ 1–6 · ข้อมูลจำลองล้างทิ้งได้ ไม่กระทบข้อมูลจริง
+    </p>
+  </div>
+  <div class="flex flex-wrap items-center gap-2">
+    <input
+      type="date"
+      class="input w-auto"
+      aria-label="วันที่ส่ง"
+      [ngModel]="date()"
+      (ngModelChange)="changeDate($event)"
+    />
+    <button
+      class="btn btn-outline btn-error"
+      (click)="clearAll()"
+      [disabled]="working() || !status() || status()!.customers + status()!.orders + status()!.riders === 0"
+    >
+      <fa-icon [icon]="faBroom"></fa-icon>ล้างข้อมูลจำลองทั้งหมด
+    </button>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="p-16 flex justify-center">
+    <span class="loading loading-dots loading-lg text-primary"></span>
+  </div>
+} @else {
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 items-start">
+    <!-- 1. ลูกค้า -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">1</span><fa-icon [icon]="faUsers"></fa-icon>ลูกค้าจำลอง
+        </h2>
+        <p class="text-sm text-base-content/70">
+          สุ่มชื่อ เบอร์ และที่อยู่ในระยะ 3 กม. จากร้าน · มีอยู่ {{ status()?.customers ?? 0 }} คน
+        </p>
+        <div class="join">
+          <input
+            type="number"
+            min="1"
+            max="50"
+            class="input join-item w-24"
+            aria-label="จำนวนลูกค้า"
+            [ngModel]="customerCount()"
+            (ngModelChange)="customerCount.set($event)"
+          />
+          <button class="btn btn-primary join-item" (click)="addCustomers()" [disabled]="working()">เพิ่มลูกค้า</button>
+        </div>
+        <a routerLink="/customers" class="link link-primary text-sm">ดูหน้าลูกค้า</a>
+      </div>
+    </div>
+
+    <!-- 2. ไรเดอร์ -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">2</span><fa-icon [icon]="faMotorcycle"></fa-icon>ไรเดอร์จำลอง
+        </h2>
+        <p class="text-sm text-base-content/70">
+          ใช้ login ทดสอบหน้าไรเดอร์ในมือถือ · รหัสผ่านทุกคน
+          <span class="font-mono font-semibold">{{ status()?.rider_password }}</span>
+        </p>
+        <div class="join">
+          <input
+            type="number"
+            min="1"
+            max="20"
+            class="input join-item w-24"
+            aria-label="จำนวนไรเดอร์"
+            [ngModel]="riderCount()"
+            (ngModelChange)="riderCount.set($event)"
+          />
+          <button class="btn btn-primary join-item" (click)="addRiders()" [disabled]="working()">เพิ่มไรเดอร์</button>
+        </div>
+        @if (status()?.sim_riders?.length) {
+          <ul class="text-sm max-h-32 overflow-y-auto divide-y divide-base-200">
+            @for (r of status()!.sim_riders; track r.id) {
+              <li class="py-1 flex justify-between gap-2">
+                <span class="truncate">{{ r.first_name }} {{ r.last_name }}</span>
+                <span class="font-mono">{{ r.phone }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <!-- 3. ออเดอร์ของวันที่เลือก -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">3</span><fa-icon [icon]="faBoxOpen"></fa-icon>ออเดอร์วันที่
+          {{ thaiDate(date()) }}
+        </h2>
+        <p class="text-sm text-base-content/70">
+          สุ่มจากลูกค้าในระยะ 3 กม. คนละ 1–3 กล่อง · รอส่ง {{ status()?.day?.pending ?? 0 }} · กำลังส่ง
+          {{ status()?.day?.delivering ?? 0 }} · ส่งแล้ว {{ status()?.day?.delivered ?? 0 }}
+        </p>
+        <div class="join">
+          <input
+            type="number"
+            min="1"
+            max="50"
+            class="input join-item w-24"
+            aria-label="จำนวนออเดอร์"
+            [ngModel]="orderCount()"
+            (ngModelChange)="orderCount.set($event)"
+          />
+          <button
+            class="btn btn-primary join-item"
+            (click)="addOrders()"
+            [disabled]="working() || (status()?.customers ?? 0) === 0"
+          >
+            เพิ่มออเดอร์
+          </button>
+        </div>
+        <a routerLink="/orders" class="link link-primary text-sm">ดูหน้าออเดอร์</a>
+      </div>
+    </div>
+
+    <!-- 4. จัดเส้นทาง -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">4</span><fa-icon [icon]="faRoute"></fa-icon>จัดเส้นทาง
+        </h2>
+        <p class="text-sm text-base-content/70">
+          ในหน้าจัดเส้นทาง กด “จัดเส้นทาง” เลือกแผน แล้วกดยืนยันเพื่อออกใบงานให้ไรเดอร์
+        </p>
+        <a
+          [routerLink]="['/routes']"
+          [queryParams]="{ date: date() }"
+          class="btn btn-secondary"
+          [class.btn-disabled]="(status()?.day?.pending ?? 0) + (status()?.day?.delivering ?? 0) === 0"
+        >
+          <fa-icon [icon]="faRoute"></fa-icon>ไปหน้าจัดเส้นทาง
+        </a>
+      </div>
+    </div>
+
+    <!-- 5. ใบงาน -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">5</span><fa-icon [icon]="faClipboardList"></fa-icon>เปิดใบงานไรเดอร์
+        </h2>
+        @if (status()?.routes?.length) {
+          <p class="text-sm text-base-content/70">
+            ใบงาน {{ status()!.routes.length }} ใบ · กดเปิดแบบไรเดอร์ หรือ login ไรเดอร์จำลองแล้วกรอกเลขใบงาน
+          </p>
+          <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+            @for (r of status()!.routes; track r.code) {
+              <a [href]="jobLink(r.code)" target="_blank" rel="noopener" class="btn btn-sm btn-outline font-mono">
+                {{ r.route_no }}: {{ r.code }}
+              </a>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-base-content/70">ยังไม่มีใบงานของวันนี้ (ทำข้อ 4 ก่อน)</p>
+        }
+      </div>
+    </div>
+
+    <!-- 6. ส่งเสร็จ -->
+    <div class="card bg-base-100 shadow-sm">
+      <div class="card-body p-5 gap-3">
+        <h2 class="card-title font-display">
+          <span class="badge badge-primary">6</span><fa-icon [icon]="faCircleCheck"></fa-icon>จำลองไรเดอร์ส่งเสร็จ
+        </h2>
+        <p class="text-sm text-base-content/70">
+          ออเดอร์ “กำลังส่ง” ของวันนี้ ({{ status()?.day?.delivering ?? 0 }} รายการ) เปลี่ยนเป็น “ส่งแล้ว”
+        </p>
+        <button
+          class="btn btn-success"
+          (click)="deliver()"
+          [disabled]="working() || (status()?.day?.delivering ?? 0) === 0"
+        >
+          <fa-icon [icon]="faCircleCheck"></fa-icon>ส่งเสร็จทั้งหมด
+        </button>
+      </div>
+    </div>
+  </div>
+}

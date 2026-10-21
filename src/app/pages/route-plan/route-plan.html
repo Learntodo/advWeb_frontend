@@ -195,7 +195,10 @@
       <fa-icon [icon]="faRoute" size="3x" class="text-base-content/30"></fa-icon>
       <h2 class="font-display text-xl">ยังไม่ได้จัดเส้นทางของวันที่ {{ thaiDate(date()) }}</h2>
       <p class="text-base-content/70">กดปุ่ม “จัดเส้นทาง” ให้ระบบแบ่งออเดอร์ให้ไรเดอร์ และเรียงจุดส่งให้</p>
-      <a routerLink="/orders" class="link link-primary text-sm">ดูออเดอร์ / จำลองออเดอร์</a>
+      <div class="flex flex-wrap justify-center gap-4 text-sm">
+        <a routerLink="/orders" class="link link-primary">ดูออเดอร์</a>
+        <a routerLink="/simulate" [queryParams]="{ date: date() }" class="link link-primary">จำลองข้อมูลของวันนี้</a>
+      </div>
     </div>
   </div>
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -41,6 +41,9 @@ export class RoutePlan {
   routesApi = inject(RoutesApi);
   notify = inject(Notify);
   api = inject(Api);
+
+  // ?date=YYYY-MM-DD จากลิงก์ในหน้าจำลองระบบ
+  dateQuery = input<string>(undefined, { alias: 'date' });
 
   faRoute = faRoute;
   faArrowsRotate = faArrowsRotate;
@@ -116,6 +119,10 @@ export class RoutePlan {
   });
 
   ngOnInit() {
+    const date = this.dateQuery();
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      this.date.set(date);
+    }
     this.loadSaved();
   }
 
