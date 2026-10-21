@@ -13,7 +13,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { DeliveryRoutes as RoutesApi } from '../../services/api/routes';
 import { JobSheet as JobSheetData } from '../../model/route';
-import { MapLine, MapMarker, MapView } from '../../components/map-view/map-view';
+import { LatLng, MapLine, MapMarker, MapView } from '../../components/map-view/map-view';
+import { Road } from '../../services/road';
 import { Notify } from '../../services/notify';
 import { Auth } from '../../services/auth';
 import { baht, googleMapsLink, googleMapsRouteLink, thaiDate } from '../../utils/format';
@@ -31,6 +32,7 @@ export class JobSheet {
   notify = inject(Notify);
   router = inject(Router);
   auth = inject(Auth);
+  road = inject(Road);
 
   // ?code=XXXXXXXX จากลิงก์
   code = input<string>();
@@ -50,6 +52,7 @@ export class JobSheet {
   job = signal<JobSheetData | null>(null);
   loading = signal(false);
   errorMessage = signal('');
+  roadLine = signal<LatLng[] | null>(null); // เส้นตามถนนจริง (null = ยังไม่ได้ / โหลดไม่ได้ ใช้เส้นตรง)
 
   // ลิงก์ Google Maps ทั้งเส้นทาง: ร้าน -> จุด 1 -> จุด 2 -> ... -> กลับร้าน
   routeLink = computed(() => {
@@ -79,14 +82,21 @@ export class JobSheet {
     return markers;
   });
 
-  lines = computed(() => {
+  // จุดที่วิ่งผ่าน: ร้าน -> จุดส่งตามลำดับ
+  stopPoints = computed(() => {
     const job = this.job();
     if (!job) return [];
-    const points = [job.shop];
+    const points: LatLng[] = [job.shop];
     for (const s of job.stops) {
       points.push({ lat: s.latitude, lng: s.longitude });
     }
-    const line: MapLine = { points: points, color: '#dc2626' };
+    return points;
+  });
+
+  // เส้นทางบนแผนที่ ตามถนนจริง (ระหว่างรอ / โหลดไม่ได้ แสดงเส้นตรง)
+  lines = computed(() => {
+    if (!this.job()) return [];
+    const line: MapLine = { points: this.roadLine() ?? this.stopPoints(), color: '#dc2626' };
     return [line];
   });
 
@@ -110,6 +120,8 @@ export class JobSheet {
     try {
       const job = await this.routesApi.job(code);
       this.job.set(job);
+      this.roadLine.set(null);
+      this.road.path(this.stopPoints()).then((line) => this.roadLine.set(line));
       // ใส่เลขใบงานใน URL ไว้ กดรีเฟรชแล้วยังอยู่หน้าเดิม
       this.router.navigate([], { queryParams: { code: job.code }, replaceUrl: true });
     } catch (err) {

@@ -47,6 +47,7 @@ export interface PlanInfo {
 // ผลลัพธ์จาก POST /routes/plan (เสนอ 3 แผน)
 export interface PlanResponse {
   date: string;
+  road_distance: boolean; // true = ระยะตามถนนจริง, false = ระยะโดยประมาณ (เชื่อมต่อแผนที่ถนนไม่ได้)
   plans: PlanInfo[];
 }
 

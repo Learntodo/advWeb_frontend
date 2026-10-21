@@ -33,6 +33,12 @@
 } @else if (current(); as plan) {
   <!-- แผนที่ระบบเสนอ (ยังไม่บันทึก) เลือกได้ 3 แบบ -->
   @if (isDraft()) {
+    <div role="alert" class="alert alert-info alert-soft mb-3">
+      <span
+        >ระบบคิดมาให้ 3 แผน (แผนแรกค่าไรเดอร์ถูกที่สุด) เลือกแผนที่ต้องการ แล้วกดปุ่มสีเขียว
+        <b>“ใช้แผนนี้ (ออกใบงาน)”</b> ถ้ายังไม่ถูกใจกด “คำนวณใหม่” เพื่อดูแผนอื่น</span
+      >
+    </div>
     <div class="flex flex-wrap items-center gap-2 mb-4">
       <div role="tablist" class="tabs tabs-box">
         @for (p of plans(); track $index) {
@@ -55,7 +61,7 @@
     <div role="alert" class="alert alert-success mb-4">
       <fa-icon [icon]="faClipboardList"></fa-icon>
       <span>ออกใบงานของวันที่ {{ thaiDate(date()) }} แล้ว ส่งเลขใบงานให้ไรเดอร์แต่ละคนเปิดดูในมือถือ</span>
-      <button class="btn btn-sm btn-ghost text-error" (click)="cancelSaved()" [disabled]="working()">
+      <button class="btn btn-sm bg-base-100 text-error border-0" (click)="cancelSaved()" [disabled]="working()">
         <fa-icon [icon]="faTrash"></fa-icon>ยกเลิกใบงาน
       </button>
     </div>
@@ -115,11 +121,14 @@
       <div class="card-body p-3 gap-2">
         <div class="flex items-center justify-between px-1">
           <h2 class="font-display">
-            เส้นทางไรเดอร์ (ตัวเลขในหมุด = ลำดับที่ส่ง)
+            เส้นทางไรเดอร์ตามถนน (ตัวเลขในหมุด = ลำดับที่ส่ง · กดการ์ดไรเดอร์เพื่อดูทีละคน)
             @if (onlyRoute() !== null) {
               · ดูเฉพาะคนที่ {{ onlyRoute() }}
             }
           </h2>
+          @if (isDraft() && !roadDistance()) {
+            <span class="badge badge-warning badge-sm">เชื่อมแผนที่ถนนไม่ได้ ใช้ระยะโดยประมาณ</span>
+          }
           @if (onlyRoute() !== null) {
             <button class="btn btn-xs btn-ghost" (click)="onlyRoute.set(null)">
               <fa-icon [icon]="faEye"></fa-icon>ดูทุกคน
@@ -173,14 +182,19 @@
                 <span class="text-sm"
                   >เลขใบงาน <span class="font-mono font-bold text-base tracking-wider">{{ r.code }}</span></span
                 >
-                <a
-                  class="btn btn-xs btn-outline"
-                  [href]="jobLink(r.code)"
-                  target="_blank"
-                  rel="noopener"
-                  (click)="$event.stopPropagation()"
-                  >เปิดใบงาน</a
-                >
+                <div class="flex gap-1">
+                  <button class="btn btn-xs btn-outline" (click)="copyLink(r.code); $event.stopPropagation()">
+                    <fa-icon [icon]="faCopy"></fa-icon>คัดลอกลิงก์
+                  </button>
+                  <a
+                    class="btn btn-xs btn-outline"
+                    [href]="jobLink(r.code)"
+                    target="_blank"
+                    rel="noopener"
+                    (click)="$event.stopPropagation()"
+                    >เปิดใบงาน</a
+                  >
+                </div>
               </div>
             }
           </div>

@@ -96,11 +96,11 @@ export class Customers {
     this.loading.set(false);
   }
 
-  // POST /simulate/customers จำลองลูกค้า 15 คน (ที่อยู่ในระยะ 3 กม. จากร้าน)
+  // POST /simulate/customers จำลองลูกค้า 30 คน (ที่อยู่ในระยะ 3 กม. จากร้าน)
   async simulate() {
     this.simulating.set(true);
     try {
-      const res = await this.simulateApi.customers(15);
+      const res = await this.simulateApi.customers(30);
       this.notify.success(`เพิ่มลูกค้าจำลอง ${res.affected_row} คน`);
       await this.loadCustomers();
     } catch (err) {

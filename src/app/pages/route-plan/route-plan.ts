@@ -1,14 +1,23 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowsRotate, faCheck, faClipboardList, faEye, faRoute, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowsRotate,
+  faCheck,
+  faClipboardList,
+  faCopy,
+  faEye,
+  faRoute,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 // ชื่อ class ซ้ำกับ Routes ของ Angular Router จึงตั้งชื่อใหม่ว่า RoutesApi
 import { DeliveryRoutes as RoutesApi } from '../../services/api/routes';
 import { PlanInfo, RouteInfo, SavedPlanResponse } from '../../model/route';
-import { MapLine, MapMarker, MapView } from '../../components/map-view/map-view';
+import { LatLng, MapLine, MapMarker, MapView } from '../../components/map-view/map-view';
 import { Notify } from '../../services/notify';
 import { Api } from '../../config/api';
+import { Road } from '../../services/road';
 import { baht, thaiDate, today } from '../../utils/format';
 
 // สีเส้นทางของไรเดอร์แต่ละคน (คนที่ 1 แดง, 2 เขียว, 3 น้ำเงิน, ...)
@@ -41,6 +50,7 @@ export class RoutePlan {
   routesApi = inject(RoutesApi);
   notify = inject(Notify);
   api = inject(Api);
+  road = inject(Road);
 
   // ?date=YYYY-MM-DD จากลิงก์ในหน้าจำลองระบบ
   dateQuery = input<string>(undefined, { alias: 'date' });
@@ -51,6 +61,7 @@ export class RoutePlan {
   faTrash = faTrash;
   faEye = faEye;
   faClipboardList = faClipboardList;
+  faCopy = faCopy;
 
   baht = baht;
   thaiDate = thaiDate;
@@ -63,6 +74,9 @@ export class RoutePlan {
   onlyRoute = signal<number | null>(null); // ดูเฉพาะไรเดอร์คนเดียว (null = ดูทุกคน)
   loading = signal(true);
   working = signal(false);
+  roadDistance = signal(true); // true = ระยะทางของแผนคิดตามถนนจริง
+  roadPaths = signal<Record<string, LatLng[]>>({}); // เส้นตามถนนจริงที่โหลดมาแล้ว (ชื่อเส้น -> พิกัดตลอดเส้น)
+  loadingPaths = new Set<string>(); // เส้นที่กำลังโหลดอยู่ (ไม่ขอซ้ำ)
 
   // แผนที่กำลังแสดง: ถ้ามีแผนที่เพิ่งคำนวณ แสดงแผนนั้น ไม่งั้นแสดงใบงานที่บันทึกไว้
   current = computed<PlanInfo | null>(() => {
@@ -79,15 +93,15 @@ export class RoutePlan {
   // true = กำลังดูแผนที่ยังไม่ได้บันทึก
   isDraft = computed(() => this.plans().length > 0);
 
-  // เส้นที่แสดงบนแผนที่ (ร้าน -> จุด 1 -> จุด 2 -> ...)
+  // เส้นที่แสดงบนแผนที่ (ร้าน -> จุด 1 -> จุด 2 -> ...) ตามถนนจริง
+  // ระหว่างรอโหลดเส้นถนน หรือโหลดไม่ได้ จะแสดงเป็นเส้นตรงไปก่อน
   lines = computed(() => {
     const lines: MapLine[] = [];
+    const paths = this.roadPaths();
     for (const r of this.visibleRoutes()) {
-      const points = [this.api.SHOP_LOCATION];
-      for (const s of r.stops) {
-        points.push({ lat: s.latitude, lng: s.longitude });
-      }
-      lines.push({ points: points, color: this.color(r) });
+      const points = this.stopPoints(r);
+      const road = paths[this.road.key(points)];
+      lines.push({ points: road ?? points, color: this.color(r) });
     }
     return lines;
   });
@@ -118,6 +132,31 @@ export class RoutePlan {
     return plan.routes.filter((r) => only === null || r.route_no === only);
   });
 
+  constructor() {
+    // เส้นทางที่แสดงเปลี่ยน -> โหลดเส้นตามถนนจริงของเส้นที่ยังไม่มี (ทีละเส้น)
+    effect(() => {
+      const paths = this.roadPaths();
+      for (const r of this.visibleRoutes()) {
+        const points = this.stopPoints(r);
+        const key = this.road.key(points);
+        if (paths[key] || this.loadingPaths.has(key)) continue;
+        this.loadingPaths.add(key);
+        this.road.path(points).then((line) => {
+          if (line) this.roadPaths.update((all) => ({ ...all, [key]: line }));
+        });
+      }
+    });
+  }
+
+  // จุดที่ไรเดอร์วิ่งผ่าน: ร้าน -> จุดส่งตามลำดับ
+  stopPoints(r: RouteInfo): LatLng[] {
+    const points: LatLng[] = [this.api.SHOP_LOCATION];
+    for (const s of r.stops) {
+      points.push({ lat: s.latitude, lng: s.longitude });
+    }
+    return points;
+  }
+
   ngOnInit() {
     const date = this.dateQuery();
     if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -134,6 +173,16 @@ export class RoutePlan {
   // ลิงก์ใบงานที่ส่งให้ไรเดอร์เปิดในมือถือ
   jobLink(code: string): string {
     return `${location.origin}/job?code=${code}`;
+  }
+
+  // คัดลอกลิงก์ใบงาน ไปวางส่งให้ไรเดอร์ทาง LINE / ข้อความ
+  async copyLink(code: string) {
+    try {
+      await navigator.clipboard.writeText(this.jobLink(code));
+      this.notify.success(`คัดลอกลิงก์ใบงาน ${code} แล้ว นำไปวางส่งให้ไรเดอร์ได้เลย`);
+    } catch (err) {
+      this.notify.error('คัดลอกไม่ได้ ให้บอกเลขใบงาน ' + code + ' กับไรเดอร์แทน');
+    }
   }
 
   // GET /routes?date= โหลดใบงานที่บันทึกแล้ว
@@ -162,6 +211,7 @@ export class RoutePlan {
     try {
       const res = await this.routesApi.plan(this.date(), round);
       this.plans.set(res.plans);
+      this.roadDistance.set(res.road_distance);
       this.selected.set(0);
       this.round.set(round);
       this.onlyRoute.set(null);

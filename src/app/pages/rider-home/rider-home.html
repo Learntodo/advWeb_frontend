@@ -18,12 +18,27 @@
 
     <!-- ใบงานวันนี้: กรอกเลขใบงานที่ได้จากร้าน -->
     <div class="card bg-base-100 shadow-sm">
-      <div class="card-body p-4 items-center text-center gap-2">
+      <form class="card-body p-5 items-center text-center gap-3" (submit)="open(); $event.preventDefault()">
         <fa-icon [icon]="faClipboardList" size="2x" class="text-primary"></fa-icon>
-        <h2 class="font-display text-lg">ใบงานวันนี้</h2>
-        <p class="text-sm text-base-content/70">กรอกเลขใบงานที่ได้จากร้าน เพื่อดูจุดส่งของวันนี้</p>
-        <a routerLink="/job" class="btn btn-primary w-full">กรอกเลขใบงาน</a>
-      </div>
+        <h2 class="font-display text-xl">เปิดใบงานวันนี้</h2>
+        <p class="text-base-content/70">พิมพ์เลขใบงาน 8 ตัวที่ได้จากร้าน แล้วกดปุ่ม “เปิดใบงาน”</p>
+        <input
+          type="text"
+          name="code"
+          class="input input-lg w-full text-center font-mono tracking-widest uppercase"
+          placeholder="เช่น K7Q2MX9P"
+          maxlength="12"
+          autocomplete="off"
+          aria-label="เลขใบงาน"
+          [ngModel]="codeText()"
+          (ngModelChange)="codeText.set($event); errorMessage.set('')"
+        />
+        @if (errorMessage()) {
+          <p class="text-error text-sm">{{ errorMessage() }}</p>
+        }
+        <button type="submit" class="btn btn-primary btn-lg w-full">เปิดใบงาน</button>
+        <p class="text-sm text-base-content/60">ถ้าร้านส่งลิงก์มาทาง LINE กดลิงก์นั้นได้เลย ไม่ต้องพิมพ์</p>
+      </form>
     </div>
   </div>
 }
