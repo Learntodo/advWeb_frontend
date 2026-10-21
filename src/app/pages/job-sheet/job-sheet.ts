@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faBowlRice,
+  faCircleCheck,
   faClipboardList,
   faHouse,
   faLocationArrow,
@@ -12,7 +13,7 @@ import {
   faPhone,
 } from '@fortawesome/free-solid-svg-icons';
 import { DeliveryRoutes as RoutesApi } from '../../services/api/routes';
-import { JobSheet as JobSheetData } from '../../model/route';
+import { JobSheet as JobSheetData, RouteStop } from '../../model/route';
 import { LatLng, MapLine, MapMarker, MapView } from '../../components/map-view/map-view';
 import { Road } from '../../services/road';
 import { Notify } from '../../services/notify';
@@ -20,7 +21,7 @@ import { Auth } from '../../services/auth';
 import { baht, googleMapsLink, googleMapsRouteLink, thaiDate } from '../../utils/format';
 
 // หน้าใบงานของไรเดอร์ (เปิดในมือถือ ไม่ต้อง login) กรอกเลขใบงานที่ได้จากร้าน
-// เปิดลิงก์ /job?code=XXXXXXXX ได้ใบงานทันที
+// เปิดลิงก์ /job?code=XXXXXXXX ได้ใบงานทันที, ไรเดอร์เจ้าของใบงานที่ login อยู่ กด "ส่งถึงแล้ว" ได้ทีละจุด
 @Component({
   selector: 'app-job-sheet',
   imports: [FormsModule, RouterModule, FontAwesomeModule, MapView],
@@ -43,6 +44,7 @@ export class JobSheet {
   faLocationArrow = faLocationArrow;
   faMapLocationDot = faMapLocationDot;
   faHouse = faHouse;
+  faCircleCheck = faCircleCheck;
 
   baht = baht;
   thaiDate = thaiDate;
@@ -52,7 +54,20 @@ export class JobSheet {
   job = signal<JobSheetData | null>(null);
   loading = signal(false);
   errorMessage = signal('');
-  roadLine = signal<LatLng[] | null>(null); // เส้นตามถนนจริง (null = ยังไม่ได้ / โหลดไม่ได้ ใช้เส้นตรง)
+  saving = signal<number | null>(null); // รหัสออเดอร์ที่กำลังบันทึกว่าส่งแล้ว
+  roadLine = signal<LatLng[] | null>(null); // เส้นตามถนนจริง (null = ยังโหลดไม่เสร็จ)
+  roadFailed = signal(false); // โหลดเส้นถนนไม่ได้ -> วาดเส้นตรงแทน
+
+  // กด "ส่งถึงแล้ว" ได้ไหม: ต้อง login เป็นไรเดอร์เจ้าของใบงาน หรือเจ้าของร้าน
+  canDeliver = computed(() => {
+    const user = this.auth.user();
+    const job = this.job();
+    if (!user || !job) return false;
+    return user.role === 'owner' || job.rider?.id === user.id;
+  });
+
+  // ส่งถึงแล้วกี่จุด
+  deliveredCount = computed(() => (this.job()?.stops ?? []).filter((s) => s.status === 'delivered').length);
 
   // ลิงก์ Google Maps ทั้งเส้นทาง: ร้าน -> จุด 1 -> จุด 2 -> ... -> กลับร้าน
   routeLink = computed(() => {
@@ -75,7 +90,7 @@ export class JobSheet {
         lat: s.latitude,
         lng: s.longitude,
         label: String(s.seq),
-        color: '#dc2626',
+        color: s.status === 'delivered' ? '#16a34a' : '#dc2626',
         popup: `จุดที่ ${s.seq} ${s.first_name} ${s.last_name}\n${s.quantity} กล่อง`,
       });
     }
@@ -93,10 +108,12 @@ export class JobSheet {
     return points;
   });
 
-  // เส้นทางบนแผนที่ ตามถนนจริง (ระหว่างรอ / โหลดไม่ได้ แสดงเส้นตรง)
+  // เส้นทางบนแผนที่ ตามถนนจริง (รอโหลดเสร็จก่อนค่อยวาด, โหลดไม่ได้ จึงวาดเส้นตรง)
   lines = computed(() => {
     if (!this.job()) return [];
-    const line: MapLine = { points: this.roadLine() ?? this.stopPoints(), color: '#dc2626' };
+    const points = this.roadLine() ?? (this.roadFailed() ? this.stopPoints() : null);
+    if (!points) return [];
+    const line: MapLine = { points: points, color: '#dc2626' };
     return [line];
   });
 
@@ -121,7 +138,11 @@ export class JobSheet {
       const job = await this.routesApi.job(code);
       this.job.set(job);
       this.roadLine.set(null);
-      this.road.path(this.stopPoints()).then((line) => this.roadLine.set(line));
+      this.roadFailed.set(false);
+      this.road.paths([this.stopPoints()]).then((lines) => {
+        if (lines) this.roadLine.set(lines[0] as LatLng[]);
+        else this.roadFailed.set(true);
+      });
       // ใส่เลขใบงานใน URL ไว้ กดรีเฟรชแล้วยังอยู่หน้าเดิม
       this.router.navigate([], { queryParams: { code: job.code }, replaceUrl: true });
     } catch (err) {
@@ -132,6 +153,23 @@ export class JobSheet {
       }
     }
     this.loading.set(false);
+  }
+
+  // PUT /jobs/{code}/stops/{orderId} กด "ส่งถึงแล้ว" (delivered = false คือกดผิด ย้อนกลับ)
+  async markDelivered(s: RouteStop, delivered: boolean) {
+    const job = this.job();
+    if (!job) return;
+    this.saving.set(s.order_id);
+    try {
+      await this.routesApi.markDelivered(job.code, s.order_id, delivered);
+      // อัปเดตสถานะในหน้าเลย ไม่ต้องโหลดใหม่ทั้งใบ
+      const status = delivered ? 'delivered' : 'delivering';
+      this.job.set({ ...job, stops: job.stops.map((x) => (x.order_id === s.order_id ? { ...x, status: status } : x)) });
+      if (delivered) this.notify.success(`บันทึกแล้ว: ส่งถึงคุณ${s.first_name} เรียบร้อย`);
+    } catch (err) {
+      this.notify.apiError(err, 'บันทึกไม่สำเร็จ');
+    }
+    this.saving.set(null);
   }
 
   // กลับไปกรอกเลขใบงานใหม่

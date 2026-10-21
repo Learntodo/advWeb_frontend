@@ -3,6 +3,7 @@ export interface SimulateStatus {
   customers: number; // ลูกค้าจำลองทั้งหมด
   orders: number; // ออเดอร์จำลองทั้งหมด (ทุกวัน)
   riders: number; // ไรเดอร์จำลองทั้งหมด
+  active_riders: number; // ไรเดอร์ที่เปิดใช้งานทั้งหมด (จริง + จำลอง) ใช้ดูว่าพอส่งไหม
   date: string;
   // จำนวนออเดอร์ของวันที่เลือก แยกตามสถานะ (รวมออเดอร์จริง)
   day: { pending: number; delivering: number; delivered: number; cancelled: number };

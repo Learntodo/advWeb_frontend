@@ -23,6 +23,8 @@ import { thaiDate, today } from '../../utils/format';
 const CUSTOMER_COUNT = 30;
 const RIDER_COUNT = 5;
 const ORDER_COUNT = 25;
+const MAX_ORDERS = 3; // ไรเดอร์ 1 คนรับได้ไม่เกิน 3 ออเดอร์
+const MAX_RIDERS_PER_CALL = 20; // API สร้างไรเดอร์ได้ครั้งละไม่เกิน 20 คน
 
 // หน้าจำลองระบบ (เจ้าของร้าน): สร้างข้อมูลจำลองเพื่อทดลองใช้ทั้งระบบผ่านหน้าเว็บ
 // ลูกค้า -> ไรเดอร์ -> ออเดอร์ของวันที่เลือก -> จัดเส้นทาง -> เปิดใบงาน -> ส่งเสร็จ -> ล้างข้อมูลจำลอง
@@ -66,12 +68,21 @@ export class Simulate {
     return day ? day.pending + day.delivering + day.delivered : 0;
   });
 
+  // ไรเดอร์ที่ต้องใช้อย่างน้อย สำหรับออเดอร์ที่ยังไม่ได้ส่งของวันที่เลือก
+  ridersNeeded = computed(() => {
+    const day = this.status()?.day;
+    return day ? Math.ceil((day.pending + day.delivering) / MAX_ORDERS) : 0;
+  });
+
+  // ไรเดอร์ยังขาดอีกกี่คน (0 = พอแล้ว)
+  ridersShort = computed(() => Math.max(0, this.ridersNeeded() - (this.status()?.active_riders ?? 0)));
+
   // ขั้นไหนทำแล้วบ้าง (ใช้ขึ้นเครื่องหมายถูก และบอกว่าขั้นต่อไปคืออะไร)
   done = computed(() => {
     const s = this.status();
     return [
       (s?.customers ?? 0) > 0,
-      (s?.riders ?? 0) > 0,
+      (s?.active_riders ?? 0) > 0 && this.ridersShort() === 0,
       this.dayOrders() > 0,
       (s?.routes.length ?? 0) > 0,
       (s?.routes.length ?? 0) > 0,
@@ -129,7 +140,21 @@ export class Simulate {
     this.working.set(false);
   }
 
-  // ปุ่มเดียวครบชุด: สร้างลูกค้า / ไรเดอร์ (ถ้ายังไม่พอ) และออเดอร์ของวันที่เลือก
+  // เพิ่มไรเดอร์จำลองให้พอกับออเดอร์ของวันที่เลือก (คืนจำนวนที่เพิ่ม)
+  async fillRiders(): Promise<number> {
+    const s = await this.simulateApi.status(this.date());
+    const day = s.day;
+    let short = Math.ceil((day.pending + day.delivering) / MAX_ORDERS) - s.active_riders;
+    let added = 0;
+    while (short > 0) {
+      const res = await this.simulateApi.riders(Math.min(short, MAX_RIDERS_PER_CALL));
+      added = added + res.affected_row;
+      short = short - res.affected_row;
+    }
+    return added;
+  }
+
+  // ปุ่มเดียวครบชุด: สร้างลูกค้า (ถ้ายังไม่พอ) ออเดอร์ของวันที่เลือก และไรเดอร์ให้พอส่ง
   quickStart() {
     this.run(async () => {
       const s = this.status();
@@ -137,11 +162,10 @@ export class Simulate {
       if ((s?.customers ?? 0) < ORDER_COUNT) {
         await this.simulateApi.customers(CUSTOMER_COUNT);
       }
-      if ((s?.riders ?? 0) === 0) {
-        await this.simulateApi.riders(RIDER_COUNT);
-      }
       const res = await this.ordersApi.simulate(this.date(), ORDER_COUNT);
-      return `พร้อมแล้ว! มีออเดอร์วันที่ ${thaiDate(this.date())} เพิ่ม ${res.affected_row} รายการ ไปจัดเส้นทางต่อได้เลย`;
+      const riders = await this.fillRiders();
+      const riderText = riders > 0 ? ` และไรเดอร์ ${riders} คน` : '';
+      return `พร้อมแล้ว! เพิ่มออเดอร์ ${res.affected_row} รายการ${riderText} ไปจัดเส้นทางต่อได้เลย`;
     }, 'สร้างข้อมูลจำลองไม่สำเร็จ');
   }
 
@@ -153,9 +177,12 @@ export class Simulate {
     }, 'จำลองลูกค้าไม่สำเร็จ');
   }
 
-  // POST /simulate/riders
+  // POST /simulate/riders (ไรเดอร์ไม่พอ = เพิ่มให้พอ, พอแล้ว = เพิ่มอีก RIDER_COUNT คน)
   addRiders() {
     this.run(async () => {
+      if (this.ridersShort() > 0) {
+        return `เพิ่มไรเดอร์จำลอง ${await this.fillRiders()} คน ตอนนี้ไรเดอร์พอส่งแล้ว`;
+      }
       const res = await this.simulateApi.riders(RIDER_COUNT);
       return `เพิ่มไรเดอร์จำลอง ${res.affected_row} คน`;
     }, 'จำลองไรเดอร์ไม่สำเร็จ');
@@ -165,7 +192,7 @@ export class Simulate {
   addOrders() {
     this.run(async () => {
       const res = await this.ordersApi.simulate(this.date(), ORDER_COUNT);
-      return `เพิ่มออเดอร์วันที่ ${thaiDate(this.date())} ${res.affected_row} รายการ`;
+      return `เพิ่มออเดอร์วันที่ ${thaiDate(this.date())} ${res.affected_row} รายการ (ดูขั้นที่ 2 ว่าไรเดอร์พอไหม)`;
     }, 'จำลองออเดอร์ไม่สำเร็จ');
   }
 

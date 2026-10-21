@@ -4,7 +4,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faArrowRight,
   faBowlRice,
+  faBoxOpen,
   faBroom,
+  faCheck,
+  faMotorcycle,
   faFlask,
   faLocationCrosshairs,
   faRoute,
@@ -12,6 +15,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Customers as CustomersApi } from '../../services/api/customers';
 import { Orders as OrdersApi } from '../../services/api/orders';
+import { DeliveryRoutes as RoutesApi } from '../../services/api/routes';
+import { SavedPlanResponse } from '../../model/route';
 import { CustomerGetResponse } from '../../model/customer-get-res';
 import { OrderGetResponse } from '../../model/order-get-res';
 import { MapMarker, MapView } from '../../components/map-view/map-view';
@@ -19,7 +24,7 @@ import { Notify } from '../../services/notify';
 import { Api } from '../../config/api';
 import { baht, statusBadge, statusColor, statusLabel, toDateInput, today } from '../../utils/format';
 
-// หน้าภาพรวมของเจ้าของร้าน: สรุปออเดอร์วันนี้ + ปุ่มจำลอง/ล้างออเดอร์
+// หน้าภาพรวมของเจ้าของร้าน: งานวันนี้ 3 ขั้น (ออเดอร์ -> จัดเส้นทาง -> ไรเดอร์ส่ง) + สรุปออเดอร์ + ปุ่มจำลอง/ล้างออเดอร์
 @Component({
   selector: 'app-home',
   imports: [RouterModule, FontAwesomeModule, MapView],
@@ -29,6 +34,7 @@ import { baht, statusBadge, statusColor, statusLabel, toDateInput, today } from 
 export class Home {
   customersApi = inject(CustomersApi);
   ordersApi = inject(OrdersApi);
+  routesApi = inject(RoutesApi);
   notify = inject(Notify);
   api = inject(Api);
 
@@ -39,6 +45,9 @@ export class Home {
   faUserPlus = faUserPlus;
   faLocationCrosshairs = faLocationCrosshairs;
   faRoute = faRoute;
+  faBoxOpen = faBoxOpen;
+  faMotorcycle = faMotorcycle;
+  faCheck = faCheck;
 
   baht = baht;
   statusLabel = statusLabel;
@@ -46,6 +55,7 @@ export class Home {
 
   customers = signal<CustomerGetResponse[]>([]);
   orders = signal<OrderGetResponse[]>([]);
+  routes = signal<SavedPlanResponse | null>(null); // ใบงานของวันนี้
   loading = signal(true);
   apiError = signal(false); // true = เรียก API ไม่ได้
   working = signal(false); // กำลังจำลอง / ล้างออเดอร์
@@ -87,6 +97,28 @@ export class Home {
     };
   });
 
+  // งานวันนี้ 3 ขั้น: แต่ละขั้นทำเสร็จหรือยัง และข้อความบอกสถานะ
+  steps = computed(() => {
+    const orders = this.summary().orders;
+    const r = this.routes();
+    const planned = (r?.routes.length ?? 0) > 0;
+    const need = Math.ceil(orders / 3);
+    const available = r?.riders_available ?? 0;
+    let routeText = 'ยังไม่ได้จัดเส้นทาง';
+    if (planned) routeText = `ออกใบงานแล้ว ${r?.routes.length} ใบ`;
+    else if (orders > 0 && available < need) routeText = `ไรเดอร์ไม่พอ (มี ${available} ต้องใช้ ${need} คน)`;
+    const delivered = r?.delivered ?? 0;
+    const total = r?.orders ?? 0;
+    return [
+      { done: orders > 0, text: orders > 0 ? `มี ${orders} ออเดอร์` : 'ยังไม่มีออเดอร์' },
+      { done: planned, text: routeText, warn: !planned && orders > 0 && available < need },
+      {
+        done: planned && total > 0 && delivered === total,
+        text: planned ? `ส่งถึงแล้ว ${delivered} จาก ${total} ออเดอร์` : 'รอจัดเส้นทางก่อน',
+      },
+    ];
+  });
+
   // จำนวนออเดอร์ที่จำลองไว้
   simulatedCount = computed(() => {
     return this.orders().filter((o) => o.is_simulated === 1).length;
@@ -121,8 +153,15 @@ export class Home {
   async loadData() {
     this.loading.set(true);
     try {
-      this.customers.set(await this.customersApi.getAll());
-      this.orders.set(await this.ordersApi.getAll());
+      // โหลดพร้อมกันทั้ง 3 อย่าง เร็วกว่าโหลดทีละอย่าง
+      const [customers, orders, routes] = await Promise.all([
+        this.customersApi.getAll(),
+        this.ordersApi.getAll(),
+        this.routesApi.getSaved(today()),
+      ]);
+      this.customers.set(customers);
+      this.orders.set(orders);
+      this.routes.set(routes);
       this.apiError.set(false);
     } catch (err) {
       this.apiError.set(true);

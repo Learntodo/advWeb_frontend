@@ -42,6 +42,27 @@ export class DeliveryRoutes {
     return response as AffectedResponse;
   }
 
+  // PUT /routes/{id} เปลี่ยนไรเดอร์ของใบงาน (ถ้าไรเดอร์คนนั้นมีใบงานอื่นอยู่ จะสลับกัน)
+  public async changeRider(id: number, riderId: number) {
+    const url = `${this.apiEndpoint}/routes/${id}`;
+    const response = await lastValueFrom(this.http.put(url, { rider_id: riderId }));
+    return response as AffectedResponse;
+  }
+
+  // GET /jobs?date=.. ใบงานของไรเดอร์ที่ login อยู่
+  public async myJobs(date: string) {
+    const url = `${this.apiEndpoint}/jobs`;
+    const response = await lastValueFrom(this.http.get(url, { params: { date: date } }));
+    return response as JobSheet[];
+  }
+
+  // PUT /jobs/{code}/stops/{orderId} ไรเดอร์กดว่าส่งถึงแล้ว (delivered = false คือกดผิด ย้อนกลับ)
+  public async markDelivered(code: string, orderId: number, delivered: boolean) {
+    const url = `${this.apiEndpoint}/jobs/${encodeURIComponent(code)}/stops/${orderId}`;
+    const response = await lastValueFrom(this.http.put(url, { delivered: delivered }));
+    return response as AffectedResponse;
+  }
+
   // GET /jobs/{code} เปิดใบงานด้วยเลขใบงาน (ไม่ต้อง login)
   public async job(code: string) {
     const url = `${this.apiEndpoint}/jobs/${encodeURIComponent(code)}`;

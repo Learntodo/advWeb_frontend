@@ -34,18 +34,18 @@ export class Notify {
     }
     // backend ส่ง error กลับมาในรูปแบบ { "error": "..." }
     if (err instanceof HttpErrorResponse && err.error?.error) {
-      this.error(`${title}: ${err.error.error} (${err.status})`);
+      this.error(`${title}: ${err.error.error}`);
       return;
     }
     this.error(title);
   }
 
-  // เพิ่มข้อความ แล้วลบออกเองหลัง 4 วินาที
+  // เพิ่มข้อความ แล้วลบออกเอง (สำเร็จ 4 วินาที, ผิดพลาด 8 วินาที ให้มีเวลาอ่าน)
   show(type: 'success' | 'error', text: string) {
     const id = this.nextId;
     this.nextId = this.nextId + 1;
     this.messages.set([...this.messages(), { id: id, type: type, text: text }]);
-    setTimeout(() => this.close(id), 4000);
+    setTimeout(() => this.close(id), type === 'error' ? 8000 : 4000);
   }
 
   close(id: number) {

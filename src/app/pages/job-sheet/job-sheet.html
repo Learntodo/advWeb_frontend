@@ -4,7 +4,9 @@
     <div class="card bg-neutral text-neutral-content shadow-sm">
       <div class="card-body p-5 gap-1">
         <p class="text-sm opacity-70">ใบงานวันที่ {{ thaiDate(j.delivery_date) }} · เลขใบงาน {{ j.code }}</p>
-        <h1 class="font-display text-2xl text-secondary">ไรเดอร์คนที่ {{ j.route_no }}</h1>
+        <h1 class="font-display text-2xl text-secondary">
+          เที่ยวที่ {{ j.route_no }}{{ j.rider ? ' · ' + j.rider.first_name + ' ' + j.rider.last_name : '' }}
+        </h1>
         <p class="text-lg">
           <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าวกล่องไปทั้งหมด
           <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
@@ -13,8 +15,25 @@
           ส่ง {{ j.stops.length }} จุด · {{ j.total_km.toFixed(1) }} กม. · ออก 11:30 น. ถึงจุดสุดท้าย
           {{ j.finish_time }} น. · ค่าส่งรอบนี้ {{ baht(j.rider_cost) }}
         </p>
+        <p class="text-sm mt-1">
+          ส่งถึงแล้ว <b class="text-secondary">{{ deliveredCount() }} / {{ j.stops.length }}</b> จุด
+        </p>
       </div>
     </div>
+
+    @if (!canDeliver()) {
+      <div role="alert" class="alert alert-soft text-sm py-2">
+        @if (auth.user() === null) {
+          <span
+            >ถ้าคุณเป็นไรเดอร์ของใบงานนี้
+            <a routerLink="/login" class="link link-primary">เข้าสู่ระบบ</a> ด้วยเบอร์โทรของตัวเอง จะกดบันทึก
+            “ส่งถึงแล้ว” ได้</span
+          >
+        } @else {
+          <span>ใบงานนี้ไม่ใช่ของคุณ ดูได้อย่างเดียว</span>
+        }
+      </div>
+    }
 
     <!-- ปุ่มเปิดแผนที่ทั้งเส้นทาง -->
     <a class="btn btn-primary btn-lg" [href]="routeLink()" target="_blank" rel="noopener">
@@ -30,13 +49,21 @@
         ออกจากร้าน 11:30 น.
       </li>
       @for (s of j.stops; track s.order_id) {
-        <li class="card bg-base-100 shadow-sm">
+        <li class="card bg-base-100 shadow-sm" [class.opacity-75]="s.status === 'delivered'">
           <div class="card-body p-4 gap-2">
             <div class="flex items-start gap-3">
               <span
-                class="grid place-items-center w-9 h-9 rounded-full bg-primary text-primary-content font-display text-lg shrink-0"
+                class="grid place-items-center w-9 h-9 rounded-full font-display text-lg shrink-0"
+                [class.bg-primary]="s.status !== 'delivered'"
+                [class.text-primary-content]="s.status !== 'delivered'"
+                [class.bg-success]="s.status === 'delivered'"
+                [class.text-success-content]="s.status === 'delivered'"
               >
-                {{ s.seq }}
+                @if (s.status === 'delivered') {
+                  <fa-icon [icon]="faCircleCheck"></fa-icon>
+                } @else {
+                  {{ s.seq }}
+                }
               </span>
               <div class="flex-1 min-w-0">
                 <p class="font-display text-lg">จุดที่ {{ s.seq }} ส่งบ้านคุณ{{ s.first_name }} {{ s.last_name }}</p>
@@ -60,6 +87,25 @@
                 <fa-icon [icon]="faLocationArrow"></fa-icon>นำทาง
               </a>
             </div>
+            @if (s.status === 'delivered') {
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-success font-bold"><fa-icon [icon]="faCircleCheck"></fa-icon> ส่งถึงแล้ว</span>
+                @if (canDeliver()) {
+                  <button class="btn btn-xs btn-ghost" (click)="markDelivered(s, false)" [disabled]="saving() !== null">
+                    กดผิด ย้อนกลับ
+                  </button>
+                }
+              </div>
+            } @else if (canDeliver()) {
+              <button class="btn btn-success w-full" (click)="markDelivered(s, true)" [disabled]="saving() !== null">
+                @if (saving() === s.order_id) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                } @else {
+                  <fa-icon [icon]="faCircleCheck"></fa-icon>
+                }
+                ส่งถึงแล้ว
+              </button>
+            }
           </div>
         </li>
       }

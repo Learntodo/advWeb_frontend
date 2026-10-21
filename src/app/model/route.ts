@@ -2,6 +2,7 @@
 export interface RouteStop {
   seq: number; // จุดที่ 1, 2, 3
   order_id: number;
+  customer_id: number;
   first_name: string;
   last_name: string;
   phone: string;
@@ -11,12 +12,23 @@ export interface RouteStop {
   quantity: number;
   distance_km: number; // ระยะจากจุดก่อนหน้า (จุดแรก = จากร้าน)
   eta: string; // เวลาถึงโดยประมาณ เช่น "11:42"
+  status?: 'pending' | 'delivering' | 'delivered' | 'cancelled'; // มีเมื่อบันทึกเป็นใบงานแล้ว
+}
+
+// ไรเดอร์ที่รับใบงาน
+export interface RouteRider {
+  id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
 }
 
 // 1 เที่ยว = งานของไรเดอร์ 1 คน
 export interface RouteInfo {
-  route_no: number; // ไรเดอร์คนที่
+  route_no: number; // เที่ยวที่
+  id?: number; // รหัสใบงาน (มีเมื่อบันทึกแล้ว)
   code?: string; // เลขใบงาน (มีเมื่อบันทึกแล้ว)
+  rider?: RouteRider | null; // ไรเดอร์ที่รับใบงาน (มีเมื่อบันทึกแล้ว)
   order_ids: number[];
   stops: RouteStop[];
   total_km: number;
@@ -48,18 +60,22 @@ export interface PlanInfo {
 export interface PlanResponse {
   date: string;
   road_distance: boolean; // true = ระยะตามถนนจริง, false = ระยะโดยประมาณ (เชื่อมต่อแผนที่ถนนไม่ได้)
+  riders_available: number; // ไรเดอร์ที่เปิดใช้งานอยู่ในระบบ
   plans: PlanInfo[];
 }
 
 // ผลลัพธ์จาก GET /routes (ใบงานที่บันทึกแล้วของวันนั้น)
 export interface SavedPlanResponse extends PlanInfo {
   date: string;
+  riders_available: number; // ไรเดอร์ที่เปิดใช้งานอยู่ในระบบ
+  delivered: number; // ส่งถึงลูกค้าแล้วกี่ออเดอร์ (มากกว่า 0 = ยกเลิก / จัดใหม่ไม่ได้)
+  waiting: number; // ออเดอร์ "รอส่ง" ที่ยังไม่อยู่ในใบงาน
 }
 
 // ผลลัพธ์จาก POST /routes (บันทึกแผน ได้เลขใบงาน)
 export interface SavePlanResponse {
   affected_row: number;
-  routes: { route_no: number; code: string }[];
+  routes: { route_no: number; code: string; rider_id: number }[];
 }
 
 // ใบงานไรเดอร์ จาก GET /jobs/{code}
@@ -67,6 +83,7 @@ export interface JobSheet {
   code: string;
   delivery_date: string;
   route_no: number;
+  rider: RouteRider | null;
   total_km: number;
   boxes: number;
   rider_cost: number;
