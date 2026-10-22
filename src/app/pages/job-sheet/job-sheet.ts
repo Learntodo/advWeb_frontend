@@ -55,7 +55,7 @@ export class JobSheet {
   loading = signal(false);
   errorMessage = signal('');
   saving = signal<number | null>(null); // รหัสออเดอร์ที่กำลังบันทึกว่าส่งแล้ว
-  roadLine = signal<LatLng[] | null>(null); // เส้นตามถนนจริง (null = ยังโหลดไม่เสร็จ)
+  roadLegs = signal<LatLng[][] | null>(null); // เส้นตามถนนจริงแยกเป็นช่วง (null = ยังโหลดไม่เสร็จ)
   roadFailed = signal(false); // โหลดเส้นถนนไม่ได้ -> วาดเส้นตรงแทน
 
   // กด "ส่งถึงแล้ว" ได้ไหม: ต้อง login เป็นไรเดอร์เจ้าของใบงาน หรือเจ้าของร้าน
@@ -109,12 +109,15 @@ export class JobSheet {
   });
 
   // เส้นทางบนแผนที่ ตามถนนจริง (รอโหลดเสร็จก่อนค่อยวาด, โหลดไม่ได้ จึงวาดเส้นตรง)
+  // แยกเป็นช่วง แผนที่จะค่อยๆ วาดทีละช่วง ร้าน -> จุด 1 -> จุด 2 ... พร้อมลูกศรบอกทิศ
   lines = computed(() => {
     if (!this.job()) return [];
-    const points = this.roadLine() ?? (this.roadFailed() ? this.stopPoints() : null);
-    if (!points) return [];
-    const line: MapLine = { points: points, color: '#dc2626' };
-    return [line];
+    const legs = this.roadLegs() ?? (this.roadFailed() ? this.road.straight(this.stopPoints()) : null);
+    if (!legs) return [];
+    return legs.map((leg, i) => {
+      const line: MapLine = { points: leg, color: '#dc2626', step: i + 1 };
+      return line;
+    });
   });
 
   ngOnInit() {
@@ -137,10 +140,10 @@ export class JobSheet {
     try {
       const job = await this.routesApi.job(code);
       this.job.set(job);
-      this.roadLine.set(null);
+      this.roadLegs.set(null);
       this.roadFailed.set(false);
       this.road.paths([this.stopPoints()]).then((lines) => {
-        if (lines) this.roadLine.set(lines[0] as LatLng[]);
+        if (lines) this.roadLegs.set(lines[0] as LatLng[][]);
         else this.roadFailed.set(true);
       });
       // ใส่เลขใบงานใน URL ไว้ กดรีเฟรชแล้วยังอยู่หน้าเดิม

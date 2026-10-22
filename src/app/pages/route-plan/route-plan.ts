@@ -88,7 +88,7 @@ export class RoutePlan {
   loading = signal(true);
   working = signal(false);
   roadDistance = signal(true); // true = ระยะทางของแผนคิดตามถนนจริง
-  roadPaths = signal<Record<string, LatLng[]>>({}); // เส้นตามถนนจริงที่โหลดมาแล้ว (ชื่อเส้น -> พิกัดตลอดเส้น)
+  roadPaths = signal<Record<string, LatLng[][]>>({}); // เส้นตามถนนจริงที่โหลดมาแล้ว (ชื่อเส้น -> พิกัดตลอดเส้นของแต่ละช่วง)
   roadFailed = signal(false); // โหลดเส้นถนนไม่ได้ -> วาดเส้นตรงแทน
   requested = new Set<string>(); // แผนที่ขอเส้นถนนไปแล้ว (ไม่ขอซ้ำ)
 
@@ -144,7 +144,8 @@ export class RoutePlan {
     return plan.routes.some((r) => !paths[this.road.key(this.stopPoints(r))]);
   });
 
-  // เส้นที่แสดงบนแผนที่ (ร้าน -> จุด 1 -> จุด 2 -> ...) ตามถนนจริง
+  // เส้นที่แสดงบนแผนที่ ตามถนนจริง แยกเป็นช่วง (ร้าน -> จุด 1, จุด 1 -> จุด 2, ...)
+  // แผนที่จะค่อยๆ วาดทีละช่วงตามลำดับ พร้อมลูกศรบอกทิศ ให้รู้ว่าไปจุดไหนก่อน
   // วาดเมื่อได้เส้นถนนครบแล้วเท่านั้น (ไม่วาดเส้นตรงก่อน) ถ้าโหลดเส้นถนนไม่ได้ จึงวาดเป็นเส้นตรง
   lines = computed(() => {
     const lines: MapLine[] = [];
@@ -152,7 +153,8 @@ export class RoutePlan {
     const paths = this.roadPaths();
     for (const r of this.visibleRoutes()) {
       const points = this.stopPoints(r);
-      lines.push({ points: paths[this.road.key(points)] ?? points, color: this.color(r) });
+      const legs = paths[this.road.key(points)] ?? this.road.straight(points);
+      legs.forEach((leg, i) => lines.push({ points: leg, color: this.color(r), step: i + 1 }));
     }
     return lines;
   });
@@ -202,8 +204,8 @@ export class RoutePlan {
           this.roadFailed.set(true);
           return;
         }
-        const add: Record<string, LatLng[]> = {};
-        trips.forEach((t, i) => (add[this.road.key(t)] = lines[i] as LatLng[]));
+        const add: Record<string, LatLng[][]> = {};
+        trips.forEach((t, i) => (add[this.road.key(t)] = lines[i] as LatLng[][]));
         this.roadPaths.update((all) => ({ ...all, ...add }));
       });
     });
