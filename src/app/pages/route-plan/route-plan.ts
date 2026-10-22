@@ -1,10 +1,13 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faArrowsRotate,
   faCheck,
+  faChevronDown,
+  faChevronRight,
   faCircleCheck,
   faCopy,
   faEye,
@@ -50,7 +53,7 @@ const MAX_ORDERS = 3;
 // ส่งได้หลายรอบต่อวัน: มีออเดอร์ใหม่เข้ามาหลังออกส่งแล้ว กด "จัดเส้นทางรอบใหม่" ให้ไรเดอร์ที่ว่างรับไป
 @Component({
   selector: 'app-route-plan',
-  imports: [FormsModule, RouterModule, FontAwesomeModule, MapView],
+  imports: [FormsModule, RouterModule, FontAwesomeModule, MapView, NgTemplateOutlet],
   templateUrl: './route-plan.html',
   styleUrl: './route-plan.css',
 })
@@ -67,6 +70,8 @@ export class RoutePlan {
   faRoute = faRoute;
   faArrowsRotate = faArrowsRotate;
   faCheck = faCheck;
+  faChevronDown = faChevronDown;
+  faChevronRight = faChevronRight;
   faTrash = faTrash;
   faEye = faEye;
   faCopy = faCopy;
@@ -90,6 +95,7 @@ export class RoutePlan {
   roadPaths = signal<Record<string, LatLng[][]>>({}); // เส้นตามถนนจริงที่โหลดมาแล้ว (ชื่อเส้น -> พิกัดตลอดเส้นของแต่ละช่วง)
   roadFailed = signal(false); // โหลดเส้นถนนไม่ได้ -> วาดเส้นตรงแทน
   requested = new Set<string>(); // แผนที่ขอเส้นถนนไปแล้ว (ไม่ขอซ้ำ)
+  openRounds = signal<Record<string, boolean>>({}); // รอบที่ผู้ใช้กดพับ / กางเอง (เวลาออกส่ง -> กางอยู่ไหม)
 
   // แผนที่กำลังแสดง: ถ้ามีแผนที่เพิ่งคำนวณ แสดงแผนนั้น ไม่งั้นแสดงใบงานที่บันทึกไว้
   current = computed<PlanInfo | null>(() => {
@@ -110,6 +116,25 @@ export class RoutePlan {
   allDelivered = computed(() => {
     const saved = this.saved();
     return !!saved && saved.orders > 0 && saved.delivered === saved.orders && saved.waiting === 0;
+  });
+
+  // ใบงานที่ออกส่งแล้ว จัดกลุ่มตามรอบ (เวลาออกส่งเดียวกัน = รอบเดียวกัน) เรียงจากรอบแรก
+  rounds = computed(() => {
+    const saved = this.saved();
+    const groups: { start_time: string; routes: RouteInfo[]; orders: number; delivered: number }[] = [];
+    if (!saved) return groups;
+    for (const r of saved.routes) {
+      const start = r.start_time ?? '';
+      let group = groups.find((g) => g.start_time === start);
+      if (!group) {
+        group = { start_time: start, routes: [], orders: 0, delivered: 0 };
+        groups.push(group);
+      }
+      group.routes.push(r);
+      group.orders = group.orders + r.stops.length;
+      group.delivered = group.delivered + this.deliveredOf(r);
+    }
+    return groups.sort((a, b) => a.start_time.localeCompare(b.start_time));
   });
 
   // รหัสออเดอร์นอกเขตส่ง เช่น "#12, #15"
@@ -221,6 +246,27 @@ export class RoutePlan {
     if (!start) return '';
     const h = (Number(start.slice(0, 2)) + 1) % 24;
     return String(h).padStart(2, '0') + start.slice(2);
+  }
+
+  // จำนวนจุดในเที่ยวนี้ที่ส่งถึงแล้ว
+  deliveredOf(r: RouteInfo): number {
+    return r.stops.filter((s) => s.status === 'delivered').length;
+  }
+
+  // เที่ยวนี้ส่งครบทุกจุดแล้ว
+  routeDone(r: RouteInfo): boolean {
+    return this.deliveredOf(r) === r.stops.length;
+  }
+
+  // รอบนี้กางอยู่ไหม (ยังไม่เคยกดเอง: รอบที่ยังส่งไม่ครบกางไว้, ส่งครบแล้วพับไว้)
+  isOpen(g: { start_time: string; orders: number; delivered: number }): boolean {
+    return this.openRounds()[g.start_time] ?? g.delivered < g.orders;
+  }
+
+  // กดหัวรอบ -> พับ / กาง
+  toggleRound(g: { start_time: string; orders: number; delivered: number }) {
+    const open = !this.isOpen(g);
+    this.openRounds.update((all) => ({ ...all, [g.start_time]: open }));
   }
 
   // เที่ยวนี้ไรเดอร์ส่งถึงลูกค้าไปแล้วอย่างน้อย 1 จุด -> ยกเลิก / เปลี่ยนไรเดอร์ไม่ได้
@@ -338,7 +384,9 @@ export class RoutePlan {
   // DELETE /routes/{id} ยกเลิกใบงานเที่ยวนี้ ออเดอร์กลับเป็น "รอส่ง" (นำไปจัดรอบใหม่ได้)
   async cancelRoute(r: RouteInfo) {
     if (!r.id) return;
-    if (!confirm(`ยกเลิกเที่ยวที่ ${r.route_no} ใช่หรือไม่? (ออเดอร์ในเที่ยวนี้จะกลับเป็น "รอส่ง" แล้วจัดรอบใหม่ได้)`)) {
+    if (
+      !confirm(`ยกเลิกเที่ยวที่ ${r.route_no} ใช่หรือไม่? (ออเดอร์ในเที่ยวนี้จะกลับเป็น "รอส่ง" แล้วจัดรอบใหม่ได้)`)
+    ) {
       return;
     }
     this.working.set(true);
