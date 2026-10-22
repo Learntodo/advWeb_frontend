@@ -118,9 +118,9 @@
             placeholder="ที่อยู่จัดส่ง"
             [(ngModel)]="address"
           ></textarea>
-          <span class="label">คลิกบนแผนที่เพื่อปักหมุดจุดส่ง</span>
+          <span class="label">กดบนแผนที่ตรงจุดที่จะไปส่ง</span>
         } @else {
-          <span class="label">ส่งที่บ้านลูกค้า (ใช้ที่อยู่และพิกัดของลูกค้า)</span>
+          <span class="label">ส่งที่บ้านลูกค้า (ใช้ที่อยู่ที่บันทึกไว้)</span>
         }
 
         <app-map-view
@@ -132,7 +132,11 @@
           (mapClick)="pickLocation($event)"
         ></app-map-view>
         @if (shopDistance() !== null) {
-          <p class="label" [class.text-error]="shopDistance()! > api.MAX_KM" [class.font-bold]="shopDistance()! > api.MAX_KM">
+          <p
+            class="label"
+            [class.text-error]="shopDistance()! > api.MAX_KM"
+            [class.font-bold]="shopDistance()! > api.MAX_KM"
+          >
             จุดส่งห่างร้าน {{ shopDistance()!.toFixed(1) }} กม. ·
             {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (วงประสีเขียว)' }}
           </p>

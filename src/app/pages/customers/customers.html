@@ -2,9 +2,7 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ลูกค้า</h1>
-    <p class="text-base-content/70 text-sm">
-      ทั้งหมด {{ allCustomers().length }} คน · คลิกที่รายชื่อเพื่อดูบ้านลูกค้าบนแผนที่
-    </p>
+    <p class="text-base-content/70 text-sm">ทั้งหมด {{ allCustomers().length }} คน · กดที่ชื่อเพื่อดูบ้านบนแผนที่</p>
   </div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">
@@ -63,7 +61,7 @@
                     <div class="font-medium">
                       {{ c.first_name }} {{ c.last_name }}
                       @if (outside(c)) {
-                        <span class="badge badge-xs badge-error">นอกเขตส่ง 3 กม.</span>
+                        <span class="badge badge-xs badge-error whitespace-nowrap h-auto">นอกเขตส่ง 3 กม.</span>
                       }
                     </div>
                     <div class="text-sm text-base-content/70">
@@ -73,15 +71,15 @@
                   <td class="hidden md:table-cell text-sm">{{ c.address }}</td>
                   <td>
                     <!-- stopPropagation: กดปุ่มแล้วไม่ให้นับเป็นการคลิกแถว -->
-                    <div class="flex justify-end gap-1" (click)="$event.stopPropagation()">
-                      <button class="btn btn-sm btn-ghost text-accent" title="สั่งออเดอร์" (click)="orderFor(c)">
-                        <fa-icon [icon]="faCartPlus"></fa-icon>
+                    <div class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap" (click)="$event.stopPropagation()">
+                      <button class="btn btn-sm btn-ghost text-accent" (click)="orderFor(c)">
+                        <fa-icon [icon]="faCartPlus"></fa-icon>สั่งข้าว
                       </button>
-                      <button class="btn btn-sm btn-ghost" title="แก้ไข" (click)="openEdit(c)">
-                        <fa-icon [icon]="faPen"></fa-icon>
+                      <button class="btn btn-sm btn-ghost" (click)="openEdit(c)">
+                        <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                       </button>
-                      <button class="btn btn-sm btn-ghost text-error" title="ลบ" (click)="remove(c)">
-                        <fa-icon [icon]="faTrash"></fa-icon>
+                      <button class="btn btn-sm btn-ghost text-error" (click)="remove(c)">
+                        <fa-icon [icon]="faTrash"></fa-icon>ลบ
                       </button>
                     </div>
                   </td>
@@ -98,7 +96,7 @@
   <section class="lg:col-span-2">
     <div class="card bg-base-100 shadow-sm lg:sticky lg:top-24">
       <div class="card-body p-3 gap-2">
-        <h2 class="font-display px-1">บ้านลูกค้าบนแผนที่ (ตัวเลข = รหัสลูกค้า)</h2>
+        <h2 class="font-display px-1">บ้านลูกค้าบนแผนที่ (เลขในวงกลม = รหัสลูกค้า)</h2>
         <app-map-view
           class="h-80 lg:h-[60vh]"
           [markers]="markers()"

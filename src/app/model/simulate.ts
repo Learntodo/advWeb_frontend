@@ -9,7 +9,7 @@ export interface SimulateStatus {
   day: { pending: number; delivering: number; delivered: number; cancelled: number };
   rider_password: string; // รหัสผ่านของไรเดอร์จำลองทุกคน
   sim_riders: { id: number; phone: string; first_name: string; last_name: string; license_plate: string | null }[];
-  routes: { route_no: number; code: string }[]; // เลขใบงานของวันที่เลือก
+  routes: { route_no: number; code: string; first_name: string | null }[]; // เลขใบงานของวันที่เลือก
 }
 
 // ผลลัพธ์จาก DELETE /simulate จำนวนที่ลบของแต่ละอย่าง

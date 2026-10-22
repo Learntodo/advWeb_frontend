@@ -28,7 +28,7 @@
 
       <div class="grid grid-cols-2 gap-3">
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">เบอร์โทร * (ใช้ login)</legend>
+          <legend class="fieldset-legend">เบอร์โทร * (ใช้เข้าระบบ)</legend>
           <input class="input outline-0 w-full" name="phone" type="tel" placeholder="0812345678" [(ngModel)]="phone" />
         </fieldset>
         <fieldset class="fieldset">
@@ -40,9 +40,9 @@
       <fieldset class="fieldset">
         <legend class="fieldset-legend">
           @if (rider()) {
-            ตั้งรหัสผ่านใหม่ (เว้นว่าง = ใช้รหัสเดิม)
+            ตั้งรหัสผ่านใหม่ (ถ้าไม่เปลี่ยน ปล่อยว่างไว้)
           } @else {
-            รหัสผ่าน * (อย่างน้อย 6 ตัว แจ้งให้ไรเดอร์ใช้ login)
+            รหัสผ่าน * (อย่างน้อย 6 ตัว บอกไรเดอร์ไว้ใช้เข้าระบบ)
           }
         </legend>
         <input
@@ -57,7 +57,7 @@
       @if (rider()) {
         <label class="label mt-3 gap-2 cursor-pointer">
           <input type="checkbox" class="toggle toggle-success toggle-sm" name="isActive" [(ngModel)]="isActive" />
-          ใช้งานอยู่ (ปิด = ไรเดอร์ login ไม่ได้)
+          ใช้งานอยู่ (ถ้าปิด ไรเดอร์จะเข้าระบบไม่ได้)
         </label>
       }
 

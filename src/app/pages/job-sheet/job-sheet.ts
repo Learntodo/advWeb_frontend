@@ -90,7 +90,7 @@ export class JobSheet {
         lng: s.longitude,
         label: String(s.seq),
         color: s.status === 'delivered' ? '#16a34a' : '#dc2626',
-        popup: `จุดที่ ${s.seq} ${s.first_name} ${s.last_name}\n${s.quantity} กล่อง`,
+        popup: `บ้านที่ ${s.seq} ${s.first_name} ${s.last_name}\n${s.quantity} กล่อง`,
       });
     }
     return markers;

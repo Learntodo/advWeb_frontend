@@ -20,16 +20,16 @@
         <a [routerLink]="['/job']" [queryParams]="{ code: j.code }" class="card bg-base-100 shadow-sm hover:shadow-md">
           <div class="card-body p-5 gap-2">
             <div class="flex items-center justify-between">
-              <span class="font-display text-lg">เที่ยวที่ {{ j.route_no }}</span>
+              <span class="font-display text-lg">ออกจากร้าน {{ j.start_time }} น.</span>
               @if (delivered(j) === j.stops.length) {
                 <span class="badge badge-success"><fa-icon [icon]="faCircleCheck"></fa-icon>ส่งครบแล้ว</span>
               } @else {
-                <span class="badge badge-warning">ส่งแล้ว {{ delivered(j) }}/{{ j.stops.length }} จุด</span>
+                <span class="badge badge-warning">ส่งแล้ว {{ delivered(j) }} จาก {{ j.stops.length }} บ้าน</span>
               }
             </div>
             <p>
-              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ j.boxes }} กล่อง</b> · ส่ง {{ j.stops.length }} จุด
-              · {{ j.total_km.toFixed(1) }} กม.
+              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ j.boxes }} กล่อง</b> · ส่ง
+              {{ j.stops.length }} บ้าน · {{ j.total_km.toFixed(1) }} กม.
             </p>
             <span class="btn btn-primary btn-lg w-full mt-1"
               ><fa-icon [icon]="faClipboardList"></fa-icon>เปิดใบงาน</span

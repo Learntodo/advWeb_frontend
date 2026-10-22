@@ -12,6 +12,7 @@ import {
   faCopy,
   faEye,
   faMotorcycle,
+  faPhone,
   faRoute,
   faTrash,
   faTriangleExclamation,
@@ -76,6 +77,7 @@ export class RoutePlan {
   faEye = faEye;
   faCopy = faCopy;
   faMotorcycle = faMotorcycle;
+  faPhone = faPhone;
   faCircleCheck = faCircleCheck;
   faTriangleExclamation = faTriangleExclamation;
 
@@ -172,7 +174,7 @@ export class RoutePlan {
     return lines;
   });
 
-  // หมุดจุดส่ง (ตัวเลขในหมุด = ลำดับที่ส่งในเที่ยวนั้น)
+  // หมุดจุดส่ง (ตัวเลขในหมุด = ลำดับที่ไรเดอร์คนนั้นไปส่ง)
   markers = computed(() => {
     const markers: MapMarker[] = [];
     for (const r of this.visibleRoutes()) {
@@ -184,17 +186,23 @@ export class RoutePlan {
           label: String(s.seq),
           color: this.color(r),
           popup:
-            `เที่ยวที่ ${r.route_no} จุดที่ ${s.seq}${r.rider ? ' · ' + r.rider.first_name : ''}\n` +
+            `${this.riderLabel(r)} · บ้านที่ ${s.seq}\n` +
             `ลูกค้า #${s.customer_id} ${s.first_name} ${s.last_name} · ${s.quantity} กล่อง\n` +
             `ออเดอร์ #${s.order_id} · ` +
-            (this.isDraft() ? `ถึงหลังออกจากร้าน ${s.minutes} นาที` : `ถึงประมาณ ${s.eta} น.`),
+            (this.isDraft() ? `ถึงใน ${s.minutes} นาที หลังออกจากร้าน` : `ถึงประมาณ ${s.eta} น.`),
         });
       }
     }
     return markers;
   });
 
-  // เที่ยวที่แสดงบนแผนที่ (ทุกเที่ยว หรือเฉพาะเที่ยวที่เลือก)
+  // ชื่อไรเดอร์ที่เลือกดูบนแผนที่ (null = ดูทุกคน)
+  onlyLabel = computed(() => {
+    const r = this.visibleRoutes().find((x) => x.route_no === this.onlyRoute());
+    return r ? this.riderLabel(r) : null;
+  });
+
+  // ใบงานที่แสดงบนแผนที่ (ทุกคน หรือเฉพาะคนที่เลือก)
   visibleRoutes = computed(() => {
     const plan = this.current();
     if (!plan) return [];
@@ -248,7 +256,14 @@ export class RoutePlan {
     return String(h).padStart(2, '0') + start.slice(2);
   }
 
-  // จำนวนจุดในเที่ยวนี้ที่ส่งถึงแล้ว
+  // ชื่อที่แสดงบนการ์ด: ชื่อไรเดอร์ ถ้ายังไม่มีไรเดอร์ (แผนที่ยังไม่ออกส่ง) ใช้ "ไรเดอร์คนที่ N" ตามลำดับในแผน
+  riderLabel(r: RouteInfo): string {
+    if (r.rider) return r.rider.first_name + ' ' + r.rider.last_name;
+    const index = this.current()?.routes.indexOf(r) ?? -1;
+    return 'ไรเดอร์คนที่ ' + (index + 1);
+  }
+
+  // จำนวนจุดในใบงานนี้ที่ส่งถึงแล้ว
   deliveredOf(r: RouteInfo): number {
     return r.stops.filter((s) => s.status === 'delivered').length;
   }
@@ -350,7 +365,7 @@ export class RoutePlan {
   async savePlan() {
     const plan = this.current();
     if (!plan || !this.isDraft()) return;
-    const question = `ไรเดอร์ออกจากร้านตอนนี้เลยใช่หรือไม่?\nต้องส่งถึงทุกจุดภายใน 1 ชั่วโมง (แผนนี้ใช้เวลา ${plan.finish_minutes} นาที)`;
+    const question = `ให้ไรเดอร์ออกจากร้านตอนนี้เลยใช่ไหม?\nต้องส่งให้ถึงลูกค้าทุกบ้านภายใน 1 ชั่วโมง (แผนนี้ใช้เวลา ${plan.finish_minutes} นาที)`;
     if (!confirm(question)) {
       return;
     }
@@ -358,7 +373,7 @@ export class RoutePlan {
     try {
       const routes = plan.routes.map((r) => r.order_ids);
       const res = await this.routesApi.save(this.date(), routes);
-      this.notify.success(`ออกส่งแล้ว ส่งใบงานให้ไรเดอร์ ${res.affected_row} คน`);
+      this.notify.success(`ออกส่งแล้ว ไรเดอร์ ${res.affected_row} คนได้รับใบงาน`);
       this.plans.set([]);
       await this.loadSaved();
     } catch (err) {
@@ -373,7 +388,7 @@ export class RoutePlan {
     this.working.set(true);
     try {
       await this.routesApi.changeRider(r.id, Number(riderId));
-      this.notify.success(`เปลี่ยนไรเดอร์ของเที่ยวที่ ${r.route_no} แล้ว`);
+      this.notify.success('เปลี่ยนคนส่งแล้ว');
     } catch (err) {
       this.notify.apiError(err, 'เปลี่ยนไรเดอร์ไม่สำเร็จ');
     }
@@ -385,7 +400,7 @@ export class RoutePlan {
   async cancelRoute(r: RouteInfo) {
     if (!r.id) return;
     if (
-      !confirm(`ยกเลิกเที่ยวที่ ${r.route_no} ใช่หรือไม่? (ออเดอร์ในเที่ยวนี้จะกลับเป็น "รอส่ง" แล้วจัดรอบใหม่ได้)`)
+      !confirm(`ยกเลิกใบงานของ ${this.riderLabel(r)} ใช่หรือไม่?\nออเดอร์ในใบงานนี้จะกลับไปรอส่ง แล้วจัดรอบใหม่ได้`)
     ) {
       return;
     }
@@ -393,7 +408,7 @@ export class RoutePlan {
     try {
       await this.routesApi.cancelRoute(r.id);
       this.onlyRoute.set(null);
-      this.notify.success(`ยกเลิกเที่ยวที่ ${r.route_no} แล้ว`);
+      this.notify.success(`ยกเลิกใบงานของ ${this.riderLabel(r)} แล้ว`);
     } catch (err) {
       this.notify.apiError(err, 'ยกเลิกใบงานไม่สำเร็จ');
     }

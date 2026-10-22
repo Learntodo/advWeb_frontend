@@ -93,7 +93,7 @@ export class CustomerForm {
         this.pickLocation(point);
         this.startPoint.set(point);
       },
-      () => this.notify.error('หาตำแหน่งปัจจุบันไม่ได้ (ยังไม่ได้อนุญาตตำแหน่ง?)'),
+      () => this.notify.error('หาตำแหน่งไม่ได้ ลองกดอนุญาตให้เว็บรู้ตำแหน่งก่อน'),
     );
   }
 
@@ -104,9 +104,10 @@ export class CustomerForm {
     // เบอร์โทร: ตัวเลข 9-10 หลัก ขึ้นต้นด้วย 0
     if (!/^0[0-9]{8,9}$/.test(this.phone().trim())) return 'เบอร์โทรต้องเป็นตัวเลข 9-10 หลัก ขึ้นต้นด้วย 0';
     if (this.address().trim() === '') return 'กรุณากรอกที่อยู่';
-    if (this.latitude() === null || this.longitude() === null) return 'กรุณาคลิกบนแผนที่เพื่อเลือกพิกัดบ้าน';
+    if (this.latitude() === null || this.longitude() === null) return 'กรุณากดบนแผนที่ตรงบ้านลูกค้า';
     const km = this.shopDistance() as number;
-    if (km > this.api.MAX_KM) return `บ้านลูกค้าอยู่ห่างร้าน ${km.toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`;
+    if (km > this.api.MAX_KM)
+      return `บ้านลูกค้าอยู่ห่างร้าน ${km.toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`;
     return '';
   }
 

@@ -179,14 +179,13 @@
             <fa-icon [icon]="faClipboardList" class="mr-1"></fa-icon>เปิดใบงานแบบไรเดอร์
           </h2>
           <p class="text-sm text-base-content/70">
-            กดเลขใบงานเพื่อดูหน้าที่ไรเดอร์เห็นในมือถือ (เปิดแท็บใหม่) หรือเข้าระบบด้วยเบอร์ไรเดอร์ แล้วกด “ส่งถึงแล้ว”
-            ทีละจุด
+            กดเลขใบงานเพื่อดูหน้าที่ไรเดอร์เห็นในมือถือ หรือเข้าระบบด้วยเบอร์ไรเดอร์ แล้วกด “ส่งถึงแล้ว” ทีละจุด
           </p>
           @if (status()?.routes?.length) {
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
               @for (r of status()!.routes; track r.code) {
                 <a [href]="jobLink(r.code)" target="_blank" rel="noopener" class="btn btn-sm btn-outline h-auto py-1">
-                  <span class="text-xs font-normal">เที่ยวที่ {{ r.route_no }}</span>
+                  <span class="text-xs font-normal">{{ r.first_name ?? 'ไรเดอร์' }}</span>
                   <span class="font-mono">{{ r.code }}</span>
                 </a>
               }

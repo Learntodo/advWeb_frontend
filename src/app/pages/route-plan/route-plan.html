@@ -19,16 +19,11 @@
     <!-- แผนที่ระบบเสนอ (ยังไม่บันทึก) -->
     <div class="card bg-info/10 border border-info/30 mb-4">
       <div class="card-body p-4 gap-3">
-        <p>
-          <b>ระบบคิดมาให้ {{ plans().length }} แบบ</b>
-          {{ plans().length > 1 ? '(แบบแรกค่าไรเดอร์ถูกที่สุด) กดเลือกดูแต่ละแบบได้' : '' }} ถ้าพอใจแล้วกดปุ่มสีเขียว
-          <b>“ออกส่งเลย”</b> (เวลาที่กด = เวลาไรเดอร์ออกจากร้าน)
-        </p>
         <div class="flex flex-wrap items-center gap-2">
           <div role="tablist" class="tabs tabs-box">
             @for (p of plans(); track $index) {
               <button role="tab" class="tab" [class.tab-active]="selected() === $index" (click)="selectPlan($index)">
-                แบบที่ {{ round() * 3 + $index + 1 }} · {{ p.riders }} คน · {{ baht(p.rider_cost) }}
+                แบบที่ {{ $index + 1 }} · ไรเดอร์ {{ p.riders }} คน · ค่าจ้าง {{ baht(p.rider_cost) }}
               </button>
             }
           </div>
@@ -39,7 +34,7 @@
             <fa-icon [icon]="faArrowsRotate"></fa-icon>ขอดูแบบอื่น
           </button>
           <button class="btn btn-ghost" (click)="plans.set([])" [disabled]="working()">
-            {{ saved()?.routes?.length ? 'กลับไปดูใบงานเดิม' : 'ยกเลิก' }}
+            {{ saved()?.routes?.length ? 'กลับไปหน้าเดิม' : 'ยกเลิก' }}
           </button>
         </div>
       </div>
@@ -50,11 +45,12 @@
       <div role="alert" class="alert alert-warning mb-4 flex-col items-stretch sm:flex-row sm:items-center">
         <fa-icon [icon]="faTriangleExclamation" size="lg"></fa-icon>
         <span class="flex-1">
-          <b>มีออเดอร์ใหม่ {{ orderCount() }} รายการ</b> ที่ยังไม่ได้ออกส่ง · ไรเดอร์ว่าง {{ ridersAvailable() }} คน
-          (ต้องใช้อย่างน้อย {{ ridersNeeded() }} คน)
+          <b>มีออเดอร์ใหม่ {{ orderCount() }} รายการ ยังไม่ได้ส่ง</b> · ตอนนี้มีไรเดอร์ว่าง {{ ridersAvailable() }} คน
+          (ต้องใช้ {{ ridersNeeded() }} คน)
           @if (ridersAvailable() < ridersNeeded()) {
             <span class="block text-sm"
-              >รอไรเดอร์ส่งรอบก่อนให้เสร็จ หรือ <a routerLink="/riders" class="link">เพิ่มไรเดอร์</a></span
+              >ไรเดอร์ว่างไม่พอ รอไรเดอร์ส่งรอบก่อนให้เสร็จ หรือ
+              <a routerLink="/riders" class="link">เพิ่มไรเดอร์</a></span
             >
           }
         </span>
@@ -71,8 +67,7 @@
       <div role="alert" class="alert alert-success mb-4">
         <fa-icon [icon]="faCircleCheck" size="lg"></fa-icon>
         <span
-          ><b>ส่งครบทุกออเดอร์แล้ว</b> ({{ saved()?.delivered }} ออเดอร์ · {{ saved()?.rounds?.length }} รอบ) ของวันที่
-          {{ thaiDate(date()) }}</span
+          ><b>วันที่ {{ thaiDate(date()) }} ส่งครบทุกออเดอร์แล้ว</b> ({{ saved()?.delivered }} ออเดอร์)</span
         >
       </div>
     }
@@ -83,8 +78,8 @@
     <div role="alert" class="alert alert-error alert-soft mb-4">
       <fa-icon [icon]="faTriangleExclamation"></fa-icon>
       <span>
-        <b>ออเดอร์ {{ outsideText() }} อยู่นอกเขตส่ง 3 กม.</b> ร้านส่งไม่ถึง ระบบจึงไม่จัดเส้นทางให้ ·
-        <a routerLink="/orders" class="link">ไปแก้จุดส่งหรือยกเลิกที่หน้าออเดอร์</a>
+        <b>ออเดอร์ {{ outsideText() }} อยู่ไกลร้านเกิน 3 กม. ร้านส่งไม่ถึง</b> ·
+        <a routerLink="/orders" class="link">ไปแก้ที่อยู่ส่ง หรือยกเลิก ที่หน้าออเดอร์</a>
       </span>
     </div>
   }
@@ -96,76 +91,61 @@
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ใช้ไรเดอร์</span>
           <span class="font-display text-2xl">{{ plan.riders }} คน</span>
-          <span class="text-xs text-base-content/60"
-            >{{ isDraft() ? 'ว่างอยู่ ' + ridersAvailable() + ' คน' : plan.routes.length + ' เที่ยว' }} ·
-            {{ plan.orders }} ออเดอร์</span
-          >
         </div>
       </div>
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4 gap-1">
-          <span class="text-sm text-base-content/70">ส่งเสร็จ</span>
+          <span class="text-sm text-base-content/70">{{ isDraft() ? 'ใช้เวลาส่ง' : 'ส่งเสร็จประมาณ' }}</span>
           <span class="font-display text-2xl" [class.text-error]="plan.late_orders > 0">{{
             isDraft() ? plan.finish_minutes + ' นาที' : plan.finish_time + ' น.'
           }}</span>
-          <span class="text-xs" [class.text-success]="plan.late_orders === 0" [class.text-error]="plan.late_orders > 0">
-            {{
-              plan.late_orders === 0
-                ? (isDraft() ? 'หลังออกจากร้าน · ' : 'ใช้ ' + plan.finish_minutes + ' นาที · ') + 'ทันภายใน 1 ชม.'
-                : 'เกิน 1 ชม. ' + plan.late_orders + ' จุด'
-            }}
-          </span>
         </div>
       </div>
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ระยะทางรวม</span>
           <span class="font-display text-2xl">{{ plan.total_km.toFixed(1) }} กม.</span>
-          <span class="text-xs text-base-content/60">{{ plan.boxes }} กล่อง · ไม่นับขากลับร้าน</span>
         </div>
       </div>
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ยอดขาย</span>
           <span class="font-display text-2xl text-primary">{{ baht(plan.sales) }}</span>
-          <span class="text-xs text-base-content/60">ต้นทุนอาหาร {{ baht(plan.food_cost) }}</span>
         </div>
       </div>
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4 gap-1">
-          <span class="text-sm text-base-content/70">ค่าไรเดอร์รวม</span>
+          <span class="text-sm text-base-content/70">ค่าจ้างไรเดอร์</span>
           <span class="font-display text-2xl">{{ baht(plan.rider_cost) }}</span>
-          <span class="text-xs text-base-content/60">15 + 2 × กม. × กล่อง ต่อคน</span>
         </div>
       </div>
       <div class="card shadow-sm" [class.bg-success]="plan.profit >= 0" [class.bg-error]="plan.profit < 0">
         <div class="card-body p-4 gap-1 text-success-content">
           <span class="text-sm opacity-80">{{ plan.profit >= 0 ? 'กำไร' : 'ขาดทุน' }}</span>
           <span class="font-display text-2xl">{{ baht(plan.profit) }}</span>
-          <span class="text-xs opacity-80">ยอดขาย − ต้นทุน − ค่าไรเดอร์</span>
         </div>
       </div>
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
-      <!-- แผนที่ขนาดใหญ่ เส้นทางแยกสีตามเที่ยว -->
+      <!-- แผนที่ขนาดใหญ่ เส้นทางแยกสีตามไรเดอร์ -->
       <section class="lg:col-span-2 card bg-base-100 shadow-sm">
         <div class="card-body p-3 gap-2">
           <div class="flex flex-wrap items-center justify-between gap-2 px-1">
             <h2 class="font-display">
-              @if (onlyRoute() !== null) {
-                ดูเฉพาะเที่ยวที่ {{ onlyRoute() }}
+              @if (onlyLabel(); as label) {
+                เส้นทางของ {{ label }}
               } @else {
-                เส้นทางทุกเที่ยว
+                เส้นทางไรเดอร์ทุกคน
               }
-              <span class="text-sm font-normal text-base-content/60">(ตัวเลขในหมุด = ลำดับที่ส่ง)</span>
+              <span class="text-sm font-normal text-base-content/60">(เลขในวงกลม = ไปส่งที่ไหนก่อน)</span>
             </h2>
             @if (isDraft() && !roadDistance()) {
-              <span class="badge badge-warning badge-sm">เชื่อมแผนที่ถนนไม่ได้ ใช้ระยะโดยประมาณ</span>
+              <span class="badge badge-warning badge-sm">ระยะทางเป็นค่าประมาณ (โหลดแผนที่ถนนไม่ได้)</span>
             }
             @if (onlyRoute() !== null) {
               <button class="btn btn-xs btn-outline" (click)="onlyRoute.set(null)">
-                <fa-icon [icon]="faEye"></fa-icon>ดูทุกเที่ยว
+                <fa-icon [icon]="faEye"></fa-icon>ดูทุกคน
               </button>
             }
           </div>
@@ -182,7 +162,7 @@
         </div>
       </section>
 
-      <!-- ใบงานของแต่ละเที่ยว (ไรเดอร์ 1 คน = 1 เที่ยว) แยกตามรอบที่ออกส่ง พับ / กางได้ -->
+      <!-- ใบงานของไรเดอร์แต่ละคน แยกตามรอบที่ออกส่ง พับ / กางได้ -->
       <section class="flex flex-col gap-3 lg:max-h-[calc(60vh+4rem)] lg:overflow-y-auto">
         @if (isDraft()) {
           @for (r of plan.routes; track r.route_no) {
@@ -194,16 +174,16 @@
               <button type="button" class="flex w-full items-center gap-3 px-2 py-1 text-left" (click)="toggleRound(g)">
                 <fa-icon [icon]="isOpen(g) ? faChevronDown : faChevronRight" class="text-base-content/60"></fa-icon>
                 <span class="flex-1">
-                  <b>รอบที่ {{ i + 1 }} · ออก {{ g.start_time }} น.</b>
+                  <b>รอบที่ {{ i + 1 }} · ออกจากร้าน {{ g.start_time }} น.</b>
                   <span class="block text-xs text-base-content/70">
-                    {{ g.routes.length }} เที่ยว · {{ g.orders }} ออเดอร์
-                    {{ g.delivered < g.orders ? '· ต้องถึงภายใน ' + deadline(g.start_time) + ' น.' : '' }}
+                    ไรเดอร์ {{ g.routes.length }} คน · {{ g.orders }} ออเดอร์
+                    {{ g.delivered < g.orders ? '· ต้องส่งให้ถึงก่อน ' + deadline(g.start_time) + ' น.' : '' }}
                   </span>
                 </span>
                 @if (g.delivered === g.orders) {
                   <span class="badge badge-success whitespace-nowrap">ส่งครบแล้ว</span>
                 } @else {
-                  <span class="badge badge-info whitespace-nowrap">กำลังส่ง {{ g.delivered }} / {{ g.orders }}</span>
+                  <span class="badge badge-info whitespace-nowrap">ส่งแล้ว {{ g.delivered }} จาก {{ g.orders }}</span>
                 }
               </button>
               <progress
@@ -226,7 +206,7 @@
     <div class="card bg-base-100 shadow-sm">
       <div class="card-body items-center text-center py-12 gap-4">
         <fa-icon [icon]="faRoute" size="3x" class="text-base-content/30"></fa-icon>
-        <h2 class="font-display text-xl">ยังไม่ได้จัดเส้นทางของวันที่ {{ thaiDate(date()) }}</h2>
+        <h2 class="font-display text-xl">วันที่ {{ thaiDate(date()) }} ยังไม่ได้จัดเส้นทาง</h2>
 
         <div class="flex flex-wrap justify-center gap-3">
           <div class="rounded-box bg-base-200 px-5 py-3 min-w-36">
@@ -234,7 +214,7 @@
             <div class="font-display text-2xl">{{ orderCount() }}</div>
           </div>
           <div class="rounded-box bg-base-200 px-5 py-3 min-w-36">
-            <div class="text-sm text-base-content/70">ต้องใช้ไรเดอร์อย่างน้อย</div>
+            <div class="text-sm text-base-content/70">ต้องใช้ไรเดอร์</div>
             <div class="font-display text-2xl">{{ ridersNeeded() }} คน</div>
           </div>
           <div
@@ -249,21 +229,21 @@
         </div>
 
         @if (orderCount() === 0) {
-          <p class="text-base-content/70">ยังไม่มีออเดอร์ของวันนี้ เพิ่มออเดอร์ก่อน แล้วค่อยกลับมาจัดเส้นทาง</p>
+          <p class="text-base-content/70">ยังไม่มีออเดอร์ของวันนี้ ให้เพิ่มออเดอร์ก่อน</p>
           <div class="flex flex-wrap justify-center gap-2">
             <a routerLink="/orders" class="btn btn-primary">ไปหน้าออเดอร์</a>
             <a routerLink="/simulate" [queryParams]="{ date: date() }" class="btn btn-outline">ทดลองด้วยข้อมูลจำลอง</a>
           </div>
         } @else if (ridersAvailable() < ridersNeeded()) {
           <p class="text-error font-medium">
-            ไรเดอร์ไม่พอ ต้องเพิ่มอีก {{ ridersNeeded() - ridersAvailable() }} คน (ไรเดอร์ 1 คนส่งได้ 3 ออเดอร์)
+            ไรเดอร์ไม่พอ ต้องเพิ่มอีก {{ ridersNeeded() - ridersAvailable() }} คน (ไรเดอร์ 1 คนส่งได้ไม่เกิน 3 ออเดอร์)
           </p>
           <div class="flex flex-wrap justify-center gap-2">
             <a routerLink="/riders" class="btn btn-primary"><fa-icon [icon]="faMotorcycle"></fa-icon>ไปเพิ่มไรเดอร์</a>
             <a routerLink="/simulate" [queryParams]="{ date: date() }" class="btn btn-outline">เพิ่มไรเดอร์จำลอง</a>
           </div>
         } @else {
-          <p class="text-base-content/70">พร้อมแล้ว กดปุ่มด้านล่าง ระบบจะแบ่งออเดอร์ให้ไรเดอร์และเรียงจุดส่งให้</p>
+          <p class="text-base-content/70">กดปุ่มนี้ ระบบจะแบ่งออเดอร์ให้ไรเดอร์ และเรียงลำดับที่ไปส่งให้เอง</p>
           <button class="btn btn-primary btn-lg" (click)="calculate(false)" [disabled]="working()">
             @if (working()) {
               <span class="loading loading-spinner"></span>กำลังคิดเส้นทาง...
@@ -277,7 +257,7 @@
   }
 }
 
-<!-- การ์ดใบงาน 1 เที่ยว (ใช้ทั้งแผนที่เสนอ และใบงานที่ออกส่งแล้ว) -->
+<!-- การ์ดใบงานของไรเดอร์ 1 คน (ใช้ทั้งแผนที่เสนอ และใบงานที่ออกส่งแล้ว) -->
 <ng-template #routeCard let-r>
   <div
     class="card bg-base-100 shadow-sm border-l-8 cursor-pointer"
@@ -289,44 +269,38 @@
       <div class="flex items-start justify-between gap-2">
         <div>
           <h3 class="font-display text-lg" [style.color]="color(r)">
-            เที่ยวที่ {{ r.route_no }}
+            {{ riderLabel(r) }}
             @if (!isDraft()) {
               @if (routeDone(r)) {
                 <span class="badge badge-success badge-sm align-middle">ส่งครบแล้ว</span>
               } @else {
                 <span class="badge badge-info badge-soft badge-sm align-middle"
-                  >ส่งแล้ว {{ deliveredOf(r) }} / {{ r.stops.length }}</span
+                  >ส่งแล้ว {{ deliveredOf(r) }} จาก {{ r.stops.length }}</span
                 >
               }
             }
           </h3>
-          <p class="text-xs text-base-content/70">
-            {{ r.start_time ? 'ออก ' + r.start_time + ' น. · ' : '' }}{{ r.boxes }} กล่อง ·
-            {{ r.total_km.toFixed(1) }} กม. · ถึงจุดสุดท้าย
-            {{ isDraft() ? r.finish_minutes + ' นาที' : r.finish_time + ' น.' }}
-          </p>
         </div>
         <div class="text-right text-sm whitespace-nowrap">
-          <div>ค่าไรเดอร์ {{ baht(r.rider_cost) }}</div>
+          <div>ค่าจ้าง {{ baht(r.rider_cost) }}</div>
           <div [class.text-success]="r.profit >= 0" [class.text-error]="r.profit < 0">
             {{ r.profit >= 0 ? 'กำไร' : 'ขาดทุน' }} {{ baht(r.profit) }}
           </div>
         </div>
       </div>
 
-      <!-- ไรเดอร์ที่รับเที่ยวนี้ -->
+      <!-- ไรเดอร์ที่รับใบงานนี้ -->
       @if (isDraft()) {
         <p class="text-xs text-base-content/60">
-          <fa-icon [icon]="faMotorcycle"></fa-icon> ระบบจะแจกให้ไรเดอร์เองตอนกดออกส่ง (เปลี่ยนคนได้ทีหลัง)
+          <fa-icon [icon]="faMotorcycle"></fa-icon> ระบบจะเลือกไรเดอร์ที่ว่างให้เองตอนกดออกส่ง
         </p>
       } @else if (started(r) || !r.id) {
-        <p class="text-sm">
-          <fa-icon [icon]="faMotorcycle"></fa-icon>
-          {{ r.rider ? r.rider.first_name + ' ' + r.rider.last_name + ' · ' + r.rider.phone : 'ยังไม่มีไรเดอร์' }}
-        </p>
+        @if (r.rider) {
+          <p class="text-sm"><fa-icon [icon]="faPhone"></fa-icon> โทร {{ r.rider.phone }}</p>
+        }
       } @else {
         <label class="flex items-center gap-2 text-sm" (click)="$event.stopPropagation()">
-          <fa-icon [icon]="faMotorcycle"></fa-icon>ไรเดอร์
+          <fa-icon [icon]="faMotorcycle"></fa-icon>เปลี่ยนคนส่ง
           <select
             class="select select-sm flex-1"
             [ngModel]="r.rider?.id ?? ''"
@@ -343,7 +317,7 @@
         </label>
       }
 
-      <!-- เที่ยวที่ส่งครบแล้ว ซ่อนรายชื่อจุดส่ง (กดการ์ดเพื่อดู) -->
+      <!-- ใบงานที่ส่งครบแล้ว ซ่อนรายชื่อจุดส่ง (กดการ์ดเพื่อดู) -->
       @if (isDraft() || !routeDone(r) || onlyRoute() === r.route_no) {
         <ol class="text-sm flex flex-col gap-2">
           @for (s of r.stops; track s.order_id) {
@@ -357,7 +331,7 @@
               </span>
               <span class="text-right">
                 <span class="block text-base-content/60 whitespace-nowrap">{{
-                  isDraft() ? '+' + s.minutes + ' นาที' : s.eta
+                  isDraft() ? 'ถึงใน ' + s.minutes + ' นาที' : 'ถึง ' + s.eta + ' น.'
                 }}</span>
                 @if (s.status === 'delivered') {
                   <span class="badge badge-success badge-xs">ส่งแล้ว</span>
@@ -369,7 +343,7 @@
           }
         </ol>
       } @else {
-        <p class="text-xs text-base-content/60">{{ r.stops.length }} จุด · กดการ์ดเพื่อดูรายชื่อ</p>
+        <p class="text-xs text-base-content/60">ส่ง {{ r.stops.length }} บ้าน · กดที่กล่องนี้เพื่อดูรายชื่อ</p>
       }
 
       <!-- เลขใบงาน (มีเมื่อบันทึกแล้ว) -->
@@ -385,7 +359,7 @@
                 (click)="cancelRoute(r); $event.stopPropagation()"
                 [disabled]="working()"
               >
-                <fa-icon [icon]="faTrash"></fa-icon>ยกเลิกเที่ยวนี้
+                <fa-icon [icon]="faTrash"></fa-icon>ยกเลิกใบงานนี้
               </button>
             }
             <button class="btn btn-xs btn-primary" (click)="copyLink(r.code); $event.stopPropagation()">

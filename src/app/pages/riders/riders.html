@@ -3,7 +3,7 @@
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ไรเดอร์</h1>
     <p class="text-base-content/70 text-sm">
-      ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · ไรเดอร์รับได้คนละไม่เกิน 3 ออเดอร์
+      ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · ไรเดอร์ 1 คน ส่งได้ไม่เกิน 3 ออเดอร์ต่อรอบ
     </p>
   </div>
   <div class="flex flex-wrap gap-2">
@@ -57,12 +57,12 @@
                 />
               </td>
               <td>
-                <div class="flex justify-end gap-1">
-                  <button class="btn btn-sm btn-ghost" title="แก้ไข" (click)="openEdit(r)">
-                    <fa-icon [icon]="faPen"></fa-icon>
+                <div class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap">
+                  <button class="btn btn-sm btn-ghost" (click)="openEdit(r)">
+                    <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                   </button>
-                  <button class="btn btn-sm btn-ghost text-error" title="ลบ" (click)="remove(r)">
-                    <fa-icon [icon]="faTrash"></fa-icon>
+                  <button class="btn btn-sm btn-ghost text-error" (click)="remove(r)">
+                    <fa-icon [icon]="faTrash"></fa-icon>ลบ
                   </button>
                 </div>
               </td>

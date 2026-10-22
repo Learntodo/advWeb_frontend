@@ -5,14 +5,14 @@
       <div class="card-body p-5 gap-1">
         <p class="text-sm opacity-70">ใบงานวันที่ {{ thaiDate(j.delivery_date) }} · เลขใบงาน {{ j.code }}</p>
         <h1 class="font-display text-2xl text-secondary">
-          เที่ยวที่ {{ j.route_no }}{{ j.rider ? ' · ' + j.rider.first_name + ' ' + j.rider.last_name : '' }}
+          {{ j.rider ? 'ใบงานของ ' + j.rider.first_name + ' ' + j.rider.last_name : 'ใบงานไรเดอร์' }}
         </h1>
         <p class="text-lg">
           <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าวกล่องไปทั้งหมด
           <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
         </p>
         <p class="text-sm mt-1">
-          ส่งถึงแล้ว <b class="text-secondary">{{ deliveredCount() }} / {{ j.stops.length }}</b> จุด
+          ส่งถึงแล้ว <b class="text-secondary">{{ deliveredCount() }} / {{ j.stops.length }}</b> บ้าน
         </p>
       </div>
     </div>
@@ -62,11 +62,11 @@
                 }
               </span>
               <div class="flex-1 min-w-0">
-                <p class="font-display text-lg">จุดที่ {{ s.seq }} ส่งบ้านคุณ{{ s.first_name }} {{ s.last_name }}</p>
+                <p class="font-display text-lg">บ้านที่ {{ s.seq }} คุณ{{ s.first_name }} {{ s.last_name }}</p>
                 <p class="text-sm text-base-content/70">{{ s.delivery_address }}</p>
                 <p class="text-sm">
-                  <span class="font-bold">{{ s.quantity }} กล่อง</span> · ถึงประมาณ {{ s.eta }} น. ·
-                  {{ s.distance_km.toFixed(1) }} กม. จากจุดก่อน
+                  <span class="font-bold">{{ s.quantity }} กล่อง</span> · ถึงประมาณ {{ s.eta }} น. · ห่างจากบ้านก่อนหน้า
+                  {{ s.distance_km.toFixed(1) }} กม.
                 </p>
               </div>
             </div>

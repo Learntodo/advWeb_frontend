@@ -25,7 +25,7 @@
 <!-- เรียก API ไม่ได้ -->
 @if (apiError()) {
   <div role="alert" class="alert alert-error mb-6">
-    <span>เชื่อมต่อ Web API ไม่ได้ ตรวจสอบว่ารัน backend แล้ว ({{ api.API_ENDPOINT }})</span>
+    <span>ติดต่อระบบไม่ได้ ตรวจดูอินเทอร์เน็ต แล้วกด “ลองใหม่”</span>
     <button class="btn btn-sm" (click)="loadData()">ลองใหม่</button>
   </div>
 }
@@ -43,7 +43,7 @@
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องแพ็ก</span>
+      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำวันนี้</span>
       <span class="font-display text-3xl">{{ summary().boxes }}</span>
       <span class="text-xs text-base-content/60">กล่อง</span>
     </div>
@@ -71,7 +71,7 @@
   <section class="lg:col-span-3 card bg-base-100 shadow-sm">
     <div class="card-body p-3 gap-2">
       <div class="flex items-center justify-between px-1">
-        <h2 class="font-display">จุดส่งวันนี้ (ตัวเลข = จำนวนกล่อง)</h2>
+        <h2 class="font-display">บ้านที่ต้องส่งวันนี้ (เลขในวงกลม = จำนวนกล่อง)</h2>
         <a routerLink="/nearby" class="btn btn-xs btn-ghost">
           <fa-icon [icon]="faLocationCrosshairs"></fa-icon>ค้นหาตามระยะ
         </a>

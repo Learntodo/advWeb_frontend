@@ -140,7 +140,7 @@ export class OrderAddForm {
     // ถ้าส่งที่อื่น ต้องส่งที่อยู่และพิกัดไปด้วย
     if (this.otherPlace()) {
       if (this.address().trim() === '' || this.lat() === null || this.lng() === null) {
-        this.notify.error('กรุณากรอกที่อยู่จัดส่ง และคลิกแผนที่เลือกจุดส่ง');
+        this.notify.error('กรุณากรอกที่อยู่จัดส่ง และกดบนแผนที่ตรงจุดที่จะไปส่ง');
         return;
       }
       data.delivery_address = this.address().trim();
