@@ -36,7 +36,7 @@
         <tbody>
           @for (r of riders(); track r.id) {
             <tr [class.opacity-60]="r.is_active !== 1">
-              <td class="text-base-content/60">{{ r.id }}</td>
+              <td class="text-base-content/70">{{ r.id }}</td>
               <td>
                 <div class="font-medium">{{ r.first_name }} {{ r.last_name }}</div>
                 <div class="text-sm text-base-content/70">
@@ -45,7 +45,7 @@
                 </div>
               </td>
               <td class="hidden sm:table-cell">
-                <fa-icon [icon]="faMotorcycle" class="text-base-content/50"></fa-icon> {{ r.license_plate || '-' }}
+                <fa-icon [icon]="faMotorcycle" class="text-base-content/70"></fa-icon> {{ r.license_plate || '-' }}
               </td>
               <td>
                 <input

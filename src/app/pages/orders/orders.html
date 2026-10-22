@@ -67,13 +67,13 @@
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ยอดขาย</span>
-      <span class="font-display text-2xl text-primary">{{ baht(summary().sales) }}</span>
+      <span class="font-display text-2xl">{{ baht(summary().sales) }}</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">กำไร (ยังไม่หักค่าไรเดอร์)</span>
-      <span class="font-display text-2xl text-accent">{{ baht(summary().profit) }}</span>
+      <span class="font-display text-2xl">{{ baht(summary().profit) }}</span>
     </div>
   </div>
 </div>
@@ -131,7 +131,7 @@
 
                 <td class="min-w-32">
                   <div class="font-medium">{{ o.first_name }} {{ o.last_name }}</div>
-                  <div class="text-xs text-base-content/70">ลูกค้า ID {{ o.customer_id }} · {{ o.phone }}</div>
+                  <div class="text-sm text-base-content/70">ลูกค้า ID {{ o.customer_id }} · {{ o.phone }}</div>
                 </td>
 
                 <!-- ปุ่ม − / + จำนวนกล่อง (stopPropagation: ไม่ให้นับเป็นการคลิกแถว) ออเดอร์ที่กำลังส่ง (อยู่ในใบงาน) แก้ไม่ได้ -->
@@ -156,7 +156,7 @@
                     </button>
                   </div>
                   @if (o.status === 'delivering') {
-                    <div class="text-xs text-base-content/60 mt-1">
+                    <div class="text-sm text-base-content/70 mt-1">
                       <fa-icon [icon]="faLock"></fa-icon> อยู่ในใบงานแล้ว
                     </div>
                   }
@@ -185,13 +185,13 @@
 
                 <td (click)="$event.stopPropagation()">
                   <div class="flex flex-col items-end whitespace-nowrap">
-                    <button class="btn btn-xs btn-ghost" (click)="goDetail(o)">
+                    <button class="btn btn-sm btn-ghost" (click)="goDetail(o)">
                       <fa-icon [icon]="faEye"></fa-icon>ดู
                     </button>
-                    <button class="btn btn-xs btn-ghost" (click)="openEdit(o)">
+                    <button class="btn btn-sm btn-ghost" (click)="openEdit(o)">
                       <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                     </button>
-                    <button class="btn btn-xs btn-ghost text-error" (click)="remove(o)">
+                    <button class="btn btn-sm btn-ghost text-error" (click)="remove(o)">
                       <fa-icon [icon]="faTrash"></fa-icon>ลบ
                     </button>
                   </div>
@@ -232,7 +232,7 @@
 <div class="card bg-base-100 shadow-sm mt-5">
   <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
     <span class="font-medium mr-2">ข้อมูลจำลอง (ไว้ทดลอง)</span>
-    <span class="text-sm text-base-content/60 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>
+    <span class="text-sm text-base-content/70 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>
     <div class="join">
       <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
         ดูทั้งหมด

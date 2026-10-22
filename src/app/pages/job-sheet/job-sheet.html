@@ -3,7 +3,7 @@
     <!-- หัวใบงาน -->
     <div class="card bg-neutral text-neutral-content shadow-sm">
       <div class="card-body p-5 gap-1">
-        <p class="text-sm opacity-70">ใบงานวันที่ {{ thaiDate(j.delivery_date) }} · เลขใบงาน {{ j.code }}</p>
+        <p class="opacity-80">ใบงานวันที่ {{ thaiDate(j.delivery_date) }}</p>
         <h1 class="font-display text-2xl text-secondary">
           {{ j.rider ? 'ใบงานของ ' + j.rider.first_name + ' ' + j.rider.last_name : 'ใบงานไรเดอร์' }}
         </h1>
@@ -11,14 +11,14 @@
           <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าวกล่องไปทั้งหมด
           <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
         </p>
-        <p class="text-sm mt-1">
-          ส่งถึงแล้ว <b class="text-secondary">{{ deliveredCount() }} / {{ j.stops.length }}</b> บ้าน
+        <p class="text-lg">
+          ส่งแล้ว <b class="text-secondary">{{ deliveredCount() }} จาก {{ j.stops.length }}</b> บ้าน
         </p>
       </div>
     </div>
 
     @if (!canDeliver()) {
-      <div role="alert" class="alert alert-soft text-sm py-2">
+      <div role="alert" class="alert alert-soft py-2">
         @if (auth.user() === null) {
           <span
             >ถ้าคุณเป็นไรเดอร์ของใบงานนี้ ให้
@@ -63,19 +63,14 @@
               </span>
               <div class="flex-1 min-w-0">
                 <p class="font-display text-lg">บ้านที่ {{ s.seq }} คุณ{{ s.first_name }} {{ s.last_name }}</p>
-                <p class="text-sm text-base-content/70">{{ s.delivery_address }}</p>
-                <p class="text-sm">
-                  <span class="font-bold">{{ s.quantity }} กล่อง</span> · ถึงประมาณ {{ s.eta }} น. · ห่างจากบ้านก่อนหน้า
-                  {{ s.distance_km.toFixed(1) }} กม.
-                </p>
+                <p class="text-base-content/80">{{ s.delivery_address }}</p>
+                <p class="font-bold">{{ s.quantity }} กล่อง</p>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <a class="btn btn-sm btn-outline" href="tel:{{ s.phone }}"
-                ><fa-icon [icon]="faPhone"></fa-icon>{{ s.phone }}</a
-              >
+              <a class="btn btn-outline" href="tel:{{ s.phone }}"><fa-icon [icon]="faPhone"></fa-icon>โทรหาลูกค้า</a>
               <a
-                class="btn btn-sm btn-outline"
+                class="btn btn-outline"
                 [href]="googleMapsLink(s.latitude, s.longitude)"
                 target="_blank"
                 rel="noopener"
@@ -87,8 +82,8 @@
               <div class="flex items-center justify-between gap-2">
                 <span class="text-success font-bold"><fa-icon [icon]="faCircleCheck"></fa-icon> ส่งถึงแล้ว</span>
                 @if (canDeliver()) {
-                  <button class="btn btn-xs btn-ghost" (click)="markDelivered(s, false)" [disabled]="saving() !== null">
-                    กดผิด ย้อนกลับ
+                  <button class="btn btn-sm btn-ghost" (click)="markDelivered(s, false)" [disabled]="saving() !== null">
+                    กดผิด ยกเลิก
                   </button>
                 }
               </div>
@@ -128,7 +123,7 @@
         <div class="flex flex-col items-center text-center gap-2 mb-2">
           <fa-icon [icon]="faClipboardList" size="3x" class="text-primary"></fa-icon>
           <h1 class="font-display text-2xl">ใบงานไรเดอร์</h1>
-          <p class="text-sm text-base-content/70">กรอกเลขใบงาน 8 หลักที่ได้จากร้าน</p>
+          <p class="text-base-content/80">พิมพ์เลขใบงาน 8 ตัวที่ได้จากร้าน</p>
         </div>
         <input
           class="input input-lg w-full text-center font-mono tracking-widest uppercase"
@@ -139,18 +134,16 @@
           [(ngModel)]="codeText"
         />
         @if (errorMessage()) {
-          <div role="alert" class="alert alert-error text-sm py-2">{{ errorMessage() }}</div>
+          <div role="alert" class="alert alert-error py-2">{{ errorMessage() }}</div>
         }
-        <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
+        <button type="submit" class="btn btn-primary btn-lg w-full" [disabled]="loading()">
           @if (loading()) {
             <span class="loading loading-spinner loading-sm"></span>
           }
-          ดูใบงาน
+          เปิดใบงาน
         </button>
         @if (auth.user() === null) {
-          <a routerLink="/login" class="link text-sm text-center text-base-content/70"
-            >เจ้าของร้าน / ไรเดอร์ เข้าสู่ระบบ</a
-          >
+          <a routerLink="/login" class="link text-center text-base-content/80">เจ้าของร้าน / ไรเดอร์ เข้าสู่ระบบ</a>
         }
       </form>
     </div>

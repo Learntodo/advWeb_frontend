@@ -22,7 +22,7 @@
                 <div class="text-sm">{{ c.phone }}</div>
                 <div class="text-sm text-base-content/70">{{ c.address }}</div>
               </div>
-              <button type="button" class="btn btn-xs btn-ghost" (click)="selectedId.set(null)">เปลี่ยน</button>
+              <button type="button" class="btn btn-sm btn-ghost" (click)="selectedId.set(null)">เปลี่ยน</button>
             </div>
           } @else {
             <!-- ยังไม่ได้เลือก: ค้นหาลูกค้าเก่าจากเบอร์โทรหรือชื่อ -->
@@ -43,7 +43,7 @@
                 (click)="chooseCustomer(c)"
               >
                 <span>{{ c.first_name }} {{ c.last_name }}</span>
-                <span class="text-base-content/60">{{ c.phone }}</span>
+                <span class="text-base-content/70">{{ c.phone }}</span>
               </button>
             } @empty {
               @if (searchText().trim() !== '') {
@@ -92,7 +92,7 @@
 
         <div class="mt-3 rounded-box bg-base-200 p-3 flex justify-between items-center">
           <span>ยอดรวม</span>
-          <span class="font-display text-xl text-primary">{{ baht(quantity() * unitPrice()) }}</span>
+          <span class="font-display text-xl">{{ baht(quantity() * unitPrice()) }}</span>
         </div>
       </div>
 

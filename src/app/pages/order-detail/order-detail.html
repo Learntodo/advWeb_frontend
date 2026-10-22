@@ -23,7 +23,7 @@
         <div class="card-body gap-3">
           <div class="flex items-start justify-between gap-2">
             <div>
-              <p class="text-sm text-base-content/60">ออเดอร์ ID {{ o.id }} · ส่ง {{ thaiDate(o.delivery_date) }}</p>
+              <p class="text-sm text-base-content/70">ออเดอร์ ID {{ o.id }} · ส่ง {{ thaiDate(o.delivery_date) }}</p>
               <h1 class="font-display text-2xl">{{ o.first_name }} {{ o.last_name }}</h1>
             </div>
             <span class="badge {{ statusBadge[o.status] }}">{{ statusLabel[o.status] }}</span>
@@ -35,7 +35,7 @@
           </a>
 
           <div class="rounded-box bg-base-200 p-4">
-            <p class="text-sm text-base-content/60">ส่งที่</p>
+            <p class="text-sm text-base-content/70">ส่งที่</p>
             <p>{{ o.delivery_address }}</p>
           </div>
 
@@ -46,7 +46,7 @@
           <!-- จำนวนกล่อง และราคา -->
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm text-base-content/60">จำนวนกล่อง</p>
+              <p class="text-sm text-base-content/70">จำนวนกล่อง</p>
               <div class="join mt-1">
                 <button class="btn btn-sm join-item" [disabled]="o.quantity <= 1" (click)="changeQuantity(o, -1)">
                   <fa-icon [icon]="faMinus"></fa-icon>
@@ -60,14 +60,14 @@
               </div>
             </div>
             <div class="text-right">
-              <p class="text-sm text-base-content/60">{{ o.quantity }} × {{ baht(o.unit_price) }}</p>
-              <p class="font-display text-2xl text-primary">{{ baht(o.total_price) }}</p>
+              <p class="text-sm text-base-content/70">{{ o.quantity }} × {{ baht(o.unit_price) }}</p>
+              <p class="font-display text-2xl">{{ baht(o.total_price) }}</p>
             </div>
           </div>
 
           <!-- เปลี่ยนสถานะ -->
           <div>
-            <p class="text-sm text-base-content/60 mb-1">เปลี่ยนสถานะ</p>
+            <p class="text-sm text-base-content/70 mb-1">เปลี่ยนสถานะ</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               @for (s of statuses; track s) {
                 <button class="btn btn-sm" [class.btn-neutral]="o.status === s" (click)="changeStatus(o, s)">

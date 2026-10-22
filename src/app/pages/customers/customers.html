@@ -26,7 +26,7 @@
     @if (searchedText()) {
       <div class="flex items-center gap-2 text-sm">
         ผลการค้นหา “{{ searchedText() }}” พบ {{ customers().length }} คน
-        <button class="btn btn-xs btn-ghost" (click)="clearSearch()">
+        <button class="btn btn-sm btn-ghost" (click)="clearSearch()">
           <fa-icon [icon]="faXmark"></fa-icon>ดูทั้งหมด
         </button>
       </div>
@@ -58,7 +58,7 @@
                   [class.selected-row]="c.id === selectedId()"
                   (click)="select(c)"
                 >
-                  <td class="text-base-content/60">{{ c.id }}</td>
+                  <td class="text-base-content/70">{{ c.id }}</td>
                   <td>
                     <div class="font-medium">
                       {{ c.first_name }} {{ c.last_name }}

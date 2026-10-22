@@ -1,12 +1,7 @@
 @if (auth.user(); as user) {
   <div class="max-w-md mx-auto flex flex-col gap-4">
     <div>
-      <p class="text-sm text-base-content/70">สวัสดี</p>
-      <h1 class="font-display text-2xl">{{ user.first_name }} {{ user.last_name }}</h1>
-      <p class="text-sm text-base-content/70">
-        <fa-icon [icon]="faPhone"></fa-icon> {{ user.phone }} · <fa-icon [icon]="faMotorcycle"></fa-icon>
-        {{ user.license_plate || 'ยังไม่ได้ใส่ทะเบียนรถ' }}
-      </p>
+      <h1 class="font-display text-2xl">สวัสดี คุณ{{ user.first_name }}</h1>
     </div>
 
     <!-- ใบงานของฉันวันนี้ -->
@@ -27,9 +22,9 @@
                 <span class="badge badge-warning">ส่งแล้ว {{ delivered(j) }} จาก {{ j.stops.length }} บ้าน</span>
               }
             </div>
-            <p>
-              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ j.boxes }} กล่อง</b> · ส่ง
-              {{ j.stops.length }} บ้าน · {{ j.total_km.toFixed(1) }} กม.
+            <p class="text-lg">
+              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ j.boxes }} กล่อง</b> ไปส่ง
+              {{ j.stops.length }} บ้าน
             </p>
             <span class="btn btn-primary btn-lg w-full mt-1"
               ><fa-icon [icon]="faClipboardList"></fa-icon>เปิดใบงาน</span
@@ -41,8 +36,8 @@
           <div class="card-body p-5 items-center text-center gap-2">
             <fa-icon [icon]="faClipboardList" size="2x" class="text-base-content/30"></fa-icon>
             <p>วันนี้ยังไม่มีใบงานของคุณ</p>
-            <p class="text-sm text-base-content/60">เมื่อร้านจัดเส้นทางเสร็จ ใบงานจะขึ้นที่นี่เอง</p>
-            <button class="btn btn-outline btn-sm" (click)="load()">โหลดใหม่</button>
+            <p class="text-base-content/80">เมื่อร้านกดออกส่ง ใบงานจะขึ้นที่นี่เอง</p>
+            <button class="btn btn-outline" (click)="load()">ดูใหม่อีกครั้ง</button>
           </div>
         </div>
       }
@@ -50,7 +45,7 @@
 
     <!-- กรณีร้านบอกเลขใบงานมา -->
     <details class="collapse collapse-arrow bg-base-100 shadow-sm">
-      <summary class="collapse-title text-sm">มีเลขใบงานจากร้าน? กดเพื่อพิมพ์เลขใบงาน</summary>
+      <summary class="collapse-title">มีเลขใบงานจากร้าน? กดตรงนี้เพื่อพิมพ์เลข</summary>
       <form class="collapse-content flex flex-col gap-3" (submit)="open(); $event.preventDefault()">
         <input
           type="text"
@@ -64,9 +59,9 @@
           (ngModelChange)="codeText.set($event); errorMessage.set('')"
         />
         @if (errorMessage()) {
-          <p class="text-error text-sm">{{ errorMessage() }}</p>
+          <p class="text-error">{{ errorMessage() }}</p>
         }
-        <button type="submit" class="btn btn-primary w-full">เปิดใบงาน</button>
+        <button type="submit" class="btn btn-primary btn-lg w-full">เปิดใบงาน</button>
       </form>
     </details>
   </div>

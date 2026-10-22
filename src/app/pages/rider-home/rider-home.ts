@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBowlRice, faCircleCheck, faClipboardList, faMotorcycle, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faBowlRice, faCircleCheck, faClipboardList } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../services/auth';
 import { DeliveryRoutes as RoutesApi } from '../../services/api/routes';
 import { JobSheet } from '../../model/route';
@@ -22,8 +22,6 @@ export class RiderHome {
   routesApi = inject(RoutesApi);
   notify = inject(Notify);
 
-  faPhone = faPhone;
-  faMotorcycle = faMotorcycle;
   faClipboardList = faClipboardList;
   faBowlRice = faBowlRice;
   faCircleCheck = faCircleCheck;
