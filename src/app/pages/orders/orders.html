@@ -56,30 +56,24 @@
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">จำนวนออเดอร์</span>
       <span class="font-display text-2xl">{{ summary().count }} รายการ</span>
-      <span class="text-xs text-base-content/60">
-        {{ dateFilter() ? 'ส่งวันที่ ' + thaiDate(dateFilter()) : 'ทุกวัน' }}
-      </span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ข้าวกล่อง</span>
+      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำ</span>
       <span class="font-display text-2xl">{{ summary().boxes }} กล่อง</span>
-      <span class="text-xs text-base-content/60">ไม่นับที่ยกเลิก</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ยอดขาย</span>
       <span class="font-display text-2xl text-primary">{{ baht(summary().sales) }}</span>
-      <span class="text-xs text-base-content/60">กล่องละ {{ api.BOX_PRICE }} บาท</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">กำไรก่อนหักค่าไรเดอร์</span>
+      <span class="text-sm text-base-content/70">กำไร (ยังไม่หักค่าไรเดอร์)</span>
       <span class="font-display text-2xl text-accent">{{ baht(summary().profit) }}</span>
-      <span class="text-xs text-base-content/60">หักต้นทุน {{ api.BOX_COST }} บาท/กล่อง</span>
     </div>
   </div>
 </div>
@@ -109,7 +103,7 @@
               <th>ID</th>
               <th>ลูกค้า</th>
               <th>จำนวนกล่อง</th>
-              <th class="text-right">ยอด</th>
+              <th class="text-right">ราคารวม</th>
               @if (dateFilter() === '') {
                 <th class="hidden sm:table-cell">วันส่ง</th>
               }
@@ -131,7 +125,7 @@
                     <span class="badge badge-xs badge-ghost block mt-1">จำลอง</span>
                   }
                   @if (outside(o)) {
-                    <span class="badge badge-xs badge-error block mt-1 whitespace-nowrap">นอกเขต 3 กม.</span>
+                    <span class="badge badge-xs badge-error block mt-1 whitespace-nowrap">นอกเขตส่ง 3 กม.</span>
                   }
                 </td>
 
@@ -190,7 +184,7 @@
                 </td>
 
                 <td (click)="$event.stopPropagation()">
-                  <div class="flex justify-end whitespace-nowrap">
+                  <div class="flex flex-col items-end whitespace-nowrap">
                     <button class="btn btn-xs btn-ghost" (click)="goDetail(o)">
                       <fa-icon [icon]="faEye"></fa-icon>ดู
                     </button>
@@ -237,21 +231,21 @@
 <!-- ข้อมูลทดลอง (HW-5 ข้อ 3.1 / 3.2) -->
 <div class="card bg-base-100 shadow-sm mt-5">
   <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
-    <span class="font-medium mr-2">ข้อมูลทดลอง</span>
+    <span class="font-medium mr-2">ข้อมูลจำลอง (ไว้ทดลอง)</span>
     <span class="text-sm text-base-content/60 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>
     <div class="join">
       <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
-        แสดงทั้งหมด
+        ดูทั้งหมด
       </button>
       <button
         class="btn btn-sm join-item"
         [class.btn-neutral]="typeFilter() === 'real'"
         (click)="typeFilter.set('real')"
       >
-        เฉพาะจริง
+        ดูเฉพาะของจริง
       </button>
       <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'sim'" (click)="typeFilter.set('sim')">
-        เฉพาะจำลอง
+        ดูเฉพาะข้อมูลจำลอง
       </button>
     </div>
     <button class="btn btn-sm btn-outline" (click)="simulate()" [disabled]="working()">

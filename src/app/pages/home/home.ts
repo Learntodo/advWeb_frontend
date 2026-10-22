@@ -8,7 +8,6 @@ import {
   faFlask,
   faLocationCrosshairs,
   faRoute,
-  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { Customers as CustomersApi } from '../../services/api/customers';
 import { Orders as OrdersApi } from '../../services/api/orders';
@@ -36,7 +35,6 @@ export class Home {
   faFlask = faFlask;
   faBroom = faBroom;
   faArrowRight = faArrowRight;
-  faUserPlus = faUserPlus;
   faLocationCrosshairs = faLocationCrosshairs;
   faRoute = faRoute;
 
@@ -69,21 +67,14 @@ export class Home {
   summary = computed(() => {
     let boxes = 0;
     let sales = 0;
-    let pending = 0;
-    let delivered = 0;
     for (const o of this.todayOrders()) {
       boxes = boxes + o.quantity;
       sales = sales + Number(o.total_price);
-      if (o.status === 'pending') pending = pending + 1;
-      if (o.status === 'delivered') delivered = delivered + 1;
     }
     return {
       orders: this.todayOrders().length,
       boxes: boxes,
       sales: sales,
-      foodCost: boxes * this.api.BOX_COST, // ต้นทุนอาหาร
-      pending: pending,
-      delivered: delivered,
     };
   });
 

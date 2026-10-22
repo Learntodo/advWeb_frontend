@@ -21,9 +21,9 @@
       <div role="alert" class="alert alert-soft text-sm py-2">
         @if (auth.user() === null) {
           <span
-            >ถ้าคุณเป็นไรเดอร์ของใบงานนี้
-            <a routerLink="/login" class="link link-primary">เข้าสู่ระบบ</a> ด้วยเบอร์โทรของตัวเอง จะกดบันทึก
-            “ส่งถึงแล้ว” ได้</span
+            >ถ้าคุณเป็นไรเดอร์ของใบงานนี้ ให้
+            <a routerLink="/login" class="link link-primary">เข้าสู่ระบบ</a> ด้วยเบอร์โทรของคุณก่อน จึงจะกด “ส่งถึงแล้ว”
+            ได้</span
           >
         } @else {
           <span>ใบงานนี้ไม่ใช่ของคุณ ดูได้อย่างเดียว</span>

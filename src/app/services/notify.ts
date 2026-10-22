@@ -29,11 +29,11 @@ export class Notify {
   apiError(err: unknown, title: string) {
     // status 0 = ติดต่อ backend ไม่ได้เลย (ยังไม่ได้รัน backend)
     if (err instanceof HttpErrorResponse && err.status === 0) {
-      this.error('เชื่อมต่อ API ไม่ได้ ตรวจสอบว่ารัน backend แล้ว');
+      this.error('ติดต่อระบบไม่ได้ ตรวจดูอินเทอร์เน็ต แล้วลองใหม่อีกครั้ง');
       return;
     }
-    // backend ส่ง error กลับมาในรูปแบบ { "error": "..." }
-    if (err instanceof HttpErrorResponse && err.error?.error) {
+    // backend ส่ง error กลับมาในรูปแบบ { "error": "..." } (แสดงเฉพาะข้อความภาษาไทย ข้อความอังกฤษผู้ใช้อ่านไม่เข้าใจ)
+    if (err instanceof HttpErrorResponse && /[ก-๙]/.test(err.error?.error ?? '')) {
       this.error(`${title}: ${err.error.error}`);
       return;
     }

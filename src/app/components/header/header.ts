@@ -35,7 +35,7 @@ export class Header {
 
   // เมนูหลักของฝั่งเจ้าของร้าน (ไรเดอร์ไม่เห็นเมนูนี้)
   menus = [
-    { path: '/', label: 'ภาพรวม', icon: faHouse, exact: true },
+    { path: '/', label: 'หน้าแรก', icon: faHouse, exact: true },
     { path: '/customers', label: 'ลูกค้า', icon: faUsers, exact: false },
     { path: '/orders', label: 'ออเดอร์', icon: faBoxOpen, exact: false },
     { path: '/routes', label: 'จัดเส้นทาง', icon: faRoute, exact: false },

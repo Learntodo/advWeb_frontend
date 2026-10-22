@@ -30,7 +30,7 @@
               <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
               <input
                 name="searchText"
-                placeholder="ลูกค้าเก่า: พิมพ์เบอร์โทรหรือชื่อ"
+                placeholder="พิมพ์เบอร์โทรหรือชื่อลูกค้าเพื่อค้นหา"
                 autocomplete="off"
                 [(ngModel)]="searchText"
               />
@@ -138,7 +138,7 @@
             [class.font-bold]="shopDistance()! > api.MAX_KM"
           >
             จุดส่งห่างร้าน {{ shopDistance()!.toFixed(1) }} กม. ·
-            {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (วงประสีเขียว)' }}
+            {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (ในวงเส้นประสีเขียว)' }}
           </p>
         }
       </fieldset>

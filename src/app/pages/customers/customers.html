@@ -26,7 +26,9 @@
     @if (searchedText()) {
       <div class="flex items-center gap-2 text-sm">
         ผลการค้นหา “{{ searchedText() }}” พบ {{ customers().length }} คน
-        <button class="btn btn-xs btn-ghost" (click)="clearSearch()"><fa-icon [icon]="faXmark"></fa-icon>ล้าง</button>
+        <button class="btn btn-xs btn-ghost" (click)="clearSearch()">
+          <fa-icon [icon]="faXmark"></fa-icon>ดูทั้งหมด
+        </button>
       </div>
     }
 

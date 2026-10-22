@@ -30,7 +30,7 @@ export class PasswordForm {
   validate(): string {
     if (this.oldPassword() === '') return 'กรุณากรอกรหัสผ่านเดิม';
     if (this.newPassword().length < 6) return 'รหัสผ่านใหม่ต้องยาวอย่างน้อย 6 ตัว';
-    if (this.newPassword() !== this.confirmPassword()) return 'ยืนยันรหัสผ่านใหม่ไม่ตรงกัน';
+    if (this.newPassword() !== this.confirmPassword()) return 'รหัสผ่านใหม่ที่พิมพ์ 2 ครั้งไม่ตรงกัน';
     return '';
   }
 

@@ -35,33 +35,25 @@
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ออเดอร์วันนี้</span>
-      <span class="font-display text-3xl">{{ summary().orders }}</span>
-      <span class="text-xs text-base-content/60"
-        >รอส่ง {{ summary().pending }} · ส่งแล้ว {{ summary().delivered }}</span
-      >
+      <span class="font-display text-3xl">{{ summary().orders }} ออเดอร์</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำวันนี้</span>
-      <span class="font-display text-3xl">{{ summary().boxes }}</span>
-      <span class="text-xs text-base-content/60">กล่อง</span>
+      <span class="font-display text-3xl">{{ summary().boxes }} กล่อง</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
       <span class="text-sm text-base-content/70">ยอดขายวันนี้</span>
       <span class="font-display text-3xl text-primary">{{ baht(summary().sales) }}</span>
-      <span class="text-xs text-base-content/60">ต้นทุนอาหาร {{ baht(summary().foodCost) }}</span>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm">
     <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ลูกค้าในระบบ</span>
-      <span class="font-display text-3xl">{{ customers().length }}</span>
-      <a routerLink="/customers" [queryParams]="{ add: 1 }" class="link link-primary text-xs">
-        <fa-icon [icon]="faUserPlus"></fa-icon> เพิ่มลูกค้า
-      </a>
+      <span class="text-sm text-base-content/70">ลูกค้าทั้งหมด</span>
+      <span class="font-display text-3xl">{{ customers().length }} คน</span>
     </div>
   </div>
 </div>
@@ -85,7 +77,7 @@
     <div class="card-body p-0">
       <div class="flex items-center justify-between px-5 pt-4">
         <h2 class="font-display">ออเดอร์ล่าสุด</h2>
-        <a routerLink="/orders" class="btn btn-xs btn-ghost"> ทั้งหมด <fa-icon [icon]="faArrowRight"></fa-icon> </a>
+        <a routerLink="/orders" class="btn btn-xs btn-ghost"> ดูทั้งหมด <fa-icon [icon]="faArrowRight"></fa-icon> </a>
       </div>
 
       @if (loading()) {

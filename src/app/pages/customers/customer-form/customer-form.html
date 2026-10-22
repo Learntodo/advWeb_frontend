@@ -34,7 +34,7 @@
         </fieldset>
 
         <fieldset class="fieldset">
-          <legend class="fieldset-legend">อีเมล (ไม่บังคับ)</legend>
+          <legend class="fieldset-legend">อีเมล (ไม่ใส่ก็ได้)</legend>
           <input class="input outline-0 w-full" name="email" type="email" [(ngModel)]="email" />
         </fieldset>
 
@@ -68,7 +68,7 @@
             [class.font-bold]="shopDistance()! > api.MAX_KM"
           >
             ห่างร้าน {{ shopDistance()!.toFixed(1) }} กม. ·
-            {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (วงประสีเขียว)' }}
+            {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (ในวงเส้นประสีเขียว)' }}
           </p>
         }
 

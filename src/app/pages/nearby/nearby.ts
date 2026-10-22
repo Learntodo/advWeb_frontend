@@ -118,7 +118,7 @@ export class Nearby {
     if (c) {
       return c.first_name + ' ' + c.last_name;
     }
-    return 'ลูกค้า #' + customerId;
+    return 'ลูกค้า ID ' + customerId;
   }
 
   // สลับแท็บ ลูกค้า / ออเดอร์
@@ -146,7 +146,7 @@ export class Nearby {
           lng: Number(position.coords.longitude.toFixed(6)),
         });
       },
-      () => this.notify.error('หาตำแหน่งปัจจุบันไม่ได้ (ยังไม่ได้อนุญาตตำแหน่ง?)'),
+      () => this.notify.error('หาตำแหน่งไม่ได้ ลองกดอนุญาตให้เว็บรู้ตำแหน่งก่อน'),
     );
   }
 
