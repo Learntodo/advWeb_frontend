@@ -60,7 +60,12 @@
                 >
                   <td class="text-base-content/60">{{ c.id }}</td>
                   <td>
-                    <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
+                    <div class="font-medium">
+                      {{ c.first_name }} {{ c.last_name }}
+                      @if (outside(c)) {
+                        <span class="badge badge-xs badge-error">นอกเขตส่ง 3 กม.</span>
+                      }
+                    </div>
                     <div class="text-sm text-base-content/70">
                       <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ c.phone }}
                     </div>
@@ -98,6 +103,7 @@
           class="h-80 lg:h-[60vh]"
           [markers]="markers()"
           [focus]="focus()"
+          [zone]="api.DELIVERY_ZONE"
           (markerClick)="onMarkerClick($event)"
         ></app-map-view>
       </div>

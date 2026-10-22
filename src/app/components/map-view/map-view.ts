@@ -60,7 +60,8 @@ export class MapView implements AfterViewInit, OnDestroy {
   // ---------- ข้อมูลที่รับมาจาก component แม่ ----------
   markers = input<MapMarker[]>([]); // หมุดที่จะแสดง
   picked = input<LatLng | null>(null); // จุดที่ผู้ใช้เลือก (แสดงเป็นจุดสีแดง)
-  circle = input<MapCircle | null>(null); // วงกลมรัศมี
+  circle = input<MapCircle | null>(null); // วงกลมรัศมี (ซูมให้เห็นทั้งวง)
+  zone = input<MapCircle | null>(null); // เขตส่งของร้าน (วงประ ไม่ซูมตาม)
   lines = input<MapLine[]>([]); // เส้นทางวิ่งของไรเดอร์ (แยกสีแต่ละคน)
   focus = input<LatLng | null>(null); // ถ้ามีค่า แผนที่จะเลื่อนไปที่จุดนี้
   autoZoom = input(true); // true = ซูมให้เห็นหมุดทั้งหมด
@@ -171,7 +172,20 @@ export class MapView implements AfterViewInit, OnDestroy {
       }).addTo(this.layer);
     }
 
-    // 3) วงกลมรัศมี แล้วซูมให้เห็นทั้งวง
+    // 3) เขตส่งของร้าน (วงประ คลิกทะลุได้ ไม่ขวางการปักหมุด)
+    const zone = this.zone();
+    if (zone) {
+      L.circle([zone.lat, zone.lng], {
+        radius: zone.radiusKm * 1000,
+        color: '#16a34a',
+        weight: 2,
+        fill: false,
+        dashArray: '8 8',
+        interactive: false,
+      }).addTo(this.layer);
+    }
+
+    // 4) วงกลมรัศมี แล้วซูมให้เห็นทั้งวง
     const circle = this.circle();
     if (circle) {
       const shape = L.circle([circle.lat, circle.lng], {
@@ -184,7 +198,7 @@ export class MapView implements AfterViewInit, OnDestroy {
       this.map.fitBounds(shape.getBounds(), { animate: false });
     }
 
-    // 4) ซูมให้เห็นหมุดทั้งหมด (รวมร้าน)
+    // 5) ซูมให้เห็นหมุดทั้งหมด (รวมร้าน)
     if (this.autoZoom() && points.length > 0) {
       const shop = this.api.SHOP_LOCATION;
       points.push([shop.lat, shop.lng]);

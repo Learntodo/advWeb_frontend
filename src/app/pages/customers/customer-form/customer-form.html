@@ -57,9 +57,16 @@
           class="h-64 md:h-72"
           [picked]="pickedPoint()"
           [focus]="startPoint()"
+          [zone]="api.DELIVERY_ZONE"
           [autoZoom]="false"
           (mapClick)="pickLocation($event)"
         ></app-map-view>
+        @if (shopDistance() !== null) {
+          <p class="label" [class.text-error]="shopDistance()! > api.MAX_KM" [class.font-bold]="shopDistance()! > api.MAX_KM">
+            ห่างร้าน {{ shopDistance()!.toFixed(1) }} กม. ·
+            {{ shopDistance()! > api.MAX_KM ? 'นอกเขตส่ง 3 กม. ร้านส่งไม่ถึง' : 'อยู่ในเขตส่ง (วงประสีเขียว)' }}
+          </p>
+        }
 
         <div class="grid grid-cols-2 gap-3 mt-2">
           <label class="input outline-0 w-full">

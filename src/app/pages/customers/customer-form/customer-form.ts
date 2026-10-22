@@ -7,6 +7,7 @@ import { CustomerGetResponse } from '../../../model/customer-get-res';
 import { CustomerPostRequest } from '../../../model/customer-post-req';
 import { MapView, LatLng } from '../../../components/map-view/map-view';
 import { Notify } from '../../../services/notify';
+import { Api } from '../../../config/api';
 import { googleMapsLink } from '../../../utils/format';
 
 // ฟอร์มเพิ่ม / แก้ไขลูกค้า (แสดงเป็นกล่อง modal)
@@ -20,6 +21,7 @@ import { googleMapsLink } from '../../../utils/format';
 export class CustomerForm {
   customersApi = inject(CustomersApi);
   notify = inject(Notify);
+  api = inject(Api);
 
   // ลูกค้าที่จะแก้ไข ถ้าเป็น null คือเพิ่มลูกค้าใหม่
   customer = input<CustomerGetResponse | null>(null);
@@ -51,6 +53,12 @@ export class CustomerForm {
       return null;
     }
     return { lat: lat, lng: lng };
+  });
+
+  // ระยะจากร้านถึงบ้าน (กม.) ยังไม่ปักหมุด = null
+  shopDistance = computed(() => {
+    const point = this.pickedPoint();
+    return point ? this.api.shopKm(point) : null;
   });
 
   ngOnInit() {
@@ -97,6 +105,8 @@ export class CustomerForm {
     if (!/^0[0-9]{8,9}$/.test(this.phone().trim())) return 'เบอร์โทรต้องเป็นตัวเลข 9-10 หลัก ขึ้นต้นด้วย 0';
     if (this.address().trim() === '') return 'กรุณากรอกที่อยู่';
     if (this.latitude() === null || this.longitude() === null) return 'กรุณาคลิกบนแผนที่เพื่อเลือกพิกัดบ้าน';
+    const km = this.shopDistance() as number;
+    if (km > this.api.MAX_KM) return `บ้านลูกค้าอยู่ห่างร้าน ${km.toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`;
     return '';
   }
 

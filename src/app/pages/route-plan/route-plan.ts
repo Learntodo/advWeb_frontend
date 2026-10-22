@@ -112,6 +112,9 @@ export class RoutePlan {
     return !!saved && saved.orders > 0 && saved.delivered === saved.orders && saved.waiting === 0;
   });
 
+  // รหัสออเดอร์นอกเขตส่ง เช่น "#12, #15"
+  outsideText = computed(() => (this.saved()?.outside ?? []).map((id) => '#' + id).join(', '));
+
   // ออเดอร์ที่ต้องจัดเส้นทางรอบใหม่ (ยังไม่อยู่ในใบงาน)
   orderCount = computed(() => this.saved()?.waiting ?? 0);
 

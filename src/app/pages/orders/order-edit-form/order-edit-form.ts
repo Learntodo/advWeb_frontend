@@ -6,6 +6,7 @@ import { Orders as OrdersApi } from '../../../services/api/orders';
 import { OrderGetResponse, OrderStatus } from '../../../model/order-get-res';
 import { MapView, LatLng } from '../../../components/map-view/map-view';
 import { Notify } from '../../../services/notify';
+import { Api } from '../../../config/api';
 import { baht, statuses, statusLabel, toDateInput } from '../../../utils/format';
 
 // ฟอร์มแก้ไขออเดอร์ (แสดงเป็นกล่อง modal)
@@ -19,6 +20,7 @@ import { baht, statuses, statusLabel, toDateInput } from '../../../utils/format'
 export class OrderEditForm {
   ordersApi = inject(OrdersApi);
   notify = inject(Notify);
+  api = inject(Api);
 
   order = input.required<OrderGetResponse>(); // ออเดอร์ที่จะแก้ไข
   saved = output();
@@ -60,6 +62,9 @@ export class OrderEditForm {
     this.startPoint.set({ lat: this.lat(), lng: this.lng() });
   }
 
+  // ระยะจากร้านถึงจุดส่ง (กม.)
+  shopDistance = computed(() => this.api.shopKm({ lat: this.lat(), lng: this.lng() }));
+
   // คลิกแผนที่ -> ย้ายจุดส่ง
   pickLocation(point: LatLng) {
     this.lat.set(point.lat);
@@ -73,6 +78,15 @@ export class OrderEditForm {
     }
     if (this.unitPrice() < 0) {
       this.notify.error('ราคาต่อกล่องต้องไม่ติดลบ');
+      return;
+    }
+    // ย้ายจุดส่ง: จุดใหม่ต้องอยู่ในเขตส่ง 3 กม. จากร้าน
+    const o = this.order();
+    const moved = this.lat() !== Number(o.delivery_latitude) || this.lng() !== Number(o.delivery_longitude);
+    if (moved && this.shopDistance() > this.api.MAX_KM) {
+      this.notify.error(
+        `จุดส่งอยู่ห่างร้าน ${this.shopDistance().toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`,
+      );
       return;
     }
 

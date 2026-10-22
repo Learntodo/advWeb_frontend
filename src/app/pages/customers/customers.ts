@@ -17,6 +17,7 @@ import { Customers as CustomersApi } from '../../services/api/customers';
 import { CustomerGetResponse } from '../../model/customer-get-res';
 import { MapMarker, MapView, LatLng } from '../../components/map-view/map-view';
 import { Notify } from '../../services/notify';
+import { Api } from '../../config/api';
 import { Simulate as SimulateApi } from '../../services/api/simulate';
 import { CustomerForm } from './customer-form/customer-form';
 
@@ -32,6 +33,7 @@ export class Customers {
   notify = inject(Notify);
   router = inject(Router);
   simulateApi = inject(SimulateApi);
+  api = inject(Api);
 
   // query param ?add=1 ให้เปิดฟอร์มเพิ่มลูกค้าทันที (ส่งมาจากหน้าอื่น)
   add = input<string>();
@@ -73,6 +75,11 @@ export class Customers {
     }
     return markers;
   });
+
+  // บ้านลูกค้าอยู่นอกเขตส่ง 3 กม. จากร้าน (สั่งออเดอร์ส่งที่บ้านไม่ได้)
+  outside(c: CustomerGetResponse): boolean {
+    return this.api.shopKm({ lat: Number(c.latitude), lng: Number(c.longitude) }) > this.api.MAX_KM;
+  }
 
   ngOnInit() {
     this.loadCustomers();

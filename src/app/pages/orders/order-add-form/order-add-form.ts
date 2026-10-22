@@ -87,6 +87,12 @@ export class OrderAddForm {
     return { lat: Number(c.latitude), lng: Number(c.longitude) };
   });
 
+  // ระยะจากร้านถึงจุดส่ง (กม.) ยังไม่มีจุดส่ง = null
+  shopDistance = computed(() => {
+    const point = this.deliveryPoint();
+    return point ? this.api.shopKm(point) : null;
+  });
+
   ngOnInit() {
     this.selectedId.set(this.customerId());
   }
@@ -140,6 +146,13 @@ export class OrderAddForm {
       data.delivery_address = this.address().trim();
       data.delivery_latitude = this.lat()!;
       data.delivery_longitude = this.lng()!;
+    }
+
+    // จุดส่งต้องอยู่ในเขตส่ง 3 กม. จากร้าน
+    const km = this.shopDistance();
+    if (km !== null && km > this.api.MAX_KM) {
+      this.notify.error(`จุดส่งอยู่ห่างร้าน ${km.toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`);
+      return;
     }
 
     this.saving.set(true);

@@ -149,6 +149,11 @@ export class Orders {
     return markers;
   });
 
+  // จุดส่งอยู่นอกเขตส่ง 3 กม. จากร้าน (ระบบไม่จัดเส้นทางให้)
+  outside(o: OrderGetResponse): boolean {
+    return this.api.shopKm({ lat: Number(o.delivery_latitude), lng: Number(o.delivery_longitude) }) > this.api.MAX_KM;
+  }
+
   async ngOnInit() {
     await this.loadData();
 

@@ -83,6 +83,7 @@ export interface SavedPlanResponse extends PlanInfo {
   riders_free: number; // ไรเดอร์ที่ว่าง (ไม่ได้ถือใบงานที่ยังส่งไม่ครบ) รับรอบใหม่ได้
   delivered: number; // ส่งถึงลูกค้าแล้วกี่ออเดอร์
   waiting: number; // ออเดอร์ "รอส่ง" ที่ยังไม่อยู่ในใบงาน (จัดเป็นรอบใหม่)
+  outside: number[]; // รหัสออเดอร์ที่จุดส่งอยู่นอกเขต 3 กม. (ระบบไม่จัดเส้นทางให้)
   start_time: string | null; // เวลาที่กดออกส่งรอบล่าสุด
   rounds: DispatchRound[];
 }

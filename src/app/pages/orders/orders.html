@@ -130,6 +130,9 @@
                   @if (o.is_simulated === 1) {
                     <span class="badge badge-xs badge-ghost block mt-1">จำลอง</span>
                   }
+                  @if (outside(o)) {
+                    <span class="badge badge-xs badge-error block mt-1 whitespace-nowrap">นอกเขต 3 กม.</span>
+                  }
                 </td>
 
                 <td class="min-w-32">
@@ -223,6 +226,7 @@
           class="h-80 xl:h-[60vh]"
           [markers]="markers()"
           [focus]="focus()"
+          [zone]="api.DELIVERY_ZONE"
           (markerClick)="onMarkerClick($event)"
         ></app-map-view>
       </div>

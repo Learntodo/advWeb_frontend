@@ -104,6 +104,17 @@
     }
   }
 
+  <!-- ออเดอร์นอกเขตส่ง 3 กม. ระบบไม่จัดเส้นทางให้ -->
+  @if (!isDraft() && (saved()?.outside?.length ?? 0) > 0) {
+    <div role="alert" class="alert alert-error alert-soft mb-4">
+      <fa-icon [icon]="faTriangleExclamation"></fa-icon>
+      <span>
+        <b>ออเดอร์ {{ outsideText() }} อยู่นอกเขตส่ง 3 กม.</b> ร้านส่งไม่ถึง ระบบจึงไม่จัดเส้นทางให้ ·
+        <a routerLink="/orders" class="link">ไปแก้จุดส่งหรือยกเลิกที่หน้าออเดอร์</a>
+      </span>
+    </div>
+  }
+
   @if (current(); as plan) {
     <!-- สรุปค่าใช้จ่าย กำไร และเวลา -->
     <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-5">
