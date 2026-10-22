@@ -12,7 +12,7 @@
           <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
         </p>
         <p class="text-sm opacity-80">
-          ส่ง {{ j.stops.length }} จุด · {{ j.total_km.toFixed(1) }} กม. · ออก 11:30 น. ถึงจุดสุดท้าย
+          ส่ง {{ j.stops.length }} จุด · {{ j.total_km.toFixed(1) }} กม. · ออก {{ j.start_time }} น. ถึงจุดสุดท้าย
           {{ j.finish_time }} น. · ค่าส่งรอบนี้ {{ baht(j.rider_cost) }}
         </p>
         <p class="text-sm mt-1">
@@ -46,7 +46,7 @@
         <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
           ><fa-icon [icon]="faHouse"></fa-icon
         ></span>
-        ออกจากร้าน 11:30 น.
+        ออกจากร้าน {{ j.start_time }} น.
       </li>
       @for (s of j.stops; track s.order_id) {
         <li class="card bg-base-100 shadow-sm" [class.opacity-75]="s.status === 'delivered'">

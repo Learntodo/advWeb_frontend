@@ -11,7 +11,8 @@ export interface RouteStop {
   longitude: number;
   quantity: number;
   distance_km: number; // ระยะจากจุดก่อนหน้า (จุดแรก = จากร้าน)
-  eta: string; // เวลาถึงโดยประมาณ เช่น "11:42"
+  eta: string; // เวลาถึงโดยประมาณ เช่น "11:42" (มีความหมายเมื่อออกส่งแล้ว)
+  minutes: number; // ถึงหลังออกจากร้านกี่นาที
   status?: 'pending' | 'delivering' | 'delivered' | 'cancelled'; // มีเมื่อบันทึกเป็นใบงานแล้ว
 }
 
@@ -29,6 +30,7 @@ export interface RouteInfo {
   id?: number; // รหัสใบงาน (มีเมื่อบันทึกแล้ว)
   code?: string; // เลขใบงาน (มีเมื่อบันทึกแล้ว)
   rider?: RouteRider | null; // ไรเดอร์ที่รับใบงาน (มีเมื่อบันทึกแล้ว)
+  start_time?: string; // เวลาที่กดออกส่ง (มีเมื่อบันทึกแล้ว)
   order_ids: number[];
   stops: RouteStop[];
   total_km: number;
@@ -38,6 +40,7 @@ export interface RouteInfo {
   rider_cost: number;
   profit: number;
   finish_time: string;
+  finish_minutes: number; // ถึงจุดสุดท้ายหลังออกจากร้านกี่นาที
   late_orders: number;
 }
 
@@ -52,6 +55,7 @@ export interface PlanInfo {
   rider_cost: number;
   profit: number;
   finish_time: string;
+  finish_minutes: number; // ส่งครบทุกจุดหลังออกจากร้านกี่นาที
   late_orders: number;
   routes: RouteInfo[];
 }
@@ -70,6 +74,7 @@ export interface SavedPlanResponse extends PlanInfo {
   riders_available: number; // ไรเดอร์ที่เปิดใช้งานอยู่ในระบบ
   delivered: number; // ส่งถึงลูกค้าแล้วกี่ออเดอร์ (มากกว่า 0 = ยกเลิก / จัดใหม่ไม่ได้)
   waiting: number; // ออเดอร์ "รอส่ง" ที่ยังไม่อยู่ในใบงาน
+  start_time: string | null; // เวลาที่กดออกส่ง
 }
 
 // ผลลัพธ์จาก POST /routes (บันทึกแผน ได้เลขใบงาน)
@@ -84,6 +89,7 @@ export interface JobSheet {
   delivery_date: string;
   route_no: number;
   rider: RouteRider | null;
+  start_time: string; // เวลาออกจากร้าน
   total_km: number;
   boxes: number;
   rider_cost: number;

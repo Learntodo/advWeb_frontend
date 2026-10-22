@@ -116,6 +116,14 @@ export class RoutePlan {
     return !!saved && saved.orders > 0 && saved.delivered === saved.orders;
   });
 
+  // เวลาสุดท้ายที่ต้องถึงลูกค้า = เวลาออกส่ง + 1 ชั่วโมง
+  deadline = computed(() => {
+    const start = this.saved()?.start_time;
+    if (!start) return '';
+    const h = (Number(start.slice(0, 2)) + 1) % 24;
+    return String(h).padStart(2, '0') + start.slice(2);
+  });
+
   // ออเดอร์ที่ต้องจัดเส้นทาง (ยังไม่ได้จัด = รอส่งทั้งหมด, จัดแล้ว = ในใบงาน + ที่รับเพิ่มมา)
   orderCount = computed(() => {
     const saved = this.saved();
@@ -163,7 +171,8 @@ export class RoutePlan {
           popup:
             `เที่ยวที่ ${r.route_no} จุดที่ ${s.seq}${r.rider ? ' · ' + r.rider.first_name : ''}\n` +
             `ลูกค้า #${s.customer_id} ${s.first_name} ${s.last_name} · ${s.quantity} กล่อง\n` +
-            `ออเดอร์ #${s.order_id} · ถึงประมาณ ${s.eta} น.`,
+            `ออเดอร์ #${s.order_id} · ` +
+            (this.isDraft() ? `ถึงหลังออกจากร้าน ${s.minutes} นาที` : `ถึงประมาณ ${s.eta} น.`),
         });
       }
     }
@@ -288,25 +297,28 @@ export class RoutePlan {
     this.onlyRoute.set(this.onlyRoute() === r.route_no ? null : r.route_no);
   }
 
-  // POST /routes ยืนยันแผนที่เลือก -> ได้เลขใบงาน และแจกให้ไรเดอร์แต่ละคน
+  // ปุ่ม "ออกส่งเลย" POST /routes ยืนยันแผนที่เลือก -> ได้เลขใบงาน แจกให้ไรเดอร์แต่ละคน
+  // เวลาที่กด = เวลาออกจากร้าน ไรเดอร์ต้องส่งถึงทุกจุดภายใน 1 ชั่วโมงหลังจากนี้
   async savePlan() {
     const plan = this.current();
     if (!plan || !this.isDraft()) return;
     const saved = this.saved();
+    let question = `ไรเดอร์ออกจากร้านตอนนี้เลยใช่หรือไม่?\nต้องส่งถึงทุกจุดภายใน 1 ชั่วโมง (แผนนี้ใช้เวลา ${plan.finish_minutes} นาที)`;
     if (saved && saved.routes.length > 0) {
-      if (!confirm('วันนี้มีใบงานอยู่แล้ว ต้องการแทนที่ด้วยแผนนี้ใช่หรือไม่? (เลขใบงานเดิมจะใช้ไม่ได้)')) {
-        return;
-      }
+      question = question + '\n\nวันนี้มีใบงานอยู่แล้ว จะถูกแทนที่ด้วยแผนนี้ (เลขใบงานเดิมจะใช้ไม่ได้)';
+    }
+    if (!confirm(question)) {
+      return;
     }
     this.working.set(true);
     try {
       const routes = plan.routes.map((r) => r.order_ids);
       const res = await this.routesApi.save(this.date(), routes);
-      this.notify.success(`ออกใบงานให้ไรเดอร์ ${res.affected_row} คนแล้ว`);
+      this.notify.success(`ออกส่งแล้ว ส่งใบงานให้ไรเดอร์ ${res.affected_row} คน`);
       this.plans.set([]);
       await this.loadSaved();
     } catch (err) {
-      this.notify.apiError(err, 'ออกใบงานไม่สำเร็จ');
+      this.notify.apiError(err, 'ออกส่งไม่สำเร็จ');
     }
     this.working.set(false);
   }

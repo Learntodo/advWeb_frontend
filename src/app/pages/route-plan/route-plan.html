@@ -3,7 +3,7 @@
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">จัดเส้นทางส่ง</h1>
     <p class="text-base-content/70 text-sm">
-      ระบบแบ่งออเดอร์ให้ไรเดอร์ และเรียงจุดส่งให้เอง · ออกจากร้าน 11:30 น. ถึงลูกค้าไม่เกิน 12:30 น. ·
+      ระบบแบ่งออเดอร์ให้ไรเดอร์ และเรียงจุดส่งให้เอง · ต้องถึงลูกค้าทุกจุดภายใน 1 ชั่วโมงหลังกด “ออกส่ง” ·
       ไรเดอร์คนละไม่เกิน 3 ออเดอร์
     </p>
   </div>
@@ -26,7 +26,7 @@
         <p>
           <b>ระบบคิดมาให้ {{ plans().length }} แบบ</b>
           {{ plans().length > 1 ? '(แบบแรกค่าไรเดอร์ถูกที่สุด) กดเลือกดูแต่ละแบบได้' : '' }} ถ้าพอใจแล้วกดปุ่มสีเขียว
-          <b>“ใช้แบบนี้ ออกใบงาน”</b>
+          <b>“ออกส่งเลย”</b> (เวลาที่กด = เวลาไรเดอร์ออกจากร้าน)
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <div role="tablist" class="tabs tabs-box">
@@ -37,7 +37,7 @@
             }
           </div>
           <button class="btn btn-success" (click)="savePlan()" [disabled]="working()">
-            <fa-icon [icon]="faCheck"></fa-icon>ใช้แบบนี้ ออกใบงาน
+            <fa-icon [icon]="faCheck"></fa-icon>ออกส่งเลย
           </button>
           <button class="btn btn-outline" (click)="calculate(true)" [disabled]="working()">
             <fa-icon [icon]="faArrowsRotate"></fa-icon>ขอดูแบบอื่น
@@ -58,7 +58,8 @@
       <div role="alert" class="alert alert-info alert-soft mb-4 flex-col items-stretch sm:flex-row sm:items-center">
         <fa-icon [icon]="faMotorcycle" size="lg"></fa-icon>
         <div class="flex-1">
-          <b>ไรเดอร์กำลังออกส่ง</b> ส่งถึงแล้ว {{ saved()?.delivered }} จาก {{ saved()?.orders }} ออเดอร์
+          <b>ไรเดอร์ออกส่งตั้งแต่ {{ saved()?.start_time }} น.</b> ต้องถึงทุกจุดภายใน {{ deadline() }} น. · ส่งถึงแล้ว
+          {{ saved()?.delivered }} จาก {{ saved()?.orders }} ออเดอร์
           <progress
             class="progress progress-success w-full mt-1"
             [value]="saved()?.delivered"
@@ -71,8 +72,8 @@
       <div role="alert" class="alert alert-success alert-soft mb-4 flex-col items-stretch sm:flex-row sm:items-center">
         <fa-icon [icon]="faClipboardList" size="lg"></fa-icon>
         <span class="flex-1"
-          ><b>ออกใบงานแล้ว</b> ขั้นต่อไป: กด “คัดลอกลิงก์” ในการ์ดแต่ละเที่ยว ส่งให้ไรเดอร์ทาง LINE
-          หรือให้ไรเดอร์เข้าระบบด้วยเบอร์โทรของตัวเอง จะเห็นใบงานทันที</span
+          ><b>ออกส่งแล้วเมื่อ {{ saved()?.start_time }} น.</b> ต้องถึงทุกจุดภายใน {{ deadline() }} น. · กด “คัดลอกลิงก์”
+          ในการ์ดแต่ละเที่ยว ส่งให้ไรเดอร์ทาง LINE หรือให้ไรเดอร์เข้าระบบด้วยเบอร์โทรของตัวเอง จะเห็นใบงานทันที</span
         >
         <div class="flex flex-wrap gap-2">
           <button class="btn btn-sm btn-outline" (click)="calculate(false)" [disabled]="working()">
@@ -110,9 +111,15 @@
       <div class="card bg-base-100 shadow-sm">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ส่งเสร็จ</span>
-          <span class="font-display text-2xl" [class.text-error]="plan.late_orders > 0">{{ plan.finish_time }} น.</span>
+          <span class="font-display text-2xl" [class.text-error]="plan.late_orders > 0">{{
+            isDraft() ? plan.finish_minutes + ' นาที' : plan.finish_time + ' น.'
+          }}</span>
           <span class="text-xs" [class.text-success]="plan.late_orders === 0" [class.text-error]="plan.late_orders > 0">
-            {{ plan.late_orders === 0 ? 'ทันก่อน 12:30 ทุกจุด' : 'เลท ' + plan.late_orders + ' จุด' }}
+            {{
+              plan.late_orders === 0
+                ? (isDraft() ? 'หลังออกจากร้าน · ' : 'ใช้ ' + plan.finish_minutes + ' นาที · ') + 'ทันภายใน 1 ชม.'
+                : 'เกิน 1 ชม. ' + plan.late_orders + ' จุด'
+            }}
           </span>
         </div>
       </div>
@@ -196,7 +203,8 @@
                 <div>
                   <h3 class="font-display text-lg" [style.color]="color(r)">เที่ยวที่ {{ r.route_no }}</h3>
                   <p class="text-xs text-base-content/70">
-                    {{ r.boxes }} กล่อง · {{ r.total_km.toFixed(1) }} กม. · ถึงจุดสุดท้าย {{ r.finish_time }} น.
+                    {{ r.boxes }} กล่อง · {{ r.total_km.toFixed(1) }} กม. · ถึงจุดสุดท้าย
+                    {{ isDraft() ? r.finish_minutes + ' นาที' : r.finish_time + ' น.' }}
                   </p>
                 </div>
                 <div class="text-right text-sm">
@@ -210,7 +218,7 @@
               <!-- ไรเดอร์ที่รับเที่ยวนี้ -->
               @if (isDraft()) {
                 <p class="text-xs text-base-content/60">
-                  <fa-icon [icon]="faMotorcycle"></fa-icon> ระบบจะแจกให้ไรเดอร์เองตอนออกใบงาน (เปลี่ยนคนได้ทีหลัง)
+                  <fa-icon [icon]="faMotorcycle"></fa-icon> ระบบจะแจกให้ไรเดอร์เองตอนกดออกส่ง (เปลี่ยนคนได้ทีหลัง)
                 </p>
               } @else if (locked() || !r.id) {
                 <p class="text-sm">
@@ -253,7 +261,9 @@
                       >
                     </span>
                     <span class="text-right">
-                      <span class="block text-base-content/60">{{ s.eta }}</span>
+                      <span class="block text-base-content/60 whitespace-nowrap">{{
+                        isDraft() ? '+' + s.minutes + ' นาที' : s.eta
+                      }}</span>
                       @if (s.status === 'delivered') {
                         <span class="badge badge-success badge-xs">ส่งแล้ว</span>
                       } @else if (s.status === 'cancelled') {
