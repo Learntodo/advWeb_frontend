@@ -35,14 +35,14 @@ export class DeliveryRoutes {
     return response as SavedPlanResponse;
   }
 
-  // DELETE /routes?date=.. ยกเลิกใบงานทั้งหมดของวันนั้น
-  public async deleteSaved(date: string) {
-    const url = `${this.apiEndpoint}/routes`;
-    const response = await lastValueFrom(this.http.delete(url, { params: { date: date } }));
+  // DELETE /routes/{id} ยกเลิกใบงาน 1 เที่ยว (ออเดอร์กลับเป็น "รอส่ง")
+  public async cancelRoute(id: number) {
+    const url = `${this.apiEndpoint}/routes/${id}`;
+    const response = await lastValueFrom(this.http.delete(url));
     return response as AffectedResponse;
   }
 
-  // PUT /routes/{id} เปลี่ยนไรเดอร์ของใบงาน (ถ้าไรเดอร์คนนั้นมีใบงานอื่นอยู่ จะสลับกัน)
+  // PUT /routes/{id} เปลี่ยนไรเดอร์ของใบงาน (ถ้าไรเดอร์คนนั้นถือใบงานที่ยังไม่เริ่มส่ง จะสลับกัน)
   public async changeRider(id: number, riderId: number) {
     const url = `${this.apiEndpoint}/routes/${id}`;
     const response = await lastValueFrom(this.http.put(url, { rider_id: riderId }));

@@ -68,13 +68,23 @@ export interface PlanResponse {
   plans: PlanInfo[];
 }
 
-// ผลลัพธ์จาก GET /routes (ใบงานที่บันทึกแล้วของวันนั้น)
+// รอบที่ออกส่ง 1 รอบ (ใบงานที่กดออกส่งพร้อมกัน)
+export interface DispatchRound {
+  start_time: string; // เวลาที่กดออกส่ง
+  routes: number; // จำนวนเที่ยวในรอบนี้
+  orders: number;
+  delivered: number; // ส่งถึงแล้วกี่ออเดอร์
+}
+
+// ผลลัพธ์จาก GET /routes (ใบงานทุกรอบของวันนั้น)
 export interface SavedPlanResponse extends PlanInfo {
   date: string;
   riders_available: number; // ไรเดอร์ที่เปิดใช้งานอยู่ในระบบ
-  delivered: number; // ส่งถึงลูกค้าแล้วกี่ออเดอร์ (มากกว่า 0 = ยกเลิก / จัดใหม่ไม่ได้)
-  waiting: number; // ออเดอร์ "รอส่ง" ที่ยังไม่อยู่ในใบงาน
-  start_time: string | null; // เวลาที่กดออกส่ง
+  riders_free: number; // ไรเดอร์ที่ว่าง (ไม่ได้ถือใบงานที่ยังส่งไม่ครบ) รับรอบใหม่ได้
+  delivered: number; // ส่งถึงลูกค้าแล้วกี่ออเดอร์
+  waiting: number; // ออเดอร์ "รอส่ง" ที่ยังไม่อยู่ในใบงาน (จัดเป็นรอบใหม่)
+  start_time: string | null; // เวลาที่กดออกส่งรอบล่าสุด
+  rounds: DispatchRound[];
 }
 
 // ผลลัพธ์จาก POST /routes (บันทึกแผน ได้เลขใบงาน)

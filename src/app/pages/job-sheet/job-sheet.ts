@@ -18,7 +18,7 @@ import { LatLng, MapLine, MapMarker, MapView } from '../../components/map-view/m
 import { Road } from '../../services/road';
 import { Notify } from '../../services/notify';
 import { Auth } from '../../services/auth';
-import { baht, googleMapsLink, googleMapsRouteLink, thaiDate } from '../../utils/format';
+import { googleMapsLink, googleMapsRouteLink, thaiDate } from '../../utils/format';
 
 // หน้าใบงานของไรเดอร์ (เปิดในมือถือ ไม่ต้อง login) กรอกเลขใบงานที่ได้จากร้าน
 // เปิดลิงก์ /job?code=XXXXXXXX ได้ใบงานทันที, ไรเดอร์เจ้าของใบงานที่ login อยู่ กด "ส่งถึงแล้ว" ได้ทีละจุด
@@ -46,7 +46,6 @@ export class JobSheet {
   faHouse = faHouse;
   faCircleCheck = faCircleCheck;
 
-  baht = baht;
   thaiDate = thaiDate;
   googleMapsLink = googleMapsLink;
 

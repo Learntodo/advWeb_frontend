@@ -6,7 +6,6 @@ import {
   faArrowsRotate,
   faCheck,
   faCircleCheck,
-  faClipboardList,
   faCopy,
   faEye,
   faMotorcycle,
@@ -48,6 +47,7 @@ export const ROUTE_COLORS = [
 const MAX_ORDERS = 3;
 
 // หน้าจัดเส้นทางส่ง (เจ้าของร้าน): กดจัดเส้นทาง -> ดูแผนบนแผนที่ -> คำนวณใหม่ได้ -> ยืนยันเป็นใบงานของไรเดอร์
+// ส่งได้หลายรอบต่อวัน: มีออเดอร์ใหม่เข้ามาหลังออกส่งแล้ว กด "จัดเส้นทางรอบใหม่" ให้ไรเดอร์ที่ว่างรับไป
 @Component({
   selector: 'app-route-plan',
   imports: [FormsModule, RouterModule, FontAwesomeModule, MapView],
@@ -69,7 +69,6 @@ export class RoutePlan {
   faCheck = faCheck;
   faTrash = faTrash;
   faEye = faEye;
-  faClipboardList = faClipboardList;
   faCopy = faCopy;
   faMotorcycle = faMotorcycle;
   faCircleCheck = faCircleCheck;
@@ -82,7 +81,7 @@ export class RoutePlan {
   plans = signal<PlanInfo[]>([]); // แผนที่ระบบเสนอ (ยังไม่บันทึก)
   selected = signal(0); // แผนที่เลือกดูอยู่
   round = signal(0); // ครั้งที่กดคำนวณใหม่
-  saved = signal<SavedPlanResponse | null>(null); // ใบงานที่บันทึกแล้วของวันนี้
+  saved = signal<SavedPlanResponse | null>(null); // ใบงานทุกรอบที่บันทึกแล้วของวันนี้
   riders = signal<RiderGetResponse[]>([]); // ไรเดอร์ที่เปิดใช้งาน (ใช้เลือกคนรับใบงาน)
   onlyRoute = signal<number | null>(null); // ดูเฉพาะเที่ยวเดียว (null = ดูทุกเที่ยว)
   loading = signal(true);
@@ -107,34 +106,20 @@ export class RoutePlan {
   // true = กำลังดูแผนที่ยังไม่ได้บันทึก
   isDraft = computed(() => this.plans().length > 0);
 
-  // ไรเดอร์เริ่มส่งของแล้ว (ส่งถึงลูกค้าอย่างน้อย 1 จุด) -> ยกเลิก / จัดใหม่ / เปลี่ยนคนไม่ได้
-  locked = computed(() => (this.saved()?.delivered ?? 0) > 0);
-
-  // ส่งครบทุกออเดอร์แล้ว
+  // ส่งครบทุกออเดอร์แล้ว และไม่มีออเดอร์ใหม่รอจัด
   allDelivered = computed(() => {
     const saved = this.saved();
-    return !!saved && saved.orders > 0 && saved.delivered === saved.orders;
+    return !!saved && saved.orders > 0 && saved.delivered === saved.orders && saved.waiting === 0;
   });
 
-  // เวลาสุดท้ายที่ต้องถึงลูกค้า = เวลาออกส่ง + 1 ชั่วโมง
-  deadline = computed(() => {
-    const start = this.saved()?.start_time;
-    if (!start) return '';
-    const h = (Number(start.slice(0, 2)) + 1) % 24;
-    return String(h).padStart(2, '0') + start.slice(2);
-  });
-
-  // ออเดอร์ที่ต้องจัดเส้นทาง (ยังไม่ได้จัด = รอส่งทั้งหมด, จัดแล้ว = ในใบงาน + ที่รับเพิ่มมา)
-  orderCount = computed(() => {
-    const saved = this.saved();
-    return saved ? saved.orders + saved.waiting : 0;
-  });
+  // ออเดอร์ที่ต้องจัดเส้นทางรอบใหม่ (ยังไม่อยู่ในใบงาน)
+  orderCount = computed(() => this.saved()?.waiting ?? 0);
 
   // ไรเดอร์ที่ต้องใช้อย่างน้อย (คนละไม่เกิน 3 ออเดอร์)
   ridersNeeded = computed(() => Math.ceil(this.orderCount() / MAX_ORDERS));
 
-  // ไรเดอร์ที่เปิดใช้งานอยู่
-  ridersAvailable = computed(() => this.saved()?.riders_available ?? 0);
+  // ไรเดอร์ที่ว่าง (ไม่ได้ถือใบงานที่ยังส่งไม่ครบ)
+  ridersAvailable = computed(() => this.saved()?.riders_free ?? 0);
 
   // เส้นถนนของแผนที่แสดงอยู่โหลดครบหรือยัง (ยังไม่ครบ = แสดงคำว่า "กำลังวาดเส้นทาง")
   drawing = computed(() => {
@@ -228,6 +213,18 @@ export class RoutePlan {
     this.loadSaved();
   }
 
+  // เวลาสุดท้ายที่ต้องถึงลูกค้า = เวลาออกส่ง + 1 ชั่วโมง
+  deadline(start: string | undefined): string {
+    if (!start) return '';
+    const h = (Number(start.slice(0, 2)) + 1) % 24;
+    return String(h).padStart(2, '0') + start.slice(2);
+  }
+
+  // เที่ยวนี้ไรเดอร์ส่งถึงลูกค้าไปแล้วอย่างน้อย 1 จุด -> ยกเลิก / เปลี่ยนไรเดอร์ไม่ได้
+  started(r: RouteInfo): boolean {
+    return r.stops.some((s) => s.status === 'delivered');
+  }
+
   // สีของเที่ยวที่ route_no
   color(r: RouteInfo): string {
     return ROUTE_COLORS[(r.route_no - 1) % ROUTE_COLORS.length] as string;
@@ -304,11 +301,7 @@ export class RoutePlan {
   async savePlan() {
     const plan = this.current();
     if (!plan || !this.isDraft()) return;
-    const saved = this.saved();
-    let question = `ไรเดอร์ออกจากร้านตอนนี้เลยใช่หรือไม่?\nต้องส่งถึงทุกจุดภายใน 1 ชั่วโมง (แผนนี้ใช้เวลา ${plan.finish_minutes} นาที)`;
-    if (saved && saved.routes.length > 0) {
-      question = question + '\n\nวันนี้มีใบงานอยู่แล้ว จะถูกแทนที่ด้วยแผนนี้ (เลขใบงานเดิมจะใช้ไม่ได้)';
-    }
+    const question = `ไรเดอร์ออกจากร้านตอนนี้เลยใช่หรือไม่?\nต้องส่งถึงทุกจุดภายใน 1 ชั่วโมง (แผนนี้ใช้เวลา ${plan.finish_minutes} นาที)`;
     if (!confirm(question)) {
       return;
     }
@@ -339,15 +332,17 @@ export class RoutePlan {
     this.working.set(false);
   }
 
-  // DELETE /routes?date= ยกเลิกใบงานทั้งหมดของวันนี้
-  async cancelSaved() {
-    if (!confirm('ยกเลิกใบงานทั้งหมดของวันนี้ใช่หรือไม่? (ออเดอร์จะกลับเป็น "รอส่ง")')) {
+  // DELETE /routes/{id} ยกเลิกใบงานเที่ยวนี้ ออเดอร์กลับเป็น "รอส่ง" (นำไปจัดรอบใหม่ได้)
+  async cancelRoute(r: RouteInfo) {
+    if (!r.id) return;
+    if (!confirm(`ยกเลิกเที่ยวที่ ${r.route_no} ใช่หรือไม่? (ออเดอร์ในเที่ยวนี้จะกลับเป็น "รอส่ง" แล้วจัดรอบใหม่ได้)`)) {
       return;
     }
     this.working.set(true);
     try {
-      await this.routesApi.deleteSaved(this.date());
-      this.notify.success('ยกเลิกใบงานแล้ว');
+      await this.routesApi.cancelRoute(r.id);
+      this.onlyRoute.set(null);
+      this.notify.success(`ยกเลิกเที่ยวที่ ${r.route_no} แล้ว`);
     } catch (err) {
       this.notify.apiError(err, 'ยกเลิกใบงานไม่สำเร็จ');
     }
