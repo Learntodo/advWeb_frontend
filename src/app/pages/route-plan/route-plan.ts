@@ -140,7 +140,7 @@ export class RoutePlan {
   });
 
   // รหัสออเดอร์นอกเขตส่ง เช่น "#12, #15"
-  outsideText = computed(() => (this.saved()?.outside ?? []).map((id) => '#' + id).join(', '));
+  outsideText = computed(() => (this.saved()?.outside ?? []).map((id) => 'ID ' + id).join(', '));
 
   // ออเดอร์ที่ต้องจัดเส้นทางรอบใหม่ (ยังไม่อยู่ในใบงาน)
   orderCount = computed(() => this.saved()?.waiting ?? 0);
@@ -187,8 +187,8 @@ export class RoutePlan {
           color: this.color(r),
           popup:
             `${this.riderLabel(r)} · บ้านที่ ${s.seq}\n` +
-            `ลูกค้า #${s.customer_id} ${s.first_name} ${s.last_name} · ${s.quantity} กล่อง\n` +
-            `ออเดอร์ #${s.order_id} · ` +
+            `ลูกค้า ID ${s.customer_id} ${s.first_name} ${s.last_name} · ${s.quantity} กล่อง\n` +
+            `ออเดอร์ ID ${s.order_id} · ` +
             (this.isDraft() ? `ถึงใน ${s.minutes} นาที หลังออกจากร้าน` : `ถึงประมาณ ${s.eta} น.`),
         });
       }

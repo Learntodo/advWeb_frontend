@@ -108,7 +108,7 @@ export class Home {
         lng: Number(o.delivery_longitude),
         label: String(o.quantity),
         color: statusColor[o.status],
-        popup: `#${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${o.delivery_address}`,
+        popup: `ID ${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${o.delivery_address}`,
       });
     }
     return markers;

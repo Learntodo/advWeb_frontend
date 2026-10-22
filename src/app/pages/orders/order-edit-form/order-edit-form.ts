@@ -103,7 +103,7 @@ export class OrderEditForm {
         delivery_longitude: this.lng(),
         note: this.note().trim() || null,
       });
-      this.notify.success(`บันทึกออเดอร์ #${this.order().id} แล้ว`);
+      this.notify.success(`บันทึกออเดอร์ ID ${this.order().id} แล้ว`);
       this.saved.emit();
     } catch (err) {
       this.notify.apiError(err, 'บันทึกออเดอร์ไม่สำเร็จ');

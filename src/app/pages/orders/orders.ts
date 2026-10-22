@@ -133,7 +133,7 @@ export class Orders {
     return { count: this.filteredOrders().length, boxes: boxes, sales: sales, profit: profit };
   });
 
-  // หมุดบนแผนที่ (ตัวเลข = รหัสออเดอร์ ตรงกับตาราง, สีตามสถานะ)
+  // หมุดบนแผนที่ (ตัวเลข = ID ออเดอร์ ตรงกับตาราง, สีตามสถานะ)
   markers = computed(() => {
     const markers: MapMarker[] = [];
     for (const o of this.filteredOrders()) {
@@ -143,7 +143,7 @@ export class Orders {
         lng: Number(o.delivery_longitude),
         label: String(o.id),
         color: o.id === this.selectedId() ? '#dc2626' : statusColor[o.status],
-        popup: `#${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${statusLabel[o.status]}\n${o.delivery_address}`,
+        popup: `ID ${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${statusLabel[o.status]}\n${o.delivery_address}`,
       });
     }
     return markers;
@@ -194,8 +194,8 @@ export class Orders {
   matchFilter(o: OrderGetResponse, ignoreStatus = false): boolean {
     const keyword = this.keyword().trim();
     if (keyword !== '') {
-      const text = `${o.first_name} ${o.last_name} ${o.phone} #${o.id}`;
-      if (!text.includes(keyword)) return false;
+      const text = `${o.first_name} ${o.last_name} ${o.phone} ID ${o.id}`;
+      if (!text.toLowerCase().includes(keyword.toLowerCase())) return false;
     }
     if (this.dateFilter() !== '' && toDateInput(o.delivery_date) !== this.dateFilter()) {
       return false;
@@ -249,7 +249,7 @@ export class Orders {
   async changeStatus(o: OrderGetResponse, status: string) {
     try {
       await this.ordersApi.update(o.id, { status: status as OrderStatus });
-      this.notify.success(`ออเดอร์ #${o.id} เปลี่ยนเป็น "${statusLabel[status as OrderStatus]}"`);
+      this.notify.success(`ออเดอร์ ID ${o.id} เปลี่ยนเป็น "${statusLabel[status as OrderStatus]}"`);
       await this.reloadOrders();
     } catch (err) {
       this.notify.apiError(err, 'เปลี่ยนสถานะไม่สำเร็จ');
@@ -291,12 +291,12 @@ export class Orders {
 
   // ลบออเดอร์ 1 รายการ
   async remove(o: OrderGetResponse) {
-    if (!confirm(`ลบออเดอร์ #${o.id} ของ ${o.first_name} ใช่หรือไม่?`)) {
+    if (!confirm(`ลบออเดอร์ ID ${o.id} ของ ${o.first_name} ใช่หรือไม่?`)) {
       return;
     }
     try {
       await this.ordersApi.delete(o.id);
-      this.notify.success(`ลบออเดอร์ #${o.id} แล้ว`);
+      this.notify.success(`ลบออเดอร์ ID ${o.id} แล้ว`);
       await this.reloadOrders();
     } catch (err) {
       this.notify.apiError(err, 'ลบออเดอร์ไม่สำเร็จ');

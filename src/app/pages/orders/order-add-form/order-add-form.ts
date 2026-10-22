@@ -158,7 +158,7 @@ export class OrderAddForm {
     this.saving.set(true);
     try {
       const res = await this.ordersApi.add(data); // POST /orders
-      this.notify.success(`เพิ่มออเดอร์ #${res.last_idx} ของ ${customer.first_name} แล้ว`);
+      this.notify.success(`เพิ่มออเดอร์ ID ${res.last_idx} ของ ${customer.first_name} แล้ว`);
       this.saved.emit();
     } catch (err) {
       this.notify.apiError(err, 'เพิ่มออเดอร์ไม่สำเร็จ');

@@ -64,7 +64,7 @@ export class Nearby {
     return { lat: this.lat(), lng: this.lng(), radiusKm: radiusKm };
   });
 
-  // หมุดบนแผนที่ (ตัวเลข = รหัสลูกค้า / รหัสออเดอร์ ตรงกับหน้าอื่น)
+  // หมุดบนแผนที่ (ตัวเลข = ID ลูกค้า / ID ออเดอร์ ตรงกับหน้าอื่น)
   markers = computed(() => {
     const markers: MapMarker[] = [];
     if (this.mode() === 'customers') {
@@ -75,7 +75,7 @@ export class Nearby {
           lng: Number(c.longitude),
           label: String(c.id),
           color: '#7c2d12',
-          popup: `ลูกค้า #${c.id} ${c.first_name} ${c.last_name}\nห่าง ${c.distance_km.toFixed(2)} กม.`,
+          popup: `ลูกค้า ID ${c.id} ${c.first_name} ${c.last_name}\nห่าง ${c.distance_km.toFixed(2)} กม.`,
         });
       }
     } else {
@@ -86,7 +86,7 @@ export class Nearby {
           lng: Number(o.delivery_longitude),
           label: String(o.id),
           color: statusColor[o.status],
-          popup: `ออเดอร์ #${o.id} · ลูกค้า #${o.customer_id} ${this.customerName(o.customer_id)}\nห่าง ${o.distance_km.toFixed(2)} กม.`,
+          popup: `ออเดอร์ ID ${o.id} · ลูกค้า ID ${o.customer_id} ${this.customerName(o.customer_id)}\nห่าง ${o.distance_km.toFixed(2)} กม.`,
         });
       }
     }

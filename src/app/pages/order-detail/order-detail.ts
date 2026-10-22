@@ -106,12 +106,12 @@ export class OrderDetail {
 
   // DELETE /orders/{id} แล้วกลับไปหน้าออเดอร์
   async remove(o: OrderGetResponse) {
-    if (!confirm(`ลบออเดอร์ #${o.id} ใช่หรือไม่?`)) {
+    if (!confirm(`ลบออเดอร์ ID ${o.id} ใช่หรือไม่?`)) {
       return;
     }
     try {
       await this.ordersApi.delete(o.id);
-      this.notify.success(`ลบออเดอร์ #${o.id} แล้ว`);
+      this.notify.success(`ลบออเดอร์ ID ${o.id} แล้ว`);
       this.router.navigate(['/orders']);
     } catch (err) {
       this.notify.apiError(err, 'ลบออเดอร์ไม่สำเร็จ');

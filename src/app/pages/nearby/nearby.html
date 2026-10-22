@@ -1,7 +1,7 @@
 <div class="mb-5">
   <h1 class="font-display text-2xl sm:text-3xl">ค้นหาตามระยะ</h1>
   <p class="text-base-content/70 text-sm">
-    กดตรงไหนก็ได้บนแผนที่ ระบบจะหาลูกค้าและออเดอร์ที่อยู่ใกล้จุดนั้นให้ · เลขในวงกลม = รหัสลูกค้า / รหัสออเดอร์
+    กดตรงไหนก็ได้บนแผนที่ ระบบจะหาลูกค้าและออเดอร์ที่อยู่ใกล้จุดนั้นให้ · เลขในวงกลม = ID ลูกค้า / ID ออเดอร์
   </p>
 </div>
 
@@ -68,7 +68,7 @@
               class="px-5 py-3 flex gap-3 cursor-pointer hover:bg-base-200"
               (click)="showOnMap(c.latitude, c.longitude)"
             >
-              <span class="badge badge-neutral">#{{ c.id }}</span>
+              <span class="badge badge-neutral">ID {{ c.id }}</span>
               <div class="flex-1 min-w-0">
                 <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
                 <div class="text-sm text-base-content/70">{{ c.phone }}</div>
@@ -91,11 +91,11 @@
               class="px-5 py-3 flex gap-3 cursor-pointer hover:bg-base-200"
               (click)="showOnMap(o.delivery_latitude, o.delivery_longitude)"
             >
-              <span class="badge badge-neutral">#{{ o.id }}</span>
+              <span class="badge badge-neutral">ID {{ o.id }}</span>
               <div class="flex-1 min-w-0">
-                <div class="font-medium">{{ customerName(o.customer_id) }} (ลูกค้า #{{ o.customer_id }})</div>
+                <div class="font-medium">{{ customerName(o.customer_id) }} (ลูกค้า ID {{ o.customer_id }})</div>
                 <div class="text-sm text-base-content/70">
-                  ออเดอร์ #{{ o.id }} · {{ o.quantity }} กล่อง · ส่ง {{ thaiDate(o.delivery_date) }}
+                  ออเดอร์ ID {{ o.id }} · {{ o.quantity }} กล่อง · ส่ง {{ thaiDate(o.delivery_date) }}
                 </div>
                 <div class="text-sm text-base-content/60 truncate">{{ o.delivery_address }}</div>
                 <div class="flex gap-2 mt-1">
