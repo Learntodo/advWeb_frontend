@@ -35,11 +35,14 @@
             <fa-icon [icon]="faUser"></fa-icon>
           </span>
           <span class="min-w-0 leading-tight">
-            <span class="block font-medium truncate">{{ user.first_name }} {{ user.last_name }}</span>
-            <span class="block text-sm text-base-content/70">เจ้าของร้าน · {{ user.phone }}</span>
+            <span class="block font-medium truncate">เจ้าของร้าน</span>
+            <span class="block text-sm text-base-content/70">{{ user.phone }}</span>
           </span>
         </div>
-        <button class="btn btn-ghost w-full justify-start mt-1" (click)="passwordOpen.set(true)">
+        <button class="btn btn-ghost w-full justify-start mt-1" (click)="toggleTheme()">
+          <fa-icon [icon]="isDark() ? faSun : faMoon" class="w-5"></fa-icon>{{ isDark() ? 'ธีมสว่าง' : 'ธีมมืด' }}
+        </button>
+        <button class="btn btn-ghost w-full justify-start" (click)="passwordOpen.set(true)">
           <fa-icon [icon]="faKey" class="w-5"></fa-icon>เปลี่ยนรหัสผ่าน
         </button>
         <button class="btn btn-ghost w-full justify-start text-error" (click)="auth.logout()">
@@ -67,6 +70,16 @@
       <span class="font-display text-lg sm:text-xl whitespace-nowrap">ส่งด่วนมื้อเที่ยง</span>
     </a>
 
+    <!-- ปุ่มสลับธีมสว่าง / มืด -->
+    <button
+      class="btn btn-ghost btn-square"
+      [attr.aria-label]="isDark() ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'"
+      [title]="isDark() ? 'ธีมสว่าง' : 'ธีมมืด'"
+      (click)="toggleTheme()"
+    >
+      <fa-icon [icon]="isDark() ? faSun : faMoon" size="lg"></fa-icon>
+    </button>
+
     <!-- เมนูผู้ใช้: ชื่อ, เปลี่ยนรหัสผ่าน, ออกจากระบบ (แสดงเมื่อ login แล้ว) -->
     @if (auth.user(); as user) {
       <div class="dropdown dropdown-end">
@@ -74,17 +87,22 @@
           <span class="grid place-items-center w-9 h-9 rounded-full bg-secondary text-secondary-content">
             <fa-icon [icon]="faUser"></fa-icon>
           </span>
-          <span class="hidden sm:inline max-w-32 truncate">{{ user.first_name }}</span>
+          <span class="hidden sm:inline max-w-32 truncate">{{
+            user.role === 'owner' ? 'เจ้าของร้าน' : user.first_name
+          }}</span>
         </button>
         <ul
           tabindex="0"
           class="menu dropdown-content bg-base-100 rounded-box border border-base-300 z-10 mt-2 w-60 p-2 shadow-lg"
         >
           <li class="menu-title text-base-content">
-            {{ user.first_name }} {{ user.last_name }}
-            <span class="font-normal text-base-content/70"
-              >{{ user.role === 'owner' ? 'เจ้าของร้าน' : 'ไรเดอร์' }} · {{ user.phone }}</span
-            >
+            @if (user.role === 'owner') {
+              เจ้าของร้าน
+              <span class="font-normal text-base-content/70">{{ user.phone }}</span>
+            } @else {
+              {{ user.first_name }} {{ user.last_name }}
+              <span class="font-normal text-base-content/70">ไรเดอร์ · {{ user.phone }}</span>
+            }
           </li>
           <li>
             <button class="py-3" (click)="passwordOpen.set(true)">

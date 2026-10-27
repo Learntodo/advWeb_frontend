@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFlask, faMotorcycle, faPen, faPhone, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 // ชื่อ class ซ้ำกับ component นี้ (Riders) จึงตั้งชื่อใหม่ว่า RidersApi
@@ -30,7 +30,6 @@ export class Riders {
   riders = signal<RiderGetResponse[]>([]);
   loading = signal(true);
   simulating = signal(false); // กำลังจำลองไรเดอร์
-  activeCount = computed(() => this.riders().filter((rider) => rider.is_active === 1).length);
 
   // ฟอร์มเพิ่ม / แก้ไข
   formOpen = signal(false);

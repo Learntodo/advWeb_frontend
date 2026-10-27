@@ -2,9 +2,6 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ไรเดอร์</h1>
-    <p class="text-base-content/70 text-sm mt-1">
-      ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · ไรเดอร์ 1 คน ส่งได้ไม่เกิน 3 ออเดอร์ต่อรอบ
-    </p>
   </div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">

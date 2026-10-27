@@ -8,9 +8,11 @@ import {
   faHouse,
   faKey,
   faLocationCrosshairs,
+  faMoon,
   faMotorcycle,
   faRightFromBracket,
   faRoute,
+  faSun,
   faUser,
   faUsers,
   faXmark,
@@ -32,9 +34,21 @@ export class Header {
   faRightFromBracket = faRightFromBracket;
   faXmark = faXmark;
   faUser = faUser;
+  faMoon = faMoon;
+  faSun = faSun;
 
   passwordOpen = signal(false); // เปิดฟอร์มเปลี่ยนรหัสผ่าน
   menuOpen = signal(false); // เปิดเมนูด้านข้างบนมือถือ
+
+  // ธีมสว่าง / มืด: จำค่าที่เลือกไว้ใน localStorage (index.html อ่านค่านี้ตอนเปิดเว็บ)
+  isDark = signal(localStorage.getItem('theme') === 'dark');
+
+  toggleTheme() {
+    this.isDark.set(!this.isDark());
+    const theme = this.isDark() ? 'dark' : 'light';
+    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute('data-theme', this.isDark() ? 'lunchbox-dark' : 'lunchbox');
+  }
 
   // เมนูหลักของฝั่งเจ้าของร้าน (ไรเดอร์ไม่เห็นเมนูนี้)
   menus = [

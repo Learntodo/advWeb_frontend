@@ -2,9 +2,6 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ลูกค้า</h1>
-    <p class="text-base-content/70 text-sm mt-1">
-      ทั้งหมด {{ allCustomers().length }} คน · กดที่ชื่อเพื่อดูบ้านบนแผนที่
-    </p>
   </div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">
