@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -12,14 +12,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Orders as OrdersApi } from '../../services/api/orders';
 import { OrderGetResponse, OrderStatus } from '../../model/order-get-res';
-import { MapMarker, MapView } from '../../components/map-view/map-view';
 import { Notify } from '../../services/notify';
-import { baht, googleMapsLink, statusBadge, statusColor, statuses, statusLabel, thaiDate } from '../../utils/format';
+import { baht, googleMapsLink, statusBadge, statuses, statusLabel, thaiDate } from '../../utils/format';
 
 // หน้ารายละเอียดออเดอร์ /orders/:id
 @Component({
   selector: 'app-order-detail',
-  imports: [RouterModule, FontAwesomeModule, MapView],
+  imports: [RouterModule, FontAwesomeModule],
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.css',
 })
@@ -49,23 +48,6 @@ export class OrderDetail {
   order = signal<OrderGetResponse | null>(null);
   loading = signal(true);
   notFound = signal(false);
-
-  // หมุดจุดส่ง 1 อัน
-  markers = computed(() => {
-    const order = this.order();
-    if (order === null) {
-      return [];
-    }
-    const marker: MapMarker = {
-      id: order.id,
-      lat: Number(order.delivery_latitude),
-      lng: Number(order.delivery_longitude),
-      label: String(order.quantity),
-      color: statusColor[order.status],
-      popup: `${order.first_name} ${order.last_name}\n${order.delivery_address}`,
-    };
-    return [marker];
-  });
 
   ngOnInit() {
     this.loadOrder();

@@ -118,13 +118,6 @@
       </li>
     </ol>
 
-    <!-- แผนที่เส้นทาง -->
-    <div class="card bg-base-100">
-      <div class="card-body p-3">
-        <app-map-view class="h-72" [markers]="markers()" [lines]="lines()"></app-map-view>
-      </div>
-    </div>
-
     <button class="btn btn-ghost" (click)="reset()">เปิดใบงานอื่น</button>
   } @else {
     <!-- กรอกเลขใบงาน -->

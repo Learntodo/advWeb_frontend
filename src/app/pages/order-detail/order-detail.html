@@ -16,110 +16,99 @@
     </div>
   </div>
 } @else if (order(); as currentOrder) {
-  <div class="grid gap-5 xl:grid-cols-5">
-    <!-- ฝั่งซ้าย: ข้อมูลออเดอร์ -->
-    <section class="xl:col-span-2">
-      <div class="card bg-base-100">
-        <div class="card-body gap-3">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <p class="text-sm text-base-content/70">
-                ออเดอร์ ID {{ currentOrder.id }} · ส่ง {{ thaiDate(currentOrder.delivery_date) }}
-              </p>
-              <h1 class="font-display text-2xl">{{ currentOrder.first_name }} {{ currentOrder.last_name }}</h1>
-            </div>
-            <span class="badge {{ statusBadge[currentOrder.status] }}">{{ statusLabel[currentOrder.status] }}</span>
-          </div>
-
-          <!-- กดเพื่อโทรหาลูกค้า (บนมือถือ) -->
-          <a class="btn btn-outline btn-sm w-fit" href="tel:{{ currentOrder.phone }}">
-            <fa-icon [icon]="faPhone"></fa-icon>{{ currentOrder.phone }}
-          </a>
-
-          <div class="rounded-box bg-base-200 p-4">
-            <p class="text-sm text-base-content/70">ส่งที่</p>
-            <p>{{ currentOrder.delivery_address }}</p>
-          </div>
-
-          @if (currentOrder.note) {
-            <div class="alert alert-warning py-2">หมายเหตุ: {{ currentOrder.note }}</div>
-          }
-
-          <!-- จำนวนกล่อง และราคา -->
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-base-content/70">จำนวนกล่อง</p>
-              <div class="join mt-1">
-                <button
-                  class="btn btn-sm join-item"
-                  [disabled]="currentOrder.quantity <= 1"
-                  (click)="changeQuantity(currentOrder, -1)"
-                >
-                  <fa-icon [icon]="faMinus"></fa-icon>
-                </button>
-                <span class="join-item w-12 grid place-items-center bg-base-200 font-display text-lg">
-                  {{ currentOrder.quantity }}
-                </span>
-                <button
-                  class="btn btn-sm join-item"
-                  [disabled]="currentOrder.quantity >= 3"
-                  (click)="changeQuantity(currentOrder, 1)"
-                >
-                  <fa-icon [icon]="faPlus"></fa-icon>
-                </button>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="text-sm text-base-content/70">
-                {{ currentOrder.quantity }} × {{ baht(currentOrder.unit_price) }}
-              </p>
-              <p class="font-display text-2xl">{{ baht(currentOrder.total_price) }}</p>
-            </div>
-          </div>
-
-          <!-- เปลี่ยนสถานะ -->
+  <!-- ข้อมูลออเดอร์ -->
+  <section class="max-w-2xl mx-auto">
+    <div class="card bg-base-100">
+      <div class="card-body gap-3">
+        <div class="flex items-start justify-between gap-2">
           <div>
-            <p class="text-sm text-base-content/70 mb-1">เปลี่ยนสถานะ</p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              @for (option of statuses; track option) {
-                <button
-                  class="btn btn-sm"
-                  [class.btn-neutral]="currentOrder.status === option"
-                  (click)="changeStatus(currentOrder, option)"
-                >
-                  {{ statusLabel[option] }}
-                </button>
-              }
+            <p class="text-sm text-base-content/70">
+              ออเดอร์ ID {{ currentOrder.id }} · ส่ง {{ thaiDate(currentOrder.delivery_date) }}
+            </p>
+            <h1 class="font-display text-2xl">{{ currentOrder.first_name }} {{ currentOrder.last_name }}</h1>
+          </div>
+          <span class="badge {{ statusBadge[currentOrder.status] }}">{{ statusLabel[currentOrder.status] }}</span>
+        </div>
+
+        <!-- กดเพื่อโทรหาลูกค้า (บนมือถือ) -->
+        <a class="btn btn-outline btn-sm w-fit" href="tel:{{ currentOrder.phone }}">
+          <fa-icon [icon]="faPhone"></fa-icon>{{ currentOrder.phone }}
+        </a>
+
+        <div class="rounded-box bg-base-200 p-4">
+          <p class="text-sm text-base-content/70">ส่งที่</p>
+          <p>{{ currentOrder.delivery_address }}</p>
+        </div>
+
+        @if (currentOrder.note) {
+          <div class="alert alert-warning py-2">หมายเหตุ: {{ currentOrder.note }}</div>
+        }
+
+        <!-- จำนวนกล่อง และราคา -->
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-base-content/70">จำนวนกล่อง</p>
+            <div class="join mt-1">
+              <button
+                class="btn btn-sm join-item"
+                [disabled]="currentOrder.quantity <= 1"
+                (click)="changeQuantity(currentOrder, -1)"
+              >
+                <fa-icon [icon]="faMinus"></fa-icon>
+              </button>
+              <span class="join-item w-12 grid place-items-center bg-base-200 font-display text-lg">
+                {{ currentOrder.quantity }}
+              </span>
+              <button
+                class="btn btn-sm join-item"
+                [disabled]="currentOrder.quantity >= 3"
+                (click)="changeQuantity(currentOrder, 1)"
+              >
+                <fa-icon [icon]="faPlus"></fa-icon>
+              </button>
             </div>
           </div>
-
-          <!-- ปุ่มอื่นๆ -->
-          <div class="flex flex-wrap gap-2 pt-2 border-t border-base-300">
-            <a
-              class="btn btn-primary w-full"
-              target="_blank"
-              [href]="googleMapsLink(currentOrder.delivery_latitude, currentOrder.delivery_longitude)"
-            >
-              <fa-icon [icon]="faDiamondTurnRight"></fa-icon>นำทางด้วย Google Maps
-            </a>
-            <a class="btn btn-ghost flex-1" routerLink="/orders" [queryParams]="{ edit: currentOrder.id }">
-              <fa-icon [icon]="faPen"></fa-icon>แก้ไข
-            </a>
-            <button class="btn btn-ghost flex-1 text-error" (click)="remove(currentOrder)">
-              <fa-icon [icon]="faTrash"></fa-icon>ลบ
-            </button>
+          <div class="text-right">
+            <p class="text-sm text-base-content/70">
+              {{ currentOrder.quantity }} × {{ baht(currentOrder.unit_price) }}
+            </p>
+            <p class="font-display text-2xl">{{ baht(currentOrder.total_price) }}</p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ฝั่งขวา: แผนที่ -->
-    <section class="xl:col-span-3">
-      <div class="card bg-base-100">
-        <div class="card-body p-3">
-          <app-map-view class="h-80 xl:h-[70vh]" [markers]="markers()"></app-map-view>
+        <!-- เปลี่ยนสถานะ -->
+        <div>
+          <p class="text-sm text-base-content/70 mb-1">เปลี่ยนสถานะ</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            @for (option of statuses; track option) {
+              <button
+                class="btn btn-sm"
+                [class.btn-neutral]="currentOrder.status === option"
+                (click)="changeStatus(currentOrder, option)"
+              >
+                {{ statusLabel[option] }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- ปุ่มอื่นๆ -->
+        <div class="flex flex-wrap gap-2 pt-2 border-t border-base-300">
+          <a
+            class="btn btn-primary w-full"
+            target="_blank"
+            [href]="googleMapsLink(currentOrder.delivery_latitude, currentOrder.delivery_longitude)"
+          >
+            <fa-icon [icon]="faDiamondTurnRight"></fa-icon>นำทางด้วย Google Maps
+          </a>
+          <a class="btn btn-ghost flex-1" routerLink="/orders" [queryParams]="{ edit: currentOrder.id }">
+            <fa-icon [icon]="faPen"></fa-icon>แก้ไข
+          </a>
+          <button class="btn btn-ghost flex-1 text-error" (click)="remove(currentOrder)">
+            <fa-icon [icon]="faTrash"></fa-icon>ลบ
+          </button>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 }

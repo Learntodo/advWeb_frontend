@@ -23,7 +23,6 @@ import { Orders as OrdersApi } from '../../services/api/orders';
 import { Customers as CustomersApi } from '../../services/api/customers';
 import { OrderGetResponse, OrderStatus } from '../../model/order-get-res';
 import { CustomerGetResponse } from '../../model/customer-get-res';
-import { MapMarker, MapView, LatLng } from '../../components/map-view/map-view';
 import { Notify } from '../../services/notify';
 import { Api } from '../../config/api';
 import {
@@ -42,7 +41,7 @@ import { OrderEditForm } from './order-edit-form/order-edit-form';
 // หน้าจัดการออเดอร์ (HW-5 ข้อ 3)
 @Component({
   selector: 'app-orders',
-  imports: [FormsModule, RouterModule, FontAwesomeModule, MapView, OrderAddForm, OrderEditForm],
+  imports: [FormsModule, RouterModule, FontAwesomeModule, OrderAddForm, OrderEditForm],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
@@ -85,8 +84,6 @@ export class Orders {
   customers = signal<CustomerGetResponse[]>([]);
   loading = signal(true);
   working = signal(false); // กำลังจำลอง / ล้างออเดอร์
-  selectedId = signal<number | null>(null);
-  focus = signal<LatLng | null>(null);
 
   // ตัวกรอง
   keyword = signal(''); // ชื่อ หรือ เบอร์โทร
@@ -139,22 +136,6 @@ export class Orders {
     }
     const profit = sales - boxes * this.api.BOX_COST; // กำไรก่อนหักค่าไรเดอร์
     return { count: this.filteredOrders().length, boxes: boxes, sales: sales, profit: profit };
-  });
-
-  // หมุดบนแผนที่ (ตัวเลข = ID ออเดอร์ ตรงกับตาราง, สีตามสถานะ)
-  markers = computed(() => {
-    const markers: MapMarker[] = [];
-    for (const order of this.filteredOrders()) {
-      markers.push({
-        id: order.id,
-        lat: Number(order.delivery_latitude),
-        lng: Number(order.delivery_longitude),
-        label: String(order.id),
-        color: order.id === this.selectedId() ? '#dc2626' : statusColor[order.status],
-        popup: `ID ${order.id} ${order.first_name} ${order.last_name}\n${order.quantity} กล่อง · ${statusLabel[order.status]}\n${order.delivery_address}`,
-      });
-    }
-    return markers;
   });
 
   // จุดส่งอยู่นอกเขตส่ง 3 กม. จากร้าน (ระบบไม่จัดเส้นทางให้)
@@ -227,18 +208,6 @@ export class Orders {
     this.dateFilter.set(today());
     this.statusFilter.set('');
     this.typeFilter.set('all');
-  }
-
-  // คลิกแถว -> เลื่อนแผนที่ไปที่จุดส่ง
-  select(order: OrderGetResponse) {
-    this.selectedId.set(order.id);
-    this.focus.set({ lat: Number(order.delivery_latitude), lng: Number(order.delivery_longitude) });
-  }
-
-  // คลิกหมุด -> เลือกแถวนั้นในตาราง
-  onMarkerClick(id: number) {
-    this.selectedId.set(id);
-    document.getElementById('order-' + id)?.scrollIntoView({ block: 'center' });
   }
 
   // 3.1.3 ปุ่ม − / + จำนวนกล่อง (PATCH /orders/{id})
