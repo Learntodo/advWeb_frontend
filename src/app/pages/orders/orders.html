@@ -252,7 +252,7 @@
   <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
     <span class="font-medium mr-2">ข้อมูลจำลอง (ไว้ทดลอง)</span>
     <span class="text-sm text-base-content/70 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>
-    <div class="join">
+    <div class="join join-vertical sm:join-horizontal w-full sm:w-auto">
       <button class="btn btn-sm join-item" [class.btn-neutral]="typeFilter() === 'all'" (click)="typeFilter.set('all')">
         ดูทั้งหมด
       </button>
@@ -267,11 +267,11 @@
         ดูเฉพาะข้อมูลจำลอง
       </button>
     </div>
-    <button class="btn btn-sm btn-outline" (click)="simulate()" [disabled]="working()">
+    <button class="btn btn-sm btn-outline w-full sm:w-auto" (click)="simulate()" [disabled]="working()">
       <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์วันนี้ 20–30 รายการ
     </button>
     <button
-      class="btn btn-sm btn-outline btn-error"
+      class="btn btn-sm btn-outline btn-error w-full sm:w-auto"
       (click)="clearSimulated()"
       [disabled]="working() || simulatedCount() === 0"
     >

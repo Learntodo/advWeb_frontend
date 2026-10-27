@@ -58,16 +58,16 @@
   class="sticky top-0 z-[900] bg-base-100/95 backdrop-blur border-b border-base-300"
   [class.lg:hidden]="auth.isOwner()"
 >
-  <div class="max-w-7xl mx-auto flex items-center gap-2 px-3 sm:px-6 h-16">
+  <div class="max-w-7xl mx-auto flex items-center gap-1 sm:gap-2 px-2 sm:px-6 h-16">
     @if (auth.isOwner()) {
       <button class="btn btn-ghost btn-square" aria-label="เปิดเมนู" (click)="menuOpen.set(true)">
         <fa-icon [icon]="faBars" size="lg"></fa-icon>
       </button>
     }
 
-    <a [routerLink]="auth.homePath()" class="flex items-center gap-2 mr-auto">
-      <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-10 h-10 -rotate-6" />
-      <span class="font-display text-lg sm:text-xl whitespace-nowrap">ส่งด่วนมื้อเที่ยง</span>
+    <a [routerLink]="auth.homePath()" class="flex items-center gap-2 mr-auto min-w-0">
+      <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 -rotate-6" />
+      <span class="font-display text-base min-[400px]:text-lg sm:text-xl truncate">ส่งด่วนมื้อเที่ยง</span>
     </a>
 
     <!-- ปุ่มสลับธีมสว่าง / มืด -->

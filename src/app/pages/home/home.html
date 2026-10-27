@@ -29,7 +29,7 @@
 
 <!-- เรียก API ไม่ได้ -->
 @if (apiError()) {
-  <div role="alert" class="alert alert-error mb-6">
+  <div role="alert" class="alert alert-error alert-vertical sm:alert-horizontal mb-6">
     <span>ติดต่อระบบไม่ได้ ตรวจดูอินเทอร์เน็ต แล้วกด “ลองใหม่”</span>
     <button class="btn btn-sm" (click)="loadData()">ลองใหม่</button>
   </div>
