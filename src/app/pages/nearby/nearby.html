@@ -7,49 +7,73 @@
   <section class="xl:col-span-2 flex flex-col gap-4 min-w-0">
     <div class="card bg-base-100">
       <div class="card-body gap-4">
-        <!-- แท็บ ลูกค้า / ออเดอร์ -->
-        <div role="tablist" class="tabs tabs-box">
+        <!-- แท็บ ลูกค้า / ออเดอร์ (ตัวหนังสือ 2 บรรทัด จะได้ไม่ตัดคำบนมือถือ) -->
+        <div role="tablist" class="tabs tabs-box grid grid-cols-2 gap-1 p-1">
           <button
             role="tab"
-            class="tab flex-1 gap-2"
+            class="tab h-auto py-2 px-1 flex-col gap-0 leading-tight"
             [class.tab-active]="mode() === 'customers'"
+            [attr.aria-selected]="mode() === 'customers'"
             (click)="setMode('customers')"
           >
-            <fa-icon [icon]="faUsers"></fa-icon>ลูกค้าไม่เกิน 1 กม.
+            <span class="flex items-center gap-2 font-semibold whitespace-nowrap"
+              ><fa-icon [icon]="faUsers"></fa-icon>ลูกค้า</span
+            >
+            <span class="text-sm whitespace-nowrap">ไม่เกิน 1 กม.</span>
           </button>
           <button
             role="tab"
-            class="tab flex-1 gap-2"
+            class="tab h-auto py-2 px-1 flex-col gap-0 leading-tight"
             [class.tab-active]="mode() === 'orders'"
+            [attr.aria-selected]="mode() === 'orders'"
             (click)="setMode('orders')"
           >
-            <fa-icon [icon]="faBoxOpen"></fa-icon>ออเดอร์ไม่เกิน 2 กม.
+            <span class="flex items-center gap-2 font-semibold whitespace-nowrap"
+              ><fa-icon [icon]="faBoxOpen"></fa-icon>ออเดอร์</span
+            >
+            <span class="text-sm whitespace-nowrap">ไม่เกิน 2 กม.</span>
           </button>
         </div>
 
-        <!-- พิกัดจุดศูนย์กลาง -->
-        <form class="flex flex-col gap-2" (submit)="search(); $event.preventDefault()">
-          <div class="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2">
-            <label class="input outline-0 w-full">
-              <span class="label">lat</span>
-              <input type="number" step="0.000001" name="lat" [(ngModel)]="lat" />
-            </label>
-            <label class="input outline-0 w-full">
-              <span class="label">lng</span>
-              <input type="number" step="0.000001" name="lng" [(ngModel)]="lng" />
-            </label>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-ghost" (click)="useShop()">
-              <fa-icon [icon]="faStore"></fa-icon>ที่ร้าน
-            </button>
-            <button type="button" class="btn btn-sm btn-ghost" (click)="useMyLocation()">
-              <fa-icon [icon]="faLocationCrosshairs"></fa-icon>ที่ที่ฉันอยู่ตอนนี้
-            </button>
-            <button type="submit" class="btn btn-sm btn-primary ml-auto" [disabled]="loading()">
-              <fa-icon [icon]="faMagnifyingGlassLocation"></fa-icon>ค้นหา
-            </button>
-          </div>
+        <!-- จุดศูนย์กลาง: กดเลือกที่ร้าน / ตำแหน่งของฉัน หรือพิมพ์พิกัดเอง -->
+        <form class="flex flex-col gap-3" (submit)="search(); $event.preventDefault()">
+          <fieldset class="fieldset p-0 gap-2">
+            <legend class="fieldset-legend pt-0">ค้นหารอบจุดไหน</legend>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                class="btn btn-outline border-base-300 w-full px-2 gap-1.5 whitespace-nowrap"
+                (click)="useShop()"
+              >
+                <fa-icon [icon]="faStore" class="text-primary"></fa-icon>ที่ร้าน
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline border-base-300 w-full px-2 gap-1.5 whitespace-nowrap"
+                (click)="useMyLocation()"
+              >
+                <fa-icon [icon]="faLocationCrosshairs" class="text-primary"></fa-icon>ที่ฉันอยู่
+              </button>
+            </div>
+            <div class="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2">
+              <label class="input outline-0 w-full">
+                <span class="label">lat</span>
+                <input type="number" step="0.000001" name="lat" [(ngModel)]="lat" />
+              </label>
+              <label class="input outline-0 w-full">
+                <span class="label">lng</span>
+                <input type="number" step="0.000001" name="lng" [(ngModel)]="lng" />
+              </label>
+            </div>
+          </fieldset>
+          <button type="submit" class="btn btn-primary btn-lg w-full" [disabled]="loading()">
+            @if (loading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            } @else {
+              <fa-icon [icon]="faMagnifyingGlassLocation"></fa-icon>
+            }
+            ค้นหา
+          </button>
         </form>
       </div>
     </div>
@@ -58,7 +82,9 @@
     <div class="card bg-base-100 overflow-hidden">
       @if (mode() === 'customers') {
         <!-- ผลค้นหาลูกค้า -->
-        <h2 class="font-display text-lg px-5 pt-4 pb-2">ลูกค้าในระยะ 1 กม. (พบ {{ customerResults().length }} คน)</h2>
+        <h2 class="font-display text-lg px-5 pt-4 pb-2">
+          ลูกค้าในระยะ 1 กม. <span class="whitespace-nowrap">(พบ {{ customerResults().length }} คน)</span>
+        </h2>
         <ul class="divide-y divide-base-200 max-h-[50vh] overflow-y-auto">
           @for (customer of customerResults(); track customer.id) {
             <li
