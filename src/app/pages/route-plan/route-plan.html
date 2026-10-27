@@ -21,9 +21,9 @@
       <div class="card-body p-4 gap-3">
         <div class="flex flex-wrap items-center gap-2">
           <div role="tablist" class="tabs tabs-box">
-            @for (p of plans(); track $index) {
+            @for (option of plans(); track $index) {
               <button role="tab" class="tab" [class.tab-active]="selected() === $index" (click)="selectPlan($index)">
-                แบบที่ {{ $index + 1 }} · ไรเดอร์ {{ p.riders }} คน · ค่าจ้าง {{ baht(p.rider_cost) }}
+                แบบที่ {{ $index + 1 }} · ไรเดอร์ {{ option.riders }} คน · ค่าจ้าง {{ baht(option.rider_cost) }}
               </button>
             }
           </div>
@@ -165,35 +165,43 @@
       <!-- ใบงานของไรเดอร์แต่ละคน แยกตามรอบที่ออกส่ง พับ / กางได้ -->
       <section class="flex flex-col gap-3 lg:max-h-[calc(60vh+4rem)] lg:overflow-y-auto">
         @if (isDraft()) {
-          @for (r of plan.routes; track r.route_no) {
-            <ng-container *ngTemplateOutlet="routeCard; context: { $implicit: r }"></ng-container>
+          @for (route of plan.routes; track route.route_no) {
+            <ng-container *ngTemplateOutlet="routeCard; context: { $implicit: route }"></ng-container>
           }
         } @else {
-          @for (g of rounds(); track g.start_time; let i = $index) {
+          @for (group of rounds(); track group.start_time; let i = $index) {
             <div class="rounded-box bg-base-200 p-2 flex flex-col gap-2">
-              <button type="button" class="flex w-full items-center gap-3 px-2 py-1 text-left" (click)="toggleRound(g)">
-                <fa-icon [icon]="isOpen(g) ? faChevronDown : faChevronRight" class="text-base-content/70"></fa-icon>
+              <button
+                type="button"
+                class="flex w-full items-center gap-3 px-2 py-1 text-left"
+                (click)="toggleRound(group)"
+              >
+                <fa-icon [icon]="isOpen(group) ? faChevronDown : faChevronRight" class="text-base-content/70"></fa-icon>
                 <span class="flex-1">
-                  <b>รอบที่ {{ i + 1 }} · ออกจากร้าน {{ g.start_time }} น.</b>
+                  <b>รอบที่ {{ i + 1 }} · ออกจากร้าน {{ group.start_time }} น.</b>
                   <span class="block text-sm text-base-content/70">
-                    ไรเดอร์ {{ g.routes.length }} คน · {{ g.orders }} ออเดอร์
-                    {{ g.delivered < g.orders ? '· ต้องส่งให้ถึงก่อน ' + deadline(g.start_time) + ' น.' : '' }}
+                    ไรเดอร์ {{ group.routes.length }} คน · {{ group.orders }} ออเดอร์
+                    {{
+                      group.delivered < group.orders ? '· ต้องส่งให้ถึงก่อน ' + deadline(group.start_time) + ' น.' : ''
+                    }}
                   </span>
                 </span>
-                @if (g.delivered === g.orders) {
+                @if (group.delivered === group.orders) {
                   <span class="badge badge-success whitespace-nowrap">ส่งครบแล้ว</span>
                 } @else {
-                  <span class="badge badge-info whitespace-nowrap">ส่งแล้ว {{ g.delivered }} จาก {{ g.orders }}</span>
+                  <span class="badge badge-info whitespace-nowrap"
+                    >ส่งแล้ว {{ group.delivered }} จาก {{ group.orders }}</span
+                  >
                 }
               </button>
               <progress
                 class="progress progress-success h-1.5 mx-2 w-auto"
-                [value]="g.delivered"
-                [max]="g.orders"
+                [value]="group.delivered"
+                [max]="group.orders"
               ></progress>
-              @if (isOpen(g)) {
-                @for (r of g.routes; track r.route_no) {
-                  <ng-container *ngTemplateOutlet="routeCard; context: { $implicit: r }"></ng-container>
+              @if (isOpen(group)) {
+                @for (route of group.routes; track route.route_no) {
+                  <ng-container *ngTemplateOutlet="routeCard; context: { $implicit: route }"></ng-container>
                 }
               }
             </div>
@@ -258,33 +266,33 @@
 }
 
 <!-- การ์ดใบงานของไรเดอร์ 1 คน (ใช้ทั้งแผนที่เสนอ และใบงานที่ออกส่งแล้ว) -->
-<ng-template #routeCard let-r>
+<ng-template #routeCard let-route>
   <div
     class="card bg-base-100 shadow-sm border-l-8 cursor-pointer"
-    [style.border-left-color]="color(r)"
-    [class.ring-2]="onlyRoute() === r.route_no"
-    (click)="toggleRoute(r)"
+    [style.border-left-color]="color(route)"
+    [class.ring-2]="onlyRoute() === route.route_no"
+    (click)="toggleRoute(route)"
   >
     <div class="card-body p-4 gap-2">
       <div class="flex items-start justify-between gap-2">
         <div>
-          <h3 class="font-display text-lg" [style.color]="color(r)">
-            {{ riderLabel(r) }}
+          <h3 class="font-display text-lg" [style.color]="color(route)">
+            {{ riderLabel(route) }}
             @if (!isDraft()) {
-              @if (routeDone(r)) {
+              @if (routeDone(route)) {
                 <span class="badge badge-success badge-sm align-middle">ส่งครบแล้ว</span>
               } @else {
                 <span class="badge badge-info badge-soft badge-sm align-middle"
-                  >ส่งแล้ว {{ deliveredOf(r) }} จาก {{ r.stops.length }}</span
+                  >ส่งแล้ว {{ deliveredOf(route) }} จาก {{ route.stops.length }}</span
                 >
               }
             }
           </h3>
         </div>
         <div class="text-right text-sm whitespace-nowrap">
-          <div>ค่าจ้าง {{ baht(r.rider_cost) }}</div>
-          <div [class.text-success]="r.profit >= 0" [class.text-error]="r.profit < 0">
-            {{ r.profit >= 0 ? 'กำไร' : 'ขาดทุน' }} {{ baht(r.profit) }}
+          <div>ค่าจ้าง {{ baht(route.rider_cost) }}</div>
+          <div [class.text-success]="route.profit >= 0" [class.text-error]="route.profit < 0">
+            {{ route.profit >= 0 ? 'กำไร' : 'ขาดทุน' }} {{ baht(route.profit) }}
           </div>
         </div>
       </div>
@@ -294,20 +302,20 @@
         <p class="text-sm text-base-content/70">
           <fa-icon [icon]="faMotorcycle"></fa-icon> ระบบจะเลือกไรเดอร์ที่ว่างให้เองตอนกดออกส่ง
         </p>
-      } @else if (started(r) || !r.id) {
-        @if (r.rider) {
-          <p class="text-sm"><fa-icon [icon]="faPhone"></fa-icon> โทร {{ r.rider.phone }}</p>
+      } @else if (started(route) || !route.id) {
+        @if (route.rider) {
+          <p class="text-sm"><fa-icon [icon]="faPhone"></fa-icon> โทร {{ route.rider.phone }}</p>
         }
       } @else {
         <label class="flex items-center gap-2 text-sm" (click)="$event.stopPropagation()">
           <fa-icon [icon]="faMotorcycle"></fa-icon>เปลี่ยนคนส่ง
           <select
             class="select select-sm flex-1"
-            [ngModel]="r.rider?.id ?? ''"
-            (ngModelChange)="changeRider(r, $event)"
+            [ngModel]="route.rider?.id ?? ''"
+            (ngModelChange)="changeRider(route, $event)"
             [disabled]="working()"
           >
-            @if (!r.rider) {
+            @if (!route.rider) {
               <option value="" disabled>เลือกไรเดอร์</option>
             }
             @for (rider of riders(); track rider.id) {
@@ -318,24 +326,28 @@
       }
 
       <!-- ใบงานที่ส่งครบแล้ว ซ่อนรายชื่อจุดส่ง (กดการ์ดเพื่อดู) -->
-      @if (isDraft() || !routeDone(r) || onlyRoute() === r.route_no) {
+      @if (isDraft() || !routeDone(route) || onlyRoute() === route.route_no) {
         <ol class="text-sm flex flex-col gap-2">
-          @for (s of r.stops; track s.order_id) {
+          @for (stop of route.stops; track stop.order_id) {
             <li class="flex gap-2">
-              <span class="badge badge-sm text-white border-0 mt-0.5" [style.background]="color(r)">{{ s.seq }}</span>
+              <span class="badge badge-sm text-white border-0 mt-0.5" [style.background]="color(route)">{{
+                stop.seq
+              }}</span>
               <span class="flex-1 min-w-0">
-                <span class="block truncate">{{ s.first_name }} {{ s.last_name }} ({{ s.quantity }} กล่อง)</span>
+                <span class="block truncate"
+                  >{{ stop.first_name }} {{ stop.last_name }} ({{ stop.quantity }} กล่อง)</span
+                >
                 <span class="block text-sm text-base-content/70"
-                  >ลูกค้า ID {{ s.customer_id }} · ออเดอร์ ID {{ s.order_id }}</span
+                  >ลูกค้า ID {{ stop.customer_id }} · ออเดอร์ ID {{ stop.order_id }}</span
                 >
               </span>
               <span class="text-right">
                 <span class="block text-base-content/70 whitespace-nowrap">{{
-                  isDraft() ? 'ถึงใน ' + s.minutes + ' นาที' : 'ถึง ' + s.eta + ' น.'
+                  isDraft() ? 'ถึงใน ' + stop.minutes + ' นาที' : 'ถึง ' + stop.eta + ' น.'
                 }}</span>
-                @if (s.status === 'delivered') {
+                @if (stop.status === 'delivered') {
                   <span class="badge badge-success badge-xs">ส่งแล้ว</span>
-                } @else if (s.status === 'cancelled') {
+                } @else if (stop.status === 'cancelled') {
                   <span class="badge badge-error badge-xs">ยกเลิก</span>
                 }
               </span>
@@ -343,31 +355,31 @@
           }
         </ol>
       } @else {
-        <p class="text-sm text-base-content/70">ส่ง {{ r.stops.length }} บ้าน · กดที่กล่องนี้เพื่อดูรายชื่อ</p>
+        <p class="text-sm text-base-content/70">ส่ง {{ route.stops.length }} บ้าน · กดที่กล่องนี้เพื่อดูรายชื่อ</p>
       }
 
       <!-- เลขใบงาน (มีเมื่อบันทึกแล้ว) -->
-      @if (r.code) {
+      @if (route.code) {
         <div class="flex flex-wrap items-center justify-between gap-2 rounded-box bg-base-200 px-3 py-2">
           <span class="text-sm"
-            >เลขใบงาน <span class="font-mono font-bold text-base tracking-wider">{{ r.code }}</span></span
+            >เลขใบงาน <span class="font-mono font-bold text-base tracking-wider">{{ route.code }}</span></span
           >
           <div class="flex flex-wrap gap-1">
-            @if (!started(r)) {
+            @if (!started(route)) {
               <button
                 class="btn btn-sm btn-ghost text-error"
-                (click)="cancelRoute(r); $event.stopPropagation()"
+                (click)="cancelRoute(route); $event.stopPropagation()"
                 [disabled]="working()"
               >
                 <fa-icon [icon]="faTrash"></fa-icon>ยกเลิกใบงานนี้
               </button>
             }
-            <button class="btn btn-sm btn-primary" (click)="copyLink(r.code); $event.stopPropagation()">
+            <button class="btn btn-sm btn-primary" (click)="copyLink(route.code); $event.stopPropagation()">
               <fa-icon [icon]="faCopy"></fa-icon>คัดลอกลิงก์
             </button>
             <a
               class="btn btn-sm btn-outline"
-              [href]="jobLink(r.code)"
+              [href]="jobLink(route.code)"
               target="_blank"
               rel="noopener"
               (click)="$event.stopPropagation()"

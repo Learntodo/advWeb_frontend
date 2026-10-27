@@ -94,9 +94,9 @@ export class Orders {
   // ออเดอร์ที่ผ่านตัวกรอง (เรียงจากใหม่ไปเก่า)
   filteredOrders = computed(() => {
     const result: OrderGetResponse[] = [];
-    for (const o of this.orders()) {
-      if (this.matchFilter(o)) {
-        result.push(o);
+    for (const order of this.orders()) {
+      if (this.matchFilter(order)) {
+        result.push(order);
       }
     }
     return result.sort((a, b) => b.id - a.id);
@@ -105,10 +105,10 @@ export class Orders {
   // จำนวนออเดอร์ของแต่ละสถานะ (ตามตัวกรองอื่น) แสดงบนแท็บสถานะ
   statusCounts = computed(() => {
     const counts: Record<string, number> = { '': 0, pending: 0, delivering: 0, delivered: 0, cancelled: 0 };
-    for (const o of this.orders()) {
-      if (this.matchFilter(o, true)) {
+    for (const order of this.orders()) {
+      if (this.matchFilter(order, true)) {
         counts[''] = (counts[''] ?? 0) + 1;
-        counts[o.status] = (counts[o.status] ?? 0) + 1;
+        counts[order.status] = (counts[order.status] ?? 0) + 1;
       }
     }
     return counts;
@@ -116,17 +116,17 @@ export class Orders {
 
   // จำนวนออเดอร์ที่จำลองไว้
   simulatedCount = computed(() => {
-    return this.orders().filter((o) => o.is_simulated === 1).length;
+    return this.orders().filter((order) => order.is_simulated === 1).length;
   });
 
   // สรุปยอดของออเดอร์ที่แสดง (ไม่นับออเดอร์ที่ยกเลิก)
   summary = computed(() => {
     let boxes = 0;
     let sales = 0;
-    for (const o of this.filteredOrders()) {
-      if (o.status !== 'cancelled') {
-        boxes = boxes + o.quantity;
-        sales = sales + Number(o.total_price);
+    for (const order of this.filteredOrders()) {
+      if (order.status !== 'cancelled') {
+        boxes = boxes + order.quantity;
+        sales = sales + Number(order.total_price);
       }
     }
     const profit = sales - boxes * this.api.BOX_COST; // กำไรก่อนหักค่าไรเดอร์
@@ -136,22 +136,24 @@ export class Orders {
   // หมุดบนแผนที่ (ตัวเลข = ID ออเดอร์ ตรงกับตาราง, สีตามสถานะ)
   markers = computed(() => {
     const markers: MapMarker[] = [];
-    for (const o of this.filteredOrders()) {
+    for (const order of this.filteredOrders()) {
       markers.push({
-        id: o.id,
-        lat: Number(o.delivery_latitude),
-        lng: Number(o.delivery_longitude),
-        label: String(o.id),
-        color: o.id === this.selectedId() ? '#dc2626' : statusColor[o.status],
-        popup: `ID ${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${statusLabel[o.status]}\n${o.delivery_address}`,
+        id: order.id,
+        lat: Number(order.delivery_latitude),
+        lng: Number(order.delivery_longitude),
+        label: String(order.id),
+        color: order.id === this.selectedId() ? '#dc2626' : statusColor[order.status],
+        popup: `ID ${order.id} ${order.first_name} ${order.last_name}\n${order.quantity} กล่อง · ${statusLabel[order.status]}\n${order.delivery_address}`,
       });
     }
     return markers;
   });
 
   // จุดส่งอยู่นอกเขตส่ง 3 กม. จากร้าน (ระบบไม่จัดเส้นทางให้)
-  outside(o: OrderGetResponse): boolean {
-    return this.api.shopKm({ lat: Number(o.delivery_latitude), lng: Number(o.delivery_longitude) }) > this.api.MAX_KM;
+  outside(order: OrderGetResponse): boolean {
+    return (
+      this.api.shopKm({ lat: Number(order.delivery_latitude), lng: Number(order.delivery_longitude) }) > this.api.MAX_KM
+    );
   }
 
   async ngOnInit() {
@@ -162,7 +164,7 @@ export class Orders {
       this.openAdd(Number(this.customer()));
     }
     if (this.edit()) {
-      const order = this.orders().find((o) => o.id === Number(this.edit()));
+      const order = this.orders().find((item) => item.id === Number(this.edit()));
       if (order) {
         this.openEdit(order);
       }
@@ -191,20 +193,20 @@ export class Orders {
   }
 
   // ตรวจว่าออเดอร์นี้ผ่านตัวกรองทุกข้อหรือไม่ (ignoreStatus = ไม่ดูตัวกรองสถานะ ใช้นับจำนวนบนแท็บ)
-  matchFilter(o: OrderGetResponse, ignoreStatus = false): boolean {
+  matchFilter(order: OrderGetResponse, ignoreStatus = false): boolean {
     const keyword = this.keyword().trim();
     if (keyword !== '') {
-      const text = `${o.first_name} ${o.last_name} ${o.phone} ID ${o.id}`;
+      const text = `${order.first_name} ${order.last_name} ${order.phone} ID ${order.id}`;
       if (!text.toLowerCase().includes(keyword.toLowerCase())) return false;
     }
-    if (this.dateFilter() !== '' && toDateInput(o.delivery_date) !== this.dateFilter()) {
+    if (this.dateFilter() !== '' && toDateInput(order.delivery_date) !== this.dateFilter()) {
       return false;
     }
-    if (!ignoreStatus && this.statusFilter() !== '' && o.status !== this.statusFilter()) {
+    if (!ignoreStatus && this.statusFilter() !== '' && order.status !== this.statusFilter()) {
       return false;
     }
-    if (this.typeFilter() === 'real' && o.is_simulated === 1) return false;
-    if (this.typeFilter() === 'sim' && o.is_simulated === 0) return false;
+    if (this.typeFilter() === 'real' && order.is_simulated === 1) return false;
+    if (this.typeFilter() === 'sim' && order.is_simulated === 0) return false;
     return true;
   }
 
@@ -220,9 +222,9 @@ export class Orders {
   }
 
   // คลิกแถว -> เลื่อนแผนที่ไปที่จุดส่ง
-  select(o: OrderGetResponse) {
-    this.selectedId.set(o.id);
-    this.focus.set({ lat: Number(o.delivery_latitude), lng: Number(o.delivery_longitude) });
+  select(order: OrderGetResponse) {
+    this.selectedId.set(order.id);
+    this.focus.set({ lat: Number(order.delivery_latitude), lng: Number(order.delivery_longitude) });
   }
 
   // คลิกหมุด -> เลือกแถวนั้นในตาราง
@@ -232,13 +234,13 @@ export class Orders {
   }
 
   // 3.1.3 ปุ่ม − / + จำนวนกล่อง (PATCH /orders/{id})
-  async changeQuantity(o: OrderGetResponse, change: number) {
-    const newQuantity = o.quantity + change;
+  async changeQuantity(order: OrderGetResponse, change: number) {
+    const newQuantity = order.quantity + change;
     if (newQuantity < 1 || newQuantity > 3) {
       return; // สั่งได้ 1-3 กล่องเท่านั้น
     }
     try {
-      await this.ordersApi.changeQuantity(o.id, change);
+      await this.ordersApi.changeQuantity(order.id, change);
       await this.reloadOrders();
     } catch (err) {
       this.notify.apiError(err, 'แก้จำนวนกล่องไม่สำเร็จ');
@@ -246,10 +248,10 @@ export class Orders {
   }
 
   // เปลี่ยนสถานะจาก dropdown ในตาราง (PUT /orders/{id})
-  async changeStatus(o: OrderGetResponse, status: string) {
+  async changeStatus(order: OrderGetResponse, status: string) {
     try {
-      await this.ordersApi.update(o.id, { status: status as OrderStatus });
-      this.notify.success(`ออเดอร์ ID ${o.id} เปลี่ยนเป็น "${statusLabel[status as OrderStatus]}"`);
+      await this.ordersApi.update(order.id, { status: status as OrderStatus });
+      this.notify.success(`ออเดอร์ ID ${order.id} เปลี่ยนเป็น "${statusLabel[status as OrderStatus]}"`);
       await this.reloadOrders();
     } catch (err) {
       this.notify.apiError(err, 'เปลี่ยนสถานะไม่สำเร็จ');
@@ -290,13 +292,13 @@ export class Orders {
   }
 
   // ลบออเดอร์ 1 รายการ
-  async remove(o: OrderGetResponse) {
-    if (!confirm(`ลบออเดอร์ ID ${o.id} ของ ${o.first_name} ใช่หรือไม่?`)) {
+  async remove(order: OrderGetResponse) {
+    if (!confirm(`ลบออเดอร์ ID ${order.id} ของ ${order.first_name} ใช่หรือไม่?`)) {
       return;
     }
     try {
-      await this.ordersApi.delete(o.id);
-      this.notify.success(`ลบออเดอร์ ID ${o.id} แล้ว`);
+      await this.ordersApi.delete(order.id);
+      this.notify.success(`ลบออเดอร์ ID ${order.id} แล้ว`);
       await this.reloadOrders();
     } catch (err) {
       this.notify.apiError(err, 'ลบออเดอร์ไม่สำเร็จ');
@@ -308,8 +310,8 @@ export class Orders {
     this.addOpen.set(true);
   }
 
-  openEdit(o: OrderGetResponse) {
-    this.editingOrder.set(o);
+  openEdit(order: OrderGetResponse) {
+    this.editingOrder.set(order);
   }
 
   // ฟอร์มบันทึกสำเร็จ -> ปิดฟอร์มแล้วโหลดออเดอร์ใหม่
@@ -319,7 +321,7 @@ export class Orders {
     this.reloadOrders();
   }
 
-  goDetail(o: OrderGetResponse) {
-    this.router.navigate(['/orders', o.id]);
+  goDetail(order: OrderGetResponse) {
+    this.router.navigate(['/orders', order.id]);
   }
 }

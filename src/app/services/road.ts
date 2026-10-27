@@ -22,7 +22,7 @@ export class Road {
 
   // ข้อความแทนชุดจุด ใช้เป็นชื่อเส้นใน cache
   key(points: LatLng[]): string {
-    return points.map((p) => `${Number(p.lng).toFixed(6)},${Number(p.lat).toFixed(6)}`).join(';');
+    return points.map((point) => `${Number(point.lng).toFixed(6)},${Number(point.lat).toFixed(6)}`).join(';');
   }
 
   // เส้นทางตามถนนของทุกเที่ยว (เที่ยวละ: ร้าน -> จุด 1 -> จุด 2 -> ...) ได้ครบทุกเที่ยวพร้อมกัน
@@ -46,7 +46,7 @@ export class Road {
     if (group.length > 0) groups.push(group);
 
     try {
-      await Promise.all(groups.map((g) => this.fetch(g)));
+      await Promise.all(groups.map((tripGroup) => this.fetch(tripGroup)));
     } catch (err) {
       return null;
     }
@@ -79,8 +79,8 @@ export class Road {
         // เริ่มและจบที่หมุดจริง (OSRM ให้เส้นถึงแค่ถนนที่ใกล้หมุดที่สุด)
         const line: LatLng[] = [trip[i] as LatLng];
         for (const step of legs[leg + i].steps) {
-          for (const c of step.geometry.coordinates as number[][]) {
-            line.push({ lat: c[1] as number, lng: c[0] as number }); // c = [ลองจิจูด, ละติจูด]
+          for (const coord of step.geometry.coordinates as number[][]) {
+            line.push({ lat: coord[1] as number, lng: coord[0] as number }); // coord = [ลองจิจูด, ละติจูด]
           }
         }
         line.push(trip[i + 1] as LatLng);

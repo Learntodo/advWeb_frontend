@@ -52,17 +52,17 @@ export class OrderDetail {
 
   // หมุดจุดส่ง 1 อัน
   markers = computed(() => {
-    const o = this.order();
-    if (o === null) {
+    const order = this.order();
+    if (order === null) {
       return [];
     }
     const marker: MapMarker = {
-      id: o.id,
-      lat: Number(o.delivery_latitude),
-      lng: Number(o.delivery_longitude),
-      label: String(o.quantity),
-      color: statusColor[o.status],
-      popup: `${o.first_name} ${o.last_name}\n${o.delivery_address}`,
+      id: order.id,
+      lat: Number(order.delivery_latitude),
+      lng: Number(order.delivery_longitude),
+      label: String(order.quantity),
+      color: statusColor[order.status],
+      popup: `${order.first_name} ${order.last_name}\n${order.delivery_address}`,
     };
     return [marker];
   });
@@ -84,9 +84,9 @@ export class OrderDetail {
   }
 
   // PATCH /orders/{id} เพิ่ม/ลดจำนวนกล่อง
-  async changeQuantity(o: OrderGetResponse, change: number) {
+  async changeQuantity(order: OrderGetResponse, change: number) {
     try {
-      await this.ordersApi.changeQuantity(o.id, change);
+      await this.ordersApi.changeQuantity(order.id, change);
       await this.loadOrder();
     } catch (err) {
       this.notify.apiError(err, 'แก้จำนวนกล่องไม่สำเร็จ');
@@ -94,9 +94,9 @@ export class OrderDetail {
   }
 
   // PUT /orders/{id} เปลี่ยนสถานะ
-  async changeStatus(o: OrderGetResponse, status: OrderStatus) {
+  async changeStatus(order: OrderGetResponse, status: OrderStatus) {
     try {
-      await this.ordersApi.update(o.id, { status: status });
+      await this.ordersApi.update(order.id, { status: status });
       this.notify.success(`เปลี่ยนสถานะเป็น "${statusLabel[status]}" แล้ว`);
       await this.loadOrder();
     } catch (err) {
@@ -105,13 +105,13 @@ export class OrderDetail {
   }
 
   // DELETE /orders/{id} แล้วกลับไปหน้าออเดอร์
-  async remove(o: OrderGetResponse) {
-    if (!confirm(`ลบออเดอร์ ID ${o.id} ใช่หรือไม่?`)) {
+  async remove(order: OrderGetResponse) {
+    if (!confirm(`ลบออเดอร์ ID ${order.id} ใช่หรือไม่?`)) {
       return;
     }
     try {
-      await this.ordersApi.delete(o.id);
-      this.notify.success(`ลบออเดอร์ ID ${o.id} แล้ว`);
+      await this.ordersApi.delete(order.id);
+      this.notify.success(`ลบออเดอร์ ID ${order.id} แล้ว`);
       this.router.navigate(['/orders']);
     } catch (err) {
       this.notify.apiError(err, 'ลบออเดอร์ไม่สำเร็จ');

@@ -3,8 +3,8 @@
     <!-- หัวฟอร์ม -->
     <div class="flex items-center justify-between">
       <h3 class="font-display text-xl">
-        @if (rider(); as r) {
-          แก้ไขข้อมูลไรเดอร์ ID {{ r.id }}
+        @if (rider(); as editingRider) {
+          แก้ไขข้อมูลไรเดอร์ ID {{ editingRider.id }}
         } @else {
           เพิ่มไรเดอร์ใหม่
         }

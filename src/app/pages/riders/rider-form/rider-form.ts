@@ -38,13 +38,13 @@ export class RiderForm {
 
   ngOnInit() {
     // ถ้าเป็นการแก้ไข ให้นำข้อมูลเดิมมาใส่ในฟอร์ม (รหัสผ่านเว้นว่าง = ไม่เปลี่ยน)
-    const r = this.rider();
-    if (r) {
-      this.firstName.set(r.first_name);
-      this.lastName.set(r.last_name);
-      this.phone.set(r.phone);
-      this.licensePlate.set(r.license_plate ?? '');
-      this.isActive.set(r.is_active === 1);
+    const rider = this.rider();
+    if (rider) {
+      this.firstName.set(rider.first_name);
+      this.lastName.set(rider.last_name);
+      this.phone.set(rider.phone);
+      this.licensePlate.set(rider.license_plate ?? '');
+      this.isActive.set(rider.is_active === 1);
     }
   }
 
@@ -79,12 +79,12 @@ export class RiderForm {
 
     this.saving.set(true);
     try {
-      const r = this.rider();
-      if (r === null) {
+      const rider = this.rider();
+      if (rider === null) {
         await this.ridersApi.add(data); // POST /riders
         this.notify.success(`เพิ่มไรเดอร์ ${data.first_name} แล้ว`);
       } else {
-        await this.ridersApi.update(r.id, data); // PUT /riders/{id}
+        await this.ridersApi.update(rider.id, data); // PUT /riders/{id}
         this.notify.success(`บันทึกข้อมูล ${data.first_name} แล้ว`);
       }
       this.saved.emit();

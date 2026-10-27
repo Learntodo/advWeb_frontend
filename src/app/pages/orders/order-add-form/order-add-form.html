@@ -14,13 +14,13 @@
         <fieldset class="fieldset">
           <legend class="fieldset-legend">ลูกค้า *</legend>
 
-          @if (selectedCustomer(); as c) {
+          @if (selectedCustomer(); as customer) {
             <!-- เลือกลูกค้าแล้ว -->
             <div class="flex justify-between gap-2 rounded-box border border-base-300 bg-base-200 p-3">
               <div>
-                <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
-                <div class="text-sm">{{ c.phone }}</div>
-                <div class="text-sm text-base-content/70">{{ c.address }}</div>
+                <div class="font-medium">{{ customer.first_name }} {{ customer.last_name }}</div>
+                <div class="text-sm">{{ customer.phone }}</div>
+                <div class="text-sm text-base-content/70">{{ customer.address }}</div>
               </div>
               <button type="button" class="btn btn-sm btn-ghost" (click)="selectedId.set(null)">เปลี่ยน</button>
             </div>
@@ -36,14 +36,14 @@
               />
             </label>
 
-            @for (c of searchResults(); track c.id) {
+            @for (customer of searchResults(); track customer.id) {
               <button
                 type="button"
                 class="btn btn-ghost justify-between w-full font-normal"
-                (click)="chooseCustomer(c)"
+                (click)="chooseCustomer(customer)"
               >
-                <span>{{ c.first_name }} {{ c.last_name }}</span>
-                <span class="text-base-content/70">{{ c.phone }}</span>
+                <span>{{ customer.first_name }} {{ customer.last_name }}</span>
+                <span class="text-base-content/70">{{ customer.phone }}</span>
               </button>
             } @empty {
               @if (searchText().trim() !== '') {
@@ -60,14 +60,14 @@
         <fieldset class="fieldset">
           <legend class="fieldset-legend">จำนวนกล่อง * (ไม่เกิน 3 กล่อง)</legend>
           <div class="join">
-            @for (q of quantityChoices; track q) {
+            @for (choice of quantityChoices; track choice) {
               <button
                 type="button"
                 class="btn join-item w-16"
-                [class.btn-primary]="quantity() === q"
-                (click)="quantity.set(q)"
+                [class.btn-primary]="quantity() === choice"
+                (click)="quantity.set(choice)"
               >
-                {{ q }}
+                {{ choice }}
               </button>
             }
           </div>

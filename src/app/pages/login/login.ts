@@ -36,7 +36,7 @@ export class Login {
     try {
       const user = await this.auth.login({ phone: this.phone().trim(), password: this.password() });
       this.notify.success(`ยินดีต้อนรับ ${user.first_name}`);
-      // เจ้าของร้านไปหน้าภาพรวม ไรเดอร์ไปหน้าไรเดอร์
+      // เจ้าของร้านไปหน้าแรก ไรเดอร์ไปหน้าไรเดอร์
       this.router.navigateByUrl(this.auth.homePath());
     } catch (err: any) {
       // 401 = เบอร์หรือรหัสผิด, 403 = บัญชีถูกปิดใช้งาน (backend ส่งข้อความมาใน error)

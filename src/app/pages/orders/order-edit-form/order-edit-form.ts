@@ -50,15 +50,15 @@ export class OrderEditForm {
 
   ngOnInit() {
     // นำข้อมูลเดิมของออเดอร์มาใส่ในฟอร์ม
-    const o = this.order();
-    this.quantity.set(o.quantity);
-    this.unitPrice.set(Number(o.unit_price));
-    this.status.set(o.status);
-    this.deliveryDate.set(toDateInput(o.delivery_date));
-    this.address.set(o.delivery_address);
-    this.lat.set(Number(o.delivery_latitude));
-    this.lng.set(Number(o.delivery_longitude));
-    this.note.set(o.note ?? '');
+    const order = this.order();
+    this.quantity.set(order.quantity);
+    this.unitPrice.set(Number(order.unit_price));
+    this.status.set(order.status);
+    this.deliveryDate.set(toDateInput(order.delivery_date));
+    this.address.set(order.delivery_address);
+    this.lat.set(Number(order.delivery_latitude));
+    this.lng.set(Number(order.delivery_longitude));
+    this.note.set(order.note ?? '');
     this.startPoint.set({ lat: this.lat(), lng: this.lng() });
   }
 
@@ -81,8 +81,8 @@ export class OrderEditForm {
       return;
     }
     // ย้ายจุดส่ง: จุดใหม่ต้องอยู่ในเขตส่ง 3 กม. จากร้าน
-    const o = this.order();
-    const moved = this.lat() !== Number(o.delivery_latitude) || this.lng() !== Number(o.delivery_longitude);
+    const order = this.order();
+    const moved = this.lat() !== Number(order.delivery_latitude) || this.lng() !== Number(order.delivery_longitude);
     if (moved && this.shopDistance() > this.api.MAX_KM) {
       this.notify.error(
         `จุดส่งอยู่ห่างร้าน ${this.shopDistance().toFixed(1)} กม. เกินเขตส่ง ${this.api.MAX_KM} กม. ร้านส่งไม่ถึง`,

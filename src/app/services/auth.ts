@@ -49,7 +49,7 @@ export class Auth {
     this.router.navigate(['/login']);
   }
 
-  // หน้าแรกของแต่ละบทบาท: เจ้าของร้าน = ภาพรวม, ไรเดอร์ = หน้าไรเดอร์
+  // หน้าแรกของแต่ละบทบาท: เจ้าของร้าน = หน้าแรก (/), ไรเดอร์ = หน้าไรเดอร์
   homePath(): string {
     return this.isRider() ? '/rider' : '/';
   }

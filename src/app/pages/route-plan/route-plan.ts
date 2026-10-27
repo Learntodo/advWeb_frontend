@@ -28,7 +28,7 @@ import { Api } from '../../config/api';
 import { Road } from '../../services/road';
 import { baht, thaiDate, today } from '../../utils/format';
 
-// สีเส้นทางของแต่ละเที่ยว (เที่ยวที่ 1 แดง, 2 เขียว, 3 น้ำเงิน, ...)
+// สีเส้นทางของแต่ละเที่ยว (เที่ยวแรก แดง, ถัดไป เขียว, น้ำเงิน, ...)
 export const ROUTE_COLORS = [
   '#dc2626',
   '#16a34a',
@@ -84,6 +84,7 @@ export class RoutePlan {
   baht = baht;
   thaiDate = thaiDate;
 
+  // ---------- ข้อมูลของหน้า ----------
   date = signal(today()); // วันที่ส่ง
   plans = signal<PlanInfo[]>([]); // แผนที่ระบบเสนอ (ยังไม่บันทึก)
   selected = signal(0); // แผนที่เลือกดูอยู่
@@ -98,6 +99,8 @@ export class RoutePlan {
   roadFailed = signal(false); // โหลดเส้นถนนไม่ได้ -> วาดเส้นตรงแทน
   requested = new Set<string>(); // แผนที่ขอเส้นถนนไปแล้ว (ไม่ขอซ้ำ)
   openRounds = signal<Record<string, boolean>>({}); // รอบที่ผู้ใช้กดพับ / กางเอง (เวลาออกส่ง -> กางอยู่ไหม)
+
+  // ---------- ค่าที่คำนวณจากข้อมูลข้างบน (computed) ----------
 
   // แผนที่กำลังแสดง: ถ้ามีแผนที่เพิ่งคำนวณ แสดงแผนนั้น ไม่งั้นแสดงใบงานที่บันทึกไว้
   current = computed<PlanInfo | null>(() => {
@@ -125,21 +128,21 @@ export class RoutePlan {
     const saved = this.saved();
     const groups: { start_time: string; routes: RouteInfo[]; orders: number; delivered: number }[] = [];
     if (!saved) return groups;
-    for (const r of saved.routes) {
-      const start = r.start_time ?? '';
-      let group = groups.find((g) => g.start_time === start);
+    for (const route of saved.routes) {
+      const start = route.start_time ?? '';
+      let group = groups.find((item) => item.start_time === start);
       if (!group) {
         group = { start_time: start, routes: [], orders: 0, delivered: 0 };
         groups.push(group);
       }
-      group.routes.push(r);
-      group.orders = group.orders + r.stops.length;
-      group.delivered = group.delivered + this.deliveredOf(r);
+      group.routes.push(route);
+      group.orders = group.orders + route.stops.length;
+      group.delivered = group.delivered + this.deliveredOf(route);
     }
     return groups.sort((a, b) => a.start_time.localeCompare(b.start_time));
   });
 
-  // รหัสออเดอร์นอกเขตส่ง เช่น "#12, #15"
+  // รหัสออเดอร์นอกเขตส่ง เช่น "ID 12, ID 15"
   outsideText = computed(() => (this.saved()?.outside ?? []).map((id) => 'ID ' + id).join(', '));
 
   // ออเดอร์ที่ต้องจัดเส้นทางรอบใหม่ (ยังไม่อยู่ในใบงาน)
@@ -156,7 +159,7 @@ export class RoutePlan {
     const plan = this.current();
     if (!plan || this.roadFailed()) return false;
     const paths = this.roadPaths();
-    return plan.routes.some((r) => !paths[this.road.key(this.stopPoints(r))]);
+    return plan.routes.some((route) => !paths[this.road.key(this.stopPoints(route))]);
   });
 
   // เส้นที่แสดงบนแผนที่ ตามถนนจริง แยกเป็นช่วง (ร้าน -> จุด 1, จุด 1 -> จุด 2, ...)
@@ -166,10 +169,10 @@ export class RoutePlan {
     const lines: MapLine[] = [];
     if (this.drawing()) return lines;
     const paths = this.roadPaths();
-    for (const r of this.visibleRoutes()) {
-      const points = this.stopPoints(r);
+    for (const route of this.visibleRoutes()) {
+      const points = this.stopPoints(route);
       const legs = paths[this.road.key(points)] ?? this.road.straight(points);
-      legs.forEach((leg, i) => lines.push({ points: leg, color: this.color(r), step: i + 1 }));
+      legs.forEach((leg, i) => lines.push({ points: leg, color: this.color(route), step: i + 1 }));
     }
     return lines;
   });
@@ -177,19 +180,19 @@ export class RoutePlan {
   // หมุดจุดส่ง (ตัวเลขในหมุด = ลำดับที่ไรเดอร์คนนั้นไปส่ง)
   markers = computed(() => {
     const markers: MapMarker[] = [];
-    for (const r of this.visibleRoutes()) {
-      for (const s of r.stops) {
+    for (const route of this.visibleRoutes()) {
+      for (const stop of route.stops) {
         markers.push({
-          id: s.order_id,
-          lat: s.latitude,
-          lng: s.longitude,
-          label: String(s.seq),
-          color: this.color(r),
+          id: stop.order_id,
+          lat: stop.latitude,
+          lng: stop.longitude,
+          label: String(stop.seq),
+          color: this.color(route),
           popup:
-            `${this.riderLabel(r)} · บ้านที่ ${s.seq}\n` +
-            `ลูกค้า ID ${s.customer_id} ${s.first_name} ${s.last_name} · ${s.quantity} กล่อง\n` +
-            `ออเดอร์ ID ${s.order_id} · ` +
-            (this.isDraft() ? `ถึงใน ${s.minutes} นาที หลังออกจากร้าน` : `ถึงประมาณ ${s.eta} น.`),
+            `${this.riderLabel(route)} · บ้านที่ ${stop.seq}\n` +
+            `ลูกค้า ID ${stop.customer_id} ${stop.first_name} ${stop.last_name} · ${stop.quantity} กล่อง\n` +
+            `ออเดอร์ ID ${stop.order_id} · ` +
+            (this.isDraft() ? `ถึงใน ${stop.minutes} นาที หลังออกจากร้าน` : `ถึงประมาณ ${stop.eta} น.`),
         });
       }
     }
@@ -198,8 +201,8 @@ export class RoutePlan {
 
   // ชื่อไรเดอร์ที่เลือกดูบนแผนที่ (null = ดูทุกคน)
   onlyLabel = computed(() => {
-    const r = this.visibleRoutes().find((x) => x.route_no === this.onlyRoute());
-    return r ? this.riderLabel(r) : null;
+    const route = this.visibleRoutes().find((item) => item.route_no === this.onlyRoute());
+    return route ? this.riderLabel(route) : null;
   });
 
   // ใบงานที่แสดงบนแผนที่ (ทุกคน หรือเฉพาะคนที่เลือก)
@@ -207,7 +210,7 @@ export class RoutePlan {
     const plan = this.current();
     if (!plan) return [];
     const only = this.onlyRoute();
-    return plan.routes.filter((r) => only === null || r.route_no === only);
+    return plan.routes.filter((route) => only === null || route.route_no === only);
   });
 
   constructor() {
@@ -215,8 +218,8 @@ export class RoutePlan {
     effect(() => {
       const plan = this.current();
       if (!plan) return;
-      const trips = plan.routes.map((r) => this.stopPoints(r));
-      const key = trips.map((t) => this.road.key(t)).join('|');
+      const trips = plan.routes.map((route) => this.stopPoints(route));
+      const key = trips.map((trip) => this.road.key(trip)).join('|');
       if (this.requested.has(key)) return;
       this.requested.add(key);
       this.roadFailed.set(false);
@@ -225,22 +228,15 @@ export class RoutePlan {
           this.roadFailed.set(true);
           return;
         }
-        const add: Record<string, LatLng[][]> = {};
-        trips.forEach((t, i) => (add[this.road.key(t)] = lines[i] as LatLng[][]));
-        this.roadPaths.update((all) => ({ ...all, ...add }));
+        // เก็บเส้นของแต่ละเที่ยว โดยใช้ชุดจุดของเที่ยวเป็นชื่อ
+        const newPaths: Record<string, LatLng[][]> = {};
+        trips.forEach((trip, i) => (newPaths[this.road.key(trip)] = lines[i] as LatLng[][]));
+        this.roadPaths.update((all) => ({ ...all, ...newPaths }));
       });
     });
   }
 
-  // จุดที่ไรเดอร์วิ่งผ่าน: ร้าน -> จุดส่งตามลำดับ
-  stopPoints(r: RouteInfo): LatLng[] {
-    const points: LatLng[] = [this.api.SHOP_LOCATION];
-    for (const s of r.stops) {
-      points.push({ lat: s.latitude, lng: s.longitude });
-    }
-    return points;
-  }
-
+  // เปิดหน้า: ใช้วันที่จากลิงก์ (ถ้ามี) แล้วโหลดใบงาน
   ngOnInit() {
     const date = this.dateQuery();
     if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -249,49 +245,60 @@ export class RoutePlan {
     this.loadSaved();
   }
 
+  // ---------- ฟังก์ชันช่วยที่ใช้ในหน้าเว็บ ----------
+
+  // จุดที่ไรเดอร์วิ่งผ่าน: ร้าน -> จุดส่งตามลำดับ
+  stopPoints(route: RouteInfo): LatLng[] {
+    const points: LatLng[] = [this.api.SHOP_LOCATION];
+    for (const stop of route.stops) {
+      points.push({ lat: stop.latitude, lng: stop.longitude });
+    }
+    return points;
+  }
+
   // เวลาสุดท้ายที่ต้องถึงลูกค้า = เวลาออกส่ง + 1 ชั่วโมง
   deadline(start: string | undefined): string {
     if (!start) return '';
-    const h = (Number(start.slice(0, 2)) + 1) % 24;
-    return String(h).padStart(2, '0') + start.slice(2);
+    const hour = (Number(start.slice(0, 2)) + 1) % 24; // "11:05" -> 12
+    return String(hour).padStart(2, '0') + start.slice(2); // -> "12:05"
   }
 
   // ชื่อที่แสดงบนการ์ด: ชื่อไรเดอร์ ถ้ายังไม่มีไรเดอร์ (แผนที่ยังไม่ออกส่ง) ใช้ "ไรเดอร์คนที่ N" ตามลำดับในแผน
-  riderLabel(r: RouteInfo): string {
-    if (r.rider) return r.rider.first_name + ' ' + r.rider.last_name;
-    const index = this.current()?.routes.indexOf(r) ?? -1;
+  riderLabel(route: RouteInfo): string {
+    if (route.rider) return route.rider.first_name + ' ' + route.rider.last_name;
+    const index = this.current()?.routes.indexOf(route) ?? -1;
     return 'ไรเดอร์คนที่ ' + (index + 1);
   }
 
   // จำนวนจุดในใบงานนี้ที่ส่งถึงแล้ว
-  deliveredOf(r: RouteInfo): number {
-    return r.stops.filter((s) => s.status === 'delivered').length;
+  deliveredOf(route: RouteInfo): number {
+    return route.stops.filter((stop) => stop.status === 'delivered').length;
   }
 
   // เที่ยวนี้ส่งครบทุกจุดแล้ว
-  routeDone(r: RouteInfo): boolean {
-    return this.deliveredOf(r) === r.stops.length;
+  routeDone(route: RouteInfo): boolean {
+    return this.deliveredOf(route) === route.stops.length;
   }
 
   // รอบนี้กางอยู่ไหม (ยังไม่เคยกดเอง: รอบที่ยังส่งไม่ครบกางไว้, ส่งครบแล้วพับไว้)
-  isOpen(g: { start_time: string; orders: number; delivered: number }): boolean {
-    return this.openRounds()[g.start_time] ?? g.delivered < g.orders;
+  isOpen(group: { start_time: string; orders: number; delivered: number }): boolean {
+    return this.openRounds()[group.start_time] ?? group.delivered < group.orders;
   }
 
   // กดหัวรอบ -> พับ / กาง
-  toggleRound(g: { start_time: string; orders: number; delivered: number }) {
-    const open = !this.isOpen(g);
-    this.openRounds.update((all) => ({ ...all, [g.start_time]: open }));
+  toggleRound(group: { start_time: string; orders: number; delivered: number }) {
+    const open = !this.isOpen(group);
+    this.openRounds.update((all) => ({ ...all, [group.start_time]: open }));
   }
 
   // เที่ยวนี้ไรเดอร์ส่งถึงลูกค้าไปแล้วอย่างน้อย 1 จุด -> ยกเลิก / เปลี่ยนไรเดอร์ไม่ได้
-  started(r: RouteInfo): boolean {
-    return r.stops.some((s) => s.status === 'delivered');
+  started(route: RouteInfo): boolean {
+    return route.stops.some((stop) => stop.status === 'delivered');
   }
 
-  // สีของเที่ยวที่ route_no
-  color(r: RouteInfo): string {
-    return ROUTE_COLORS[(r.route_no - 1) % ROUTE_COLORS.length] as string;
+  // สีของเที่ยวนี้ (เลือกจาก ROUTE_COLORS ตาม route_no)
+  color(route: RouteInfo): string {
+    return ROUTE_COLORS[(route.route_no - 1) % ROUTE_COLORS.length] as string;
   }
 
   // ลิงก์ใบงานที่ส่งให้ไรเดอร์เปิดในมือถือ
@@ -309,13 +316,15 @@ export class RoutePlan {
     }
   }
 
+  // ---------- โหลดข้อมูล และปุ่มต่างๆ ----------
+
   // GET /routes?date= โหลดใบงานที่บันทึกแล้ว และ GET /riders รายชื่อไรเดอร์ (ใช้เลือกคนรับใบงาน)
   async loadSaved() {
     this.loading.set(true);
     try {
       const [saved, riders] = await Promise.all([this.routesApi.getSaved(this.date()), this.ridersApi.getAll()]);
       this.saved.set(saved);
-      this.riders.set(riders.filter((r) => r.is_active === 1));
+      this.riders.set(riders.filter((rider) => rider.is_active === 1));
     } catch (err) {
       this.notify.apiError(err, 'โหลดใบงานไม่สำเร็จ');
     }
@@ -356,8 +365,8 @@ export class RoutePlan {
   }
 
   // กดการ์ดเที่ยว -> ดูเส้นทางเที่ยวนั้นเที่ยวเดียว กดซ้ำ -> ดูทุกเที่ยว
-  toggleRoute(r: RouteInfo) {
-    this.onlyRoute.set(this.onlyRoute() === r.route_no ? null : r.route_no);
+  toggleRoute(route: RouteInfo) {
+    this.onlyRoute.set(this.onlyRoute() === route.route_no ? null : route.route_no);
   }
 
   // ปุ่ม "ออกส่งเลย" POST /routes ยืนยันแผนที่เลือก -> ได้เลขใบงาน แจกให้ไรเดอร์แต่ละคน
@@ -371,7 +380,7 @@ export class RoutePlan {
     }
     this.working.set(true);
     try {
-      const routes = plan.routes.map((r) => r.order_ids);
+      const routes = plan.routes.map((route) => route.order_ids);
       const res = await this.routesApi.save(this.date(), routes);
       this.notify.success(`ออกส่งแล้ว ไรเดอร์ ${res.affected_row} คนได้รับใบงาน`);
       this.plans.set([]);
@@ -383,11 +392,11 @@ export class RoutePlan {
   }
 
   // PUT /routes/{id} เปลี่ยนไรเดอร์ของใบงาน (คนที่เลือกมีใบงานอยู่แล้ว จะสลับใบงานกัน)
-  async changeRider(r: RouteInfo, riderId: string) {
-    if (!r.id) return;
+  async changeRider(route: RouteInfo, riderId: string) {
+    if (!route.id) return;
     this.working.set(true);
     try {
-      await this.routesApi.changeRider(r.id, Number(riderId));
+      await this.routesApi.changeRider(route.id, Number(riderId));
       this.notify.success('เปลี่ยนคนส่งแล้ว');
     } catch (err) {
       this.notify.apiError(err, 'เปลี่ยนไรเดอร์ไม่สำเร็จ');
@@ -397,18 +406,18 @@ export class RoutePlan {
   }
 
   // DELETE /routes/{id} ยกเลิกใบงานเที่ยวนี้ ออเดอร์กลับเป็น "รอส่ง" (นำไปจัดรอบใหม่ได้)
-  async cancelRoute(r: RouteInfo) {
-    if (!r.id) return;
+  async cancelRoute(route: RouteInfo) {
+    if (!route.id) return;
     if (
-      !confirm(`ยกเลิกใบงานของ ${this.riderLabel(r)} ใช่หรือไม่?\nออเดอร์ในใบงานนี้จะกลับไปรอส่ง แล้วจัดรอบใหม่ได้`)
+      !confirm(`ยกเลิกใบงานของ ${this.riderLabel(route)} ใช่หรือไม่?\nออเดอร์ในใบงานนี้จะกลับไปรอส่ง แล้วจัดรอบใหม่ได้`)
     ) {
       return;
     }
     this.working.set(true);
     try {
-      await this.routesApi.cancelRoute(r.id);
+      await this.routesApi.cancelRoute(route.id);
       this.onlyRoute.set(null);
-      this.notify.success(`ยกเลิกใบงานของ ${this.riderLabel(r)} แล้ว`);
+      this.notify.success(`ยกเลิกใบงานของ ${this.riderLabel(route)} แล้ว`);
     } catch (err) {
       this.notify.apiError(err, 'ยกเลิกใบงานไม่สำเร็จ');
     }

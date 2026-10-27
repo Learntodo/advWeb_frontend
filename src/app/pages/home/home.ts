@@ -18,7 +18,7 @@ import { Notify } from '../../services/notify';
 import { Api } from '../../config/api';
 import { baht, statusBadge, statusColor, statusLabel, toDateInput, today } from '../../utils/format';
 
-// หน้าภาพรวมของเจ้าของร้าน: สรุปออเดอร์วันนี้ + ปุ่มจำลอง/ล้างออเดอร์
+// หน้าแรกของเจ้าของร้าน: สรุปออเดอร์วันนี้ แผนที่จุดส่ง ออเดอร์ล่าสุด + ปุ่มจำลอง / ล้างออเดอร์
 @Component({
   selector: 'app-home',
   imports: [RouterModule, FontAwesomeModule, MapView],
@@ -58,8 +58,8 @@ export class Home {
 
   // ออเดอร์ที่ต้องส่งวันนี้ (ไม่นับที่ยกเลิก)
   todayOrders = computed(() => {
-    return this.orders().filter((o) => {
-      return toDateInput(o.delivery_date) === today() && o.status !== 'cancelled';
+    return this.orders().filter((order) => {
+      return toDateInput(order.delivery_date) === today() && order.status !== 'cancelled';
     });
   });
 
@@ -67,9 +67,9 @@ export class Home {
   summary = computed(() => {
     let boxes = 0;
     let sales = 0;
-    for (const o of this.todayOrders()) {
-      boxes = boxes + o.quantity;
-      sales = sales + Number(o.total_price);
+    for (const order of this.todayOrders()) {
+      boxes = boxes + order.quantity;
+      sales = sales + Number(order.total_price);
     }
     return {
       orders: this.todayOrders().length,
@@ -80,7 +80,7 @@ export class Home {
 
   // จำนวนออเดอร์ที่จำลองไว้
   simulatedCount = computed(() => {
-    return this.orders().filter((o) => o.is_simulated === 1).length;
+    return this.orders().filter((order) => order.is_simulated === 1).length;
   });
 
   // ออเดอร์ล่าสุด 6 รายการ (รหัสมากสุด = ใหม่สุด)
@@ -92,14 +92,14 @@ export class Home {
   // หมุดจุดส่งวันนี้
   markers = computed(() => {
     const markers: MapMarker[] = [];
-    for (const o of this.todayOrders()) {
+    for (const order of this.todayOrders()) {
       markers.push({
-        id: o.id,
-        lat: Number(o.delivery_latitude),
-        lng: Number(o.delivery_longitude),
-        label: String(o.quantity),
-        color: statusColor[o.status],
-        popup: `ID ${o.id} ${o.first_name} ${o.last_name}\n${o.quantity} กล่อง · ${o.delivery_address}`,
+        id: order.id,
+        lat: Number(order.delivery_latitude),
+        lng: Number(order.delivery_longitude),
+        label: String(order.quantity),
+        color: statusColor[order.status],
+        popup: `ID ${order.id} ${order.first_name} ${order.last_name}\n${order.quantity} กล่อง · ${order.delivery_address}`,
       });
     }
     return markers;

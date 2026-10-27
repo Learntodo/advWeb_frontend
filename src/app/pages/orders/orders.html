@@ -39,11 +39,16 @@
       <button role="tab" class="tab gap-2" [class.tab-active]="statusFilter() === ''" (click)="statusFilter.set('')">
         ทั้งหมด <span class="badge badge-sm">{{ statusCounts()[''] }}</span>
       </button>
-      @for (s of statuses; track s) {
-        <button role="tab" class="tab gap-2" [class.tab-active]="statusFilter() === s" (click)="statusFilter.set(s)">
-          <span class="w-2.5 h-2.5 rounded-full" [style.background]="statusColor[s]"></span>
-          {{ statusLabel[s] }}
-          <span class="badge badge-sm">{{ statusCounts()[s] }}</span>
+      @for (option of statuses; track option) {
+        <button
+          role="tab"
+          class="tab gap-2"
+          [class.tab-active]="statusFilter() === option"
+          (click)="statusFilter.set(option)"
+        >
+          <span class="w-2.5 h-2.5 rounded-full" [style.background]="statusColor[option]"></span>
+          {{ statusLabel[option] }}
+          <span class="badge badge-sm">{{ statusCounts()[option] }}</span>
         </button>
       }
     </div>
@@ -112,26 +117,26 @@
             </tr>
           </thead>
           <tbody>
-            @for (o of filteredOrders(); track o.id) {
+            @for (order of filteredOrders(); track order.id) {
               <tr
-                [id]="'order-' + o.id"
+                [id]="'order-' + order.id"
                 class="cursor-pointer hover:bg-base-200"
-                [class.selected-row]="o.id === selectedId()"
-                (click)="select(o)"
+                [class.selected-row]="order.id === selectedId()"
+                (click)="select(order)"
               >
                 <td>
-                  <span class="font-semibold">{{ o.id }}</span>
-                  @if (o.is_simulated === 1) {
+                  <span class="font-semibold">{{ order.id }}</span>
+                  @if (order.is_simulated === 1) {
                     <span class="badge badge-xs badge-ghost block mt-1">จำลอง</span>
                   }
-                  @if (outside(o)) {
+                  @if (outside(order)) {
                     <span class="badge badge-xs badge-error block mt-1 whitespace-nowrap">นอกเขตส่ง 3 กม.</span>
                   }
                 </td>
 
                 <td class="min-w-32">
-                  <div class="font-medium">{{ o.first_name }} {{ o.last_name }}</div>
-                  <div class="text-sm text-base-content/70">ลูกค้า ID {{ o.customer_id }} · {{ o.phone }}</div>
+                  <div class="font-medium">{{ order.first_name }} {{ order.last_name }}</div>
+                  <div class="text-sm text-base-content/70">ลูกค้า ID {{ order.customer_id }} · {{ order.phone }}</div>
                 </td>
 
                 <!-- ปุ่ม − / + จำนวนกล่อง (stopPropagation: ไม่ให้นับเป็นการคลิกแถว) ออเดอร์ที่กำลังส่ง (อยู่ในใบงาน) แก้ไม่ได้ -->
@@ -139,32 +144,32 @@
                   <div class="join">
                     <button
                       class="btn btn-xs join-item"
-                      [disabled]="o.quantity <= 1 || o.status === 'delivering'"
-                      (click)="changeQuantity(o, -1)"
+                      [disabled]="order.quantity <= 1 || order.status === 'delivering'"
+                      (click)="changeQuantity(order, -1)"
                     >
                       <fa-icon [icon]="faMinus"></fa-icon>
                     </button>
                     <span class="join-item w-8 grid place-items-center bg-base-200 font-semibold text-sm">
-                      {{ o.quantity }}
+                      {{ order.quantity }}
                     </span>
                     <button
                       class="btn btn-xs join-item"
-                      [disabled]="o.quantity >= 3 || o.status === 'delivering'"
-                      (click)="changeQuantity(o, 1)"
+                      [disabled]="order.quantity >= 3 || order.status === 'delivering'"
+                      (click)="changeQuantity(order, 1)"
                     >
                       <fa-icon [icon]="faPlus"></fa-icon>
                     </button>
                   </div>
-                  @if (o.status === 'delivering') {
+                  @if (order.status === 'delivering') {
                     <div class="text-sm text-base-content/70 mt-1">
                       <fa-icon [icon]="faLock"></fa-icon> อยู่ในใบงานแล้ว
                     </div>
                   }
                 </td>
 
-                <td class="text-right whitespace-nowrap">{{ baht(o.total_price) }}</td>
+                <td class="text-right whitespace-nowrap">{{ baht(order.total_price) }}</td>
                 @if (dateFilter() === '') {
-                  <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(o.delivery_date) }}</td>
+                  <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(order.delivery_date) }}</td>
                 }
 
                 <!-- เปลี่ยนสถานะ: ใช้ #statusSelect อ้างถึง select แล้วส่งค่าเข้า function -->
@@ -172,26 +177,26 @@
                   <select
                     #statusSelect
                     class="select select-sm w-26 outline-0 font-semibold border-2"
-                    [style.border-color]="statusColor[o.status]"
-                    [style.color]="statusColor[o.status]"
+                    [style.border-color]="statusColor[order.status]"
+                    [style.color]="statusColor[order.status]"
                     title="เปลี่ยนสถานะ"
-                    (change)="changeStatus(o, statusSelect.value); statusSelect.value = o.status"
+                    (change)="changeStatus(order, statusSelect.value); statusSelect.value = order.status"
                   >
-                    @for (s of statuses; track s) {
-                      <option [value]="s" [selected]="s === o.status">{{ statusLabel[s] }}</option>
+                    @for (option of statuses; track option) {
+                      <option [value]="option" [selected]="option === order.status">{{ statusLabel[option] }}</option>
                     }
                   </select>
                 </td>
 
                 <td (click)="$event.stopPropagation()">
                   <div class="flex flex-col items-end whitespace-nowrap">
-                    <button class="btn btn-sm btn-ghost" (click)="goDetail(o)">
+                    <button class="btn btn-sm btn-ghost" (click)="goDetail(order)">
                       <fa-icon [icon]="faEye"></fa-icon>ดู
                     </button>
-                    <button class="btn btn-sm btn-ghost" (click)="openEdit(o)">
+                    <button class="btn btn-sm btn-ghost" (click)="openEdit(order)">
                       <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                     </button>
-                    <button class="btn btn-sm btn-ghost text-error" (click)="remove(o)">
+                    <button class="btn btn-sm btn-ghost text-error" (click)="remove(order)">
                       <fa-icon [icon]="faTrash"></fa-icon>ลบ
                     </button>
                   </div>
@@ -211,8 +216,8 @@
         <div class="flex flex-wrap items-center justify-between gap-2 px-1">
           <h2 class="font-display">จุดส่งบนแผนที่ (เลขในวงกลม = ID ออเดอร์)</h2>
           <div class="flex gap-1">
-            @for (s of statuses; track s) {
-              <span class="badge badge-sm {{ statusBadge[s] }}">{{ statusLabel[s] }}</span>
+            @for (option of statuses; track option) {
+              <span class="badge badge-sm {{ statusBadge[option] }}">{{ statusLabel[option] }}</span>
             }
           </div>
         </div>
@@ -272,6 +277,6 @@
 }
 
 <!-- ฟอร์มแก้ไขออเดอร์ (component ย่อย) -->
-@if (editingOrder(); as o) {
-  <app-order-edit-form [order]="o" (saved)="onSaved()" (closed)="editingOrder.set(null)"></app-order-edit-form>
+@if (editingOrder(); as order) {
+  <app-order-edit-form [order]="order" (saved)="onSaved()" (closed)="editingOrder.set(null)"></app-order-edit-form>
 }

@@ -19,14 +19,14 @@
         <fieldset class="fieldset">
           <legend class="fieldset-legend">จำนวนกล่อง</legend>
           <div class="join">
-            @for (q of quantityChoices; track q) {
+            @for (choice of quantityChoices; track choice) {
               <button
                 type="button"
                 class="btn join-item w-16"
-                [class.btn-primary]="quantity() === q"
-                (click)="quantity.set(q)"
+                [class.btn-primary]="quantity() === choice"
+                (click)="quantity.set(choice)"
               >
-                {{ q }}
+                {{ choice }}
               </button>
             }
           </div>
@@ -46,8 +46,8 @@
         <fieldset class="fieldset">
           <legend class="fieldset-legend">สถานะ</legend>
           <select class="select outline-0 w-full" name="status" [(ngModel)]="status">
-            @for (s of statuses; track s) {
-              <option [value]="s">{{ statusLabel[s] }}</option>
+            @for (option of statuses; track option) {
+              <option [value]="option">{{ statusLabel[option] }}</option>
             }
           </select>
         </fieldset>

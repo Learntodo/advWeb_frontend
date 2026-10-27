@@ -63,22 +63,22 @@ export class Customers {
   // สร้างหมุดบนแผนที่จากลูกค้าที่แสดงอยู่
   markers = computed(() => {
     const markers: MapMarker[] = [];
-    for (const c of this.customers()) {
+    for (const customer of this.customers()) {
       markers.push({
-        id: c.id,
-        lat: Number(c.latitude),
-        lng: Number(c.longitude),
-        label: String(c.id),
-        color: c.id === this.selectedId() ? '#dc2626' : '#7c2d12', // ที่เลือกเป็นสีแดง
-        popup: `${c.first_name} ${c.last_name}\n${c.phone}\n${c.address}`,
+        id: customer.id,
+        lat: Number(customer.latitude),
+        lng: Number(customer.longitude),
+        label: String(customer.id),
+        color: customer.id === this.selectedId() ? '#dc2626' : '#7c2d12', // ที่เลือกเป็นสีแดง
+        popup: `${customer.first_name} ${customer.last_name}\n${customer.phone}\n${customer.address}`,
       });
     }
     return markers;
   });
 
   // บ้านลูกค้าอยู่นอกเขตส่ง 3 กม. จากร้าน (สั่งออเดอร์ส่งที่บ้านไม่ได้)
-  outside(c: CustomerGetResponse): boolean {
-    return this.api.shopKm({ lat: Number(c.latitude), lng: Number(c.longitude) }) > this.api.MAX_KM;
+  outside(customer: CustomerGetResponse): boolean {
+    return this.api.shopKm({ lat: Number(customer.latitude), lng: Number(customer.longitude) }) > this.api.MAX_KM;
   }
 
   ngOnInit() {
@@ -130,7 +130,7 @@ export class Customers {
 
     const isPhoneNumber = /^[0-9]+$/.test(text);
     if (isPhoneNumber) {
-      const result = this.allCustomers().filter((c) => c.phone.includes(text));
+      const result = this.allCustomers().filter((customer) => customer.phone.includes(text));
       this.customers.set(result);
       return;
     }
@@ -150,9 +150,9 @@ export class Customers {
   }
 
   // คลิกแถวในตาราง -> เลื่อนแผนที่ไปที่บ้านลูกค้า
-  select(c: CustomerGetResponse) {
-    this.selectedId.set(c.id);
-    this.focus.set({ lat: Number(c.latitude), lng: Number(c.longitude) });
+  select(customer: CustomerGetResponse) {
+    this.selectedId.set(customer.id);
+    this.focus.set({ lat: Number(customer.latitude), lng: Number(customer.longitude) });
   }
 
   // คลิกหมุดบนแผนที่ -> เลือกแถวนั้นในตาราง
@@ -166,8 +166,8 @@ export class Customers {
     this.formOpen.set(true);
   }
 
-  openEdit(c: CustomerGetResponse) {
-    this.editingCustomer.set(c);
+  openEdit(customer: CustomerGetResponse) {
+    this.editingCustomer.set(customer);
     this.formOpen.set(true);
   }
 
@@ -178,22 +178,22 @@ export class Customers {
   }
 
   // 2.1 ลบลูกค้า
-  async remove(c: CustomerGetResponse) {
-    if (!confirm(`ลบลูกค้า ${c.first_name} ${c.last_name} ใช่หรือไม่?`)) {
+  async remove(customer: CustomerGetResponse) {
+    if (!confirm(`ลบลูกค้า ${customer.first_name} ${customer.last_name} ใช่หรือไม่?`)) {
       return;
     }
     try {
-      await this.customersApi.delete(c.id);
-      this.notify.success(`ลบ ${c.first_name} แล้ว`);
+      await this.customersApi.delete(customer.id);
+      this.notify.success(`ลบ ${customer.first_name} แล้ว`);
       this.loadCustomers();
     } catch (err) {
-      // ถ้าลูกค้ายังมีออเดอร์ ฐานข้อมูลจะไม่ยอมให้ลบ (backend ตอบ 500)
+      // ลูกค้าที่ยังมีออเดอร์ ลบไม่ได้ (backend ตอบ 400 พร้อมบอกเหตุผล)
       this.notify.apiError(err, 'ลบไม่ได้ ลูกค้าอาจยังมีออเดอร์อยู่ ให้ลบออเดอร์ก่อน');
     }
   }
 
   // ไปหน้าออเดอร์ พร้อมส่ง query param ให้เปิดฟอร์มสั่งของลูกค้าคนนี้
-  orderFor(c: CustomerGetResponse) {
-    this.router.navigate(['/orders'], { queryParams: { customer: c.id } });
+  orderFor(customer: CustomerGetResponse) {
+    this.router.navigate(['/orders'], { queryParams: { customer: customer.id } });
   }
 }

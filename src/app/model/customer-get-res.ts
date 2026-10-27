@@ -1,6 +1,4 @@
 // ข้อมูลลูกค้าที่ได้จาก GET /customers และ GET /customers/search
-// หมายเหตุ: ค่า DECIMAL (latitude, longitude) ฐานข้อมูลส่งมาเป็น string เช่น "16.2460000"
-//          ก่อนนำไปคำนวณหรือใช้บนแผนที่ ต้องแปลงด้วย Number() ก่อน
 export interface CustomerGetResponse {
   id: number;
   first_name: string;
@@ -8,8 +6,8 @@ export interface CustomerGetResponse {
   phone: string;
   email: string | null;
   address: string;
-  latitude: string;
-  longitude: string;
+  latitude: number; // ละติจูดบ้านลูกค้า
+  longitude: number; // ลองจิจูดบ้านลูกค้า
   created_at: string;
   updated_at: string;
 }

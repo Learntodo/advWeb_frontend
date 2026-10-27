@@ -26,7 +26,7 @@ export interface RouteRider {
 
 // 1 เที่ยว = งานของไรเดอร์ 1 คน
 export interface RouteInfo {
-  route_no: number; // เที่ยวที่
+  route_no: number; // ลำดับเที่ยวของวันนั้น (ใช้เลือกสีเส้นบนแผนที่)
   id?: number; // รหัสใบงาน (มีเมื่อบันทึกแล้ว)
   code?: string; // เลขใบงาน (มีเมื่อบันทึกแล้ว)
   rider?: RouteRider | null; // ไรเดอร์ที่รับใบงาน (มีเมื่อบันทึกแล้ว)

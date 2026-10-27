@@ -79,14 +79,14 @@ export class Simulate {
 
   // ขั้นไหนทำแล้วบ้าง (ใช้ขึ้นเครื่องหมายถูก และบอกว่าขั้นต่อไปคืออะไร)
   done = computed(() => {
-    const s = this.status();
+    const summary = this.status();
     return [
-      (s?.customers ?? 0) > 0,
-      (s?.active_riders ?? 0) > 0 && this.ridersShort() === 0,
+      (summary?.customers ?? 0) > 0,
+      (summary?.active_riders ?? 0) > 0 && this.ridersShort() === 0,
       this.dayOrders() > 0,
-      (s?.routes.length ?? 0) > 0,
-      (s?.routes.length ?? 0) > 0,
-      (s?.day.delivered ?? 0) > 0,
+      (summary?.routes.length ?? 0) > 0,
+      (summary?.routes.length ?? 0) > 0,
+      (summary?.day.delivered ?? 0) > 0,
     ];
   });
 
@@ -95,8 +95,8 @@ export class Simulate {
 
   // มีข้อมูลจำลองให้ล้างไหม
   hasSimData = computed(() => {
-    const s = this.status();
-    return !!s && s.customers + s.orders + s.riders > 0;
+    const summary = this.status();
+    return !!summary && summary.customers + summary.orders + summary.riders > 0;
   });
 
   ngOnInit() {
@@ -142,9 +142,9 @@ export class Simulate {
 
   // เพิ่มไรเดอร์จำลองให้พอกับออเดอร์ของวันที่เลือก (คืนจำนวนที่เพิ่ม)
   async fillRiders(): Promise<number> {
-    const s = await this.simulateApi.status(this.date());
-    const day = s.day;
-    let short = Math.ceil((day.pending + day.delivering) / MAX_ORDERS) - s.active_riders;
+    const summary = await this.simulateApi.status(this.date());
+    const day = summary.day;
+    let short = Math.ceil((day.pending + day.delivering) / MAX_ORDERS) - summary.active_riders;
     let added = 0;
     while (short > 0) {
       const res = await this.simulateApi.riders(Math.min(short, MAX_RIDERS_PER_CALL));
@@ -157,9 +157,9 @@ export class Simulate {
   // ปุ่มเดียวครบชุด: สร้างลูกค้า (ถ้ายังไม่พอ) ออเดอร์ของวันที่เลือก และไรเดอร์ให้พอส่ง
   quickStart() {
     this.run(async () => {
-      const s = this.status();
+      const summary = this.status();
       // ลูกค้าน้อยกว่าจำนวนออเดอร์ เพิ่มลูกค้าก่อน (ออเดอร์จะได้ไม่ซ้ำคนเดิม)
-      if ((s?.customers ?? 0) < ORDER_COUNT) {
+      if ((summary?.customers ?? 0) < ORDER_COUNT) {
         await this.simulateApi.customers(CUSTOMER_COUNT);
       }
       const res = await this.ordersApi.simulate(this.date(), ORDER_COUNT);

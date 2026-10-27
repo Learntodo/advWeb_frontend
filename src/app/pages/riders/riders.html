@@ -34,34 +34,34 @@
           </tr>
         </thead>
         <tbody>
-          @for (r of riders(); track r.id) {
-            <tr [class.opacity-60]="r.is_active !== 1">
-              <td class="text-base-content/70">{{ r.id }}</td>
+          @for (rider of riders(); track rider.id) {
+            <tr [class.opacity-60]="rider.is_active !== 1">
+              <td class="text-base-content/70">{{ rider.id }}</td>
               <td>
-                <div class="font-medium">{{ r.first_name }} {{ r.last_name }}</div>
+                <div class="font-medium">{{ rider.first_name }} {{ rider.last_name }}</div>
                 <div class="text-sm text-base-content/70">
-                  <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ r.phone }}
-                  <span class="sm:hidden"> · {{ r.license_plate || '-' }}</span>
+                  <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ rider.phone }}
+                  <span class="sm:hidden"> · {{ rider.license_plate || '-' }}</span>
                 </div>
               </td>
               <td class="hidden sm:table-cell">
-                <fa-icon [icon]="faMotorcycle" class="text-base-content/70"></fa-icon> {{ r.license_plate || '-' }}
+                <fa-icon [icon]="faMotorcycle" class="text-base-content/70"></fa-icon> {{ rider.license_plate || '-' }}
               </td>
               <td>
                 <input
                   type="checkbox"
                   class="toggle toggle-success toggle-sm"
-                  [checked]="r.is_active === 1"
-                  [title]="r.is_active === 1 ? 'ใช้งานอยู่ (กดเพื่อปิด)' : 'ปิดใช้งาน (กดเพื่อเปิด)'"
-                  (change)="toggleActive(r)"
+                  [checked]="rider.is_active === 1"
+                  [title]="rider.is_active === 1 ? 'ใช้งานอยู่ (กดเพื่อปิด)' : 'ปิดใช้งาน (กดเพื่อเปิด)'"
+                  (change)="toggleActive(rider)"
                 />
               </td>
               <td>
                 <div class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap">
-                  <button class="btn btn-sm btn-ghost" (click)="openEdit(r)">
+                  <button class="btn btn-sm btn-ghost" (click)="openEdit(rider)">
                     <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                   </button>
-                  <button class="btn btn-sm btn-ghost text-error" (click)="remove(r)">
+                  <button class="btn btn-sm btn-ghost text-error" (click)="remove(rider)">
                     <fa-icon [icon]="faTrash"></fa-icon>ลบ
                   </button>
                 </div>

@@ -86,19 +86,19 @@
         </div>
       } @else {
         <ul class="divide-y divide-base-200">
-          @for (o of latestOrders(); track o.id) {
+          @for (order of latestOrders(); track order.id) {
             <li>
-              <a [routerLink]="['/orders', o.id]" class="flex items-center gap-3 px-5 py-3 hover:bg-base-200">
+              <a [routerLink]="['/orders', order.id]" class="flex items-center gap-3 px-5 py-3 hover:bg-base-200">
                 <span class="grid place-items-center w-9 h-9 rounded-lg bg-primary/10 text-primary font-display">
-                  {{ o.quantity }}
+                  {{ order.quantity }}
                 </span>
                 <span class="flex-1 min-w-0">
-                  <span class="block font-medium truncate">{{ o.first_name }} {{ o.last_name }}</span>
+                  <span class="block font-medium truncate">{{ order.first_name }} {{ order.last_name }}</span>
                   <span class="block text-sm text-base-content/70 truncate"
-                    >ID {{ o.id }} · {{ o.delivery_address }}</span
+                    >ID {{ order.id }} · {{ order.delivery_address }}</span
                   >
                 </span>
-                <span class="badge badge-sm {{ statusBadge[o.status] }}">{{ statusLabel[o.status] }}</span>
+                <span class="badge badge-sm {{ statusBadge[order.status] }}">{{ statusLabel[order.status] }}</span>
               </a>
             </li>
           } @empty {

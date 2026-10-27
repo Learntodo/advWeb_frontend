@@ -2,16 +2,15 @@
 export type OrderStatus = 'pending' | 'delivering' | 'delivered' | 'cancelled';
 
 // ข้อมูลออเดอร์ (ตาราง orders)
-// หมายเหตุ: ค่า DECIMAL (ราคา, พิกัด) ฐานข้อมูลส่งมาเป็น string ต้องแปลงด้วย Number() ก่อนใช้
 export interface Order {
   id: number;
   customer_id: number;
   quantity: number;
-  unit_price: string;
-  total_price: string;
+  unit_price: number; // ราคาต่อกล่อง
+  total_price: number; // ราคารวม = จำนวนกล่อง x ราคาต่อกล่อง
   delivery_address: string;
-  delivery_latitude: string;
-  delivery_longitude: string;
+  delivery_latitude: number;
+  delivery_longitude: number;
   delivery_date: string;
   status: OrderStatus;
   is_simulated: number; // 1 = ออเดอร์จำลอง, 0 = ออเดอร์จริง

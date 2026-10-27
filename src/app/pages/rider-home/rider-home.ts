@@ -51,7 +51,7 @@ export class RiderHome {
 
   // ส่งถึงแล้วกี่จุด
   delivered(job: JobSheet): number {
-    return job.stops.filter((s) => s.status === 'delivered').length;
+    return job.stops.filter((stop) => stop.status === 'delivered').length;
   }
 
   // กรอกเลขใบงานแล้วกดเปิด -> ไปหน้าใบงาน /job?code=XXXXXXXX

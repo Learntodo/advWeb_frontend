@@ -3,8 +3,8 @@
     <!-- หัวฟอร์ม -->
     <div class="flex items-center justify-between">
       <h3 class="font-display text-xl">
-        @if (customer(); as c) {
-          แก้ไขข้อมูลลูกค้า ID {{ c.id }}
+        @if (customer(); as editingCustomer) {
+          แก้ไขข้อมูลลูกค้า ID {{ editingCustomer.id }}
         } @else {
           เพิ่มลูกค้าใหม่
         }
@@ -87,8 +87,10 @@
           <button type="button" class="btn btn-sm btn-ghost" (click)="useMyLocation()">
             <fa-icon [icon]="faLocationDot"></fa-icon>ใช้ตำแหน่งที่ฉันอยู่ตอนนี้
           </button>
-          @if (pickedPoint(); as p) {
-            <a class="btn btn-sm btn-ghost" target="_blank" [href]="googleMapsLink(p.lat, p.lng)"> ดูใน Google Maps </a>
+          @if (pickedPoint(); as point) {
+            <a class="btn btn-sm btn-ghost" target="_blank" [href]="googleMapsLink(point.lat, point.lng)">
+              ดูใน Google Maps
+            </a>
           }
         </div>
       </fieldset>

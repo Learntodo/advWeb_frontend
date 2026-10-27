@@ -1,18 +1,18 @@
 <div class="max-w-md mx-auto flex flex-col gap-4">
-  @if (job(); as j) {
+  @if (job(); as sheet) {
     <!-- หัวใบงาน -->
     <div class="card bg-neutral text-neutral-content shadow-sm">
       <div class="card-body p-5 gap-1">
-        <p class="opacity-80">ใบงานวันที่ {{ thaiDate(j.delivery_date) }}</p>
+        <p class="opacity-80">ใบงานวันที่ {{ thaiDate(sheet.delivery_date) }}</p>
         <h1 class="font-display text-2xl text-secondary">
-          {{ j.rider ? 'ใบงานของ ' + j.rider.first_name + ' ' + j.rider.last_name : 'ใบงานไรเดอร์' }}
+          {{ sheet.rider ? 'ใบงานของ ' + sheet.rider.first_name + ' ' + sheet.rider.last_name : 'ใบงานไรเดอร์' }}
         </h1>
         <p class="text-lg">
           <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าวกล่องไปทั้งหมด
-          <span class="font-display text-3xl text-secondary">{{ j.boxes }}</span> กล่อง
+          <span class="font-display text-3xl text-secondary">{{ sheet.boxes }}</span> กล่อง
         </p>
         <p class="text-lg">
-          ส่งแล้ว <b class="text-secondary">{{ deliveredCount() }} จาก {{ j.stops.length }}</b> บ้าน
+          ส่งแล้ว <b class="text-secondary">{{ deliveredCount() }} จาก {{ sheet.stops.length }}</b> บ้าน
         </p>
       </div>
     </div>
@@ -42,54 +42,58 @@
         <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
           ><fa-icon [icon]="faHouse"></fa-icon
         ></span>
-        ออกจากร้าน {{ j.start_time }} น.
+        ออกจากร้าน {{ sheet.start_time }} น.
       </li>
-      @for (s of j.stops; track s.order_id) {
-        <li class="card bg-base-100 shadow-sm" [class.opacity-75]="s.status === 'delivered'">
+      @for (stop of sheet.stops; track stop.order_id) {
+        <li class="card bg-base-100 shadow-sm" [class.opacity-75]="stop.status === 'delivered'">
           <div class="card-body p-4 gap-2">
             <div class="flex items-start gap-3">
               <span
                 class="grid place-items-center w-9 h-9 rounded-full font-display text-lg shrink-0"
-                [class.bg-primary]="s.status !== 'delivered'"
-                [class.text-primary-content]="s.status !== 'delivered'"
-                [class.bg-success]="s.status === 'delivered'"
-                [class.text-success-content]="s.status === 'delivered'"
+                [class.bg-primary]="stop.status !== 'delivered'"
+                [class.text-primary-content]="stop.status !== 'delivered'"
+                [class.bg-success]="stop.status === 'delivered'"
+                [class.text-success-content]="stop.status === 'delivered'"
               >
-                @if (s.status === 'delivered') {
+                @if (stop.status === 'delivered') {
                   <fa-icon [icon]="faCircleCheck"></fa-icon>
                 } @else {
-                  {{ s.seq }}
+                  {{ stop.seq }}
                 }
               </span>
               <div class="flex-1 min-w-0">
-                <p class="font-display text-lg">บ้านที่ {{ s.seq }} คุณ{{ s.first_name }} {{ s.last_name }}</p>
-                <p class="text-base-content/80">{{ s.delivery_address }}</p>
-                <p class="font-bold">{{ s.quantity }} กล่อง</p>
+                <p class="font-display text-lg">บ้านที่ {{ stop.seq }} คุณ{{ stop.first_name }} {{ stop.last_name }}</p>
+                <p class="text-base-content/80">{{ stop.delivery_address }}</p>
+                <p class="font-bold">{{ stop.quantity }} กล่อง</p>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <a class="btn btn-outline" href="tel:{{ s.phone }}"><fa-icon [icon]="faPhone"></fa-icon>โทรหาลูกค้า</a>
+              <a class="btn btn-outline" href="tel:{{ stop.phone }}"><fa-icon [icon]="faPhone"></fa-icon>โทรหาลูกค้า</a>
               <a
                 class="btn btn-outline"
-                [href]="googleMapsLink(s.latitude, s.longitude)"
+                [href]="googleMapsLink(stop.latitude, stop.longitude)"
                 target="_blank"
                 rel="noopener"
               >
                 <fa-icon [icon]="faLocationArrow"></fa-icon>นำทาง
               </a>
             </div>
-            @if (s.status === 'delivered') {
+            @if (stop.status === 'delivered') {
               <div class="flex items-center justify-between gap-2">
                 <span class="text-success font-bold"><fa-icon [icon]="faCircleCheck"></fa-icon> ส่งถึงแล้ว</span>
                 @if (canDeliver()) {
-                  <button class="btn btn-sm btn-ghost" (click)="markDelivered(s, false)" [disabled]="saving() !== null">
+                  <button
+                    class="btn btn-sm btn-ghost"
+                    (click)="markDelivered(stop, false)"
+                    [disabled]="saving() !== null"
+                  >
                     กดผิด ยกเลิก
                   </button>
                 }
               </div>
             } @else if (canDeliver()) {
-              <button class="btn btn-success w-full" (click)="markDelivered(s, true)" [disabled]="saving() !== null">
-                @if (saving() === s.order_id) {
+              <button class="btn btn-success w-full" (click)="markDelivered(stop, true)" [disabled]="saving() !== null">
+                @if (saving() === stop.order_id) {
                   <span class="loading loading-spinner loading-sm"></span>
                 } @else {
                   <fa-icon [icon]="faCircleCheck"></fa-icon>

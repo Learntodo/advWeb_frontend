@@ -66,15 +66,15 @@ export class JobSheet {
   });
 
   // ส่งถึงแล้วกี่จุด
-  deliveredCount = computed(() => (this.job()?.stops ?? []).filter((s) => s.status === 'delivered').length);
+  deliveredCount = computed(() => (this.job()?.stops ?? []).filter((stop) => stop.status === 'delivered').length);
 
   // ลิงก์ Google Maps ทั้งเส้นทาง: ร้าน -> จุด 1 -> จุด 2 -> ... -> กลับร้าน
   routeLink = computed(() => {
     const job = this.job();
     if (!job) return '';
     const points = [job.shop];
-    for (const s of job.stops) {
-      points.push({ lat: s.latitude, lng: s.longitude });
+    for (const stop of job.stops) {
+      points.push({ lat: stop.latitude, lng: stop.longitude });
     }
     points.push(job.shop);
     return googleMapsRouteLink(points);
@@ -83,14 +83,14 @@ export class JobSheet {
   // แผนที่เล็ก: หมุดจุดส่งตามลำดับ และเส้นทาง
   markers = computed(() => {
     const markers: MapMarker[] = [];
-    for (const s of this.job()?.stops ?? []) {
+    for (const stop of this.job()?.stops ?? []) {
       markers.push({
-        id: s.order_id,
-        lat: s.latitude,
-        lng: s.longitude,
-        label: String(s.seq),
-        color: s.status === 'delivered' ? '#16a34a' : '#dc2626',
-        popup: `บ้านที่ ${s.seq} ${s.first_name} ${s.last_name}\n${s.quantity} กล่อง`,
+        id: stop.order_id,
+        lat: stop.latitude,
+        lng: stop.longitude,
+        label: String(stop.seq),
+        color: stop.status === 'delivered' ? '#16a34a' : '#dc2626',
+        popup: `บ้านที่ ${stop.seq} ${stop.first_name} ${stop.last_name}\n${stop.quantity} กล่อง`,
       });
     }
     return markers;
@@ -101,8 +101,8 @@ export class JobSheet {
     const job = this.job();
     if (!job) return [];
     const points: LatLng[] = [job.shop];
-    for (const s of job.stops) {
-      points.push({ lat: s.latitude, lng: s.longitude });
+    for (const stop of job.stops) {
+      points.push({ lat: stop.latitude, lng: stop.longitude });
     }
     return points;
   });
@@ -158,16 +158,19 @@ export class JobSheet {
   }
 
   // PUT /jobs/{code}/stops/{orderId} กด "ส่งถึงแล้ว" (delivered = false คือกดผิด ย้อนกลับ)
-  async markDelivered(s: RouteStop, delivered: boolean) {
+  async markDelivered(stop: RouteStop, delivered: boolean) {
     const job = this.job();
     if (!job) return;
-    this.saving.set(s.order_id);
+    this.saving.set(stop.order_id);
     try {
-      await this.routesApi.markDelivered(job.code, s.order_id, delivered);
+      await this.routesApi.markDelivered(job.code, stop.order_id, delivered);
       // อัปเดตสถานะในหน้าเลย ไม่ต้องโหลดใหม่ทั้งใบ
       const status = delivered ? 'delivered' : 'delivering';
-      this.job.set({ ...job, stops: job.stops.map((x) => (x.order_id === s.order_id ? { ...x, status: status } : x)) });
-      if (delivered) this.notify.success(`บันทึกแล้ว: ส่งถึงคุณ${s.first_name} เรียบร้อย`);
+      this.job.set({
+        ...job,
+        stops: job.stops.map((item) => (item.order_id === stop.order_id ? { ...item, status: status } : item)),
+      });
+      if (delivered) this.notify.success(`บันทึกแล้ว: ส่งถึงคุณ${stop.first_name} เรียบร้อย`);
     } catch (err) {
       this.notify.apiError(err, 'บันทึกไม่สำเร็จ');
     }

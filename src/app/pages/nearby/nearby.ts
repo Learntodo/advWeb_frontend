@@ -68,25 +68,25 @@ export class Nearby {
   markers = computed(() => {
     const markers: MapMarker[] = [];
     if (this.mode() === 'customers') {
-      for (const c of this.customerResults()) {
+      for (const customer of this.customerResults()) {
         markers.push({
-          id: c.id,
-          lat: Number(c.latitude),
-          lng: Number(c.longitude),
-          label: String(c.id),
+          id: customer.id,
+          lat: Number(customer.latitude),
+          lng: Number(customer.longitude),
+          label: String(customer.id),
           color: '#7c2d12',
-          popup: `ลูกค้า ID ${c.id} ${c.first_name} ${c.last_name}\nห่าง ${c.distance_km.toFixed(2)} กม.`,
+          popup: `ลูกค้า ID ${customer.id} ${customer.first_name} ${customer.last_name}\nห่าง ${customer.distance_km.toFixed(2)} กม.`,
         });
       }
     } else {
-      for (const o of this.orderResults()) {
+      for (const order of this.orderResults()) {
         markers.push({
-          id: o.id,
-          lat: Number(o.delivery_latitude),
-          lng: Number(o.delivery_longitude),
-          label: String(o.id),
-          color: statusColor[o.status],
-          popup: `ออเดอร์ ID ${o.id} · ลูกค้า ID ${o.customer_id} ${this.customerName(o.customer_id)}\nห่าง ${o.distance_km.toFixed(2)} กม.`,
+          id: order.id,
+          lat: Number(order.delivery_latitude),
+          lng: Number(order.delivery_longitude),
+          label: String(order.id),
+          color: statusColor[order.status],
+          popup: `ออเดอร์ ID ${order.id} · ลูกค้า ID ${order.customer_id} ${this.customerName(order.customer_id)}\nห่าง ${order.distance_km.toFixed(2)} กม.`,
         });
       }
     }
@@ -96,8 +96,8 @@ export class Nearby {
   // จำนวนกล่องรวมของออเดอร์ที่ค้นเจอ
   totalBoxes = computed(() => {
     let total = 0;
-    for (const o of this.orderResults()) {
-      total = total + o.quantity;
+    for (const order of this.orderResults()) {
+      total = total + order.quantity;
     }
     return total;
   });
@@ -114,9 +114,9 @@ export class Nearby {
 
   // หาชื่อลูกค้าจากรหัสลูกค้า
   customerName(customerId: number): string {
-    const c = this.allCustomers().find((x) => x.id === customerId);
-    if (c) {
-      return c.first_name + ' ' + c.last_name;
+    const customer = this.allCustomers().find((item) => item.id === customerId);
+    if (customer) {
+      return customer.first_name + ' ' + customer.last_name;
     }
     return 'ลูกค้า ID ' + customerId;
   }
@@ -168,7 +168,7 @@ export class Nearby {
   }
 
   // คลิกรายการ -> เลื่อนแผนที่ไปที่จุดนั้น
-  showOnMap(lat: string, lng: string) {
+  showOnMap(lat: number, lng: number) {
     this.focus.set({ lat: Number(lat), lng: Number(lng) });
   }
 }

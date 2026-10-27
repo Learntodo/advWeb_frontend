@@ -2,7 +2,6 @@
 import { OrderStatus } from '../model/order-get-res';
 
 // แสดงเป็นเงินบาท เช่น 1950 -> "1,950 ฿"
-// (ราคาจาก backend มาเป็น string เช่น "65.00" จึงต้องแปลงด้วย Number() ก่อน)
 export function baht(value: string | number): string {
   return Number(value).toLocaleString('th-TH') + ' ฿';
 }
@@ -38,7 +37,7 @@ export function googleMapsLink(lat: string | number, lng: string | number): stri
 
 // ลิงก์เปิด Google Maps นำทางหลายจุดตามลำดับ (จุดแรก = ต้นทาง, จุดสุดท้าย = ปลายทาง, ที่เหลือ = จุดแวะ)
 export function googleMapsRouteLink(points: { lat: number; lng: number }[]): string {
-  const text = points.map((p) => `${p.lat},${p.lng}`);
+  const text = points.map((point) => `${point.lat},${point.lng}`);
   const origin = text[0];
   const destination = text[text.length - 1];
   const waypoints = text.slice(1, -1).join('|');

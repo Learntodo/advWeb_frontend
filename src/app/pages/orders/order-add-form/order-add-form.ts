@@ -49,7 +49,7 @@ export class OrderAddForm {
 
   // ข้อมูลลูกค้าที่เลือก
   selectedCustomer = computed(() => {
-    return this.customers().find((c) => c.id === this.selectedId()) ?? null;
+    return this.customers().find((customer) => customer.id === this.selectedId()) ?? null;
   });
 
   // ค้นหาลูกค้าเก่าจากชื่อหรือเบอร์โทร (แสดงไม่เกิน 6 คน)
@@ -59,10 +59,10 @@ export class OrderAddForm {
       return [];
     }
     const results: CustomerGetResponse[] = [];
-    for (const c of this.customers()) {
-      const fullName = c.first_name + ' ' + c.last_name;
-      if (fullName.includes(text) || c.phone.includes(text)) {
-        results.push(c);
+    for (const customer of this.customers()) {
+      const fullName = customer.first_name + ' ' + customer.last_name;
+      if (fullName.includes(text) || customer.phone.includes(text)) {
+        results.push(customer);
       }
     }
     return results.slice(0, 6);
@@ -80,11 +80,11 @@ export class OrderAddForm {
       return { lat: lat, lng: lng };
     }
     // กรณีส่งที่บ้านลูกค้า ใช้พิกัดของลูกค้า
-    const c = this.selectedCustomer();
-    if (c === null) {
+    const customer = this.selectedCustomer();
+    if (customer === null) {
       return null;
     }
-    return { lat: Number(c.latitude), lng: Number(c.longitude) };
+    return { lat: Number(customer.latitude), lng: Number(customer.longitude) };
   });
 
   // ระยะจากร้านถึงจุดส่ง (กม.) ยังไม่มีจุดส่ง = null
@@ -97,19 +97,19 @@ export class OrderAddForm {
     this.selectedId.set(this.customerId());
   }
 
-  chooseCustomer(c: CustomerGetResponse) {
-    this.selectedId.set(c.id);
+  chooseCustomer(customer: CustomerGetResponse) {
+    this.selectedId.set(customer.id);
     this.searchText.set('');
   }
 
   // เปิด/ปิด "ส่งที่อื่น" ตอนเปิดให้เริ่มจากที่อยู่ของลูกค้าก่อน แล้วค่อยแก้
   toggleOtherPlace() {
     this.otherPlace.set(!this.otherPlace());
-    const c = this.selectedCustomer();
-    if (this.otherPlace() && c) {
-      this.address.set(c.address);
-      this.lat.set(Number(c.latitude));
-      this.lng.set(Number(c.longitude));
+    const customer = this.selectedCustomer();
+    if (this.otherPlace() && customer) {
+      this.address.set(customer.address);
+      this.lat.set(Number(customer.latitude));
+      this.lng.set(Number(customer.longitude));
     }
   }
 

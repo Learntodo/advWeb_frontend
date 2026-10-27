@@ -12,7 +12,7 @@ export const ownerGuard: CanActivateFn = () => {
   return router.parseUrl(auth.isRider() ? '/rider' : '/login');
 };
 
-// หน้าของไรเดอร์: ยังไม่ login -> ไปหน้า login, เป็นเจ้าของร้าน -> ไปหน้าภาพรวม
+// หน้าของไรเดอร์: ยังไม่ login -> ไปหน้า login, เป็นเจ้าของร้าน -> ไปหน้าแรก
 export const riderGuard: CanActivateFn = () => {
   const auth = inject(Auth);
   const router = inject(Router);

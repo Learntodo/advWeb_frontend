@@ -51,39 +51,39 @@
               </tr>
             </thead>
             <tbody>
-              @for (c of customers(); track c.id) {
+              @for (customer of customers(); track customer.id) {
                 <tr
-                  [id]="'customer-' + c.id"
+                  [id]="'customer-' + customer.id"
                   class="cursor-pointer hover:bg-base-200"
-                  [class.selected-row]="c.id === selectedId()"
-                  (click)="select(c)"
+                  [class.selected-row]="customer.id === selectedId()"
+                  (click)="select(customer)"
                 >
-                  <td class="text-base-content/70">{{ c.id }}</td>
+                  <td class="text-base-content/70">{{ customer.id }}</td>
                   <td>
                     <div class="font-medium">
-                      {{ c.first_name }} {{ c.last_name }}
-                      @if (outside(c)) {
+                      {{ customer.first_name }} {{ customer.last_name }}
+                      @if (outside(customer)) {
                         <span class="badge badge-xs badge-error whitespace-nowrap h-auto">นอกเขตส่ง 3 กม.</span>
                       }
                     </div>
                     <div class="text-sm text-base-content/70">
-                      <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ c.phone }}
+                      <fa-icon [icon]="faPhone" class="text-xs"></fa-icon> {{ customer.phone }}
                     </div>
                   </td>
-                  <td class="hidden md:table-cell text-sm">{{ c.address }}</td>
+                  <td class="hidden md:table-cell text-sm">{{ customer.address }}</td>
                   <td>
                     <!-- stopPropagation: กดปุ่มแล้วไม่ให้นับเป็นการคลิกแถว -->
                     <div
                       class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap"
                       (click)="$event.stopPropagation()"
                     >
-                      <button class="btn btn-sm btn-ghost text-accent" (click)="orderFor(c)">
+                      <button class="btn btn-sm btn-ghost text-accent" (click)="orderFor(customer)">
                         <fa-icon [icon]="faCartPlus"></fa-icon>สั่งข้าว
                       </button>
-                      <button class="btn btn-sm btn-ghost" (click)="openEdit(c)">
+                      <button class="btn btn-sm btn-ghost" (click)="openEdit(customer)">
                         <fa-icon [icon]="faPen"></fa-icon>แก้ไข
                       </button>
-                      <button class="btn btn-sm btn-ghost text-error" (click)="remove(c)">
+                      <button class="btn btn-sm btn-ghost text-error" (click)="remove(customer)">
                         <fa-icon [icon]="faTrash"></fa-icon>ลบ
                       </button>
                     </div>

@@ -138,26 +138,26 @@ export class MapView implements AfterViewInit, OnDestroy {
     const points: L.LatLngExpression[] = [];
     const growing: { shape: L.Polyline; line: MapLine }[] = [];
     for (const line of this.lines()) {
-      const latlngs: L.LatLngExpression[] = line.points.map((p) => [p.lat, p.lng]);
+      const latlngs: L.LatLngExpression[] = line.points.map((point) => [point.lat, point.lng]);
       const shape = L.polyline(line.step ? [] : latlngs, { color: line.color, weight: 5, opacity: 0.85 });
       shape.addTo(this.layer);
       if (line.step) growing.push({ shape: shape, line: line });
-      for (const p of latlngs) points.push(p);
+      for (const point of latlngs) points.push(point);
     }
     this.grow(growing);
 
     // 1) หมุดลูกค้า / ออเดอร์
-    for (const m of this.markers()) {
-      const marker = L.marker([m.lat, m.lng], { icon: this.pinIcon(m.label, m.color) });
+    for (const pin of this.markers()) {
+      const marker = L.marker([pin.lat, pin.lng], { icon: this.pinIcon(pin.label, pin.color) });
 
       // ใช้ innerText เพื่อให้ข้อความแสดงเป็นตัวอักษรธรรมดา (กันโค้ด HTML แปลกปลอมจากข้อมูล)
       const popup = document.createElement('div');
-      popup.innerText = m.popup;
+      popup.innerText = pin.popup;
       marker.bindPopup(popup);
 
-      marker.on('click', () => this.markerClick.emit(m.id));
+      marker.on('click', () => this.markerClick.emit(pin.id));
       marker.addTo(this.layer);
-      points.push([m.lat, m.lng]);
+      points.push([pin.lat, pin.lng]);
     }
 
     // 2) จุดที่ผู้ใช้เลือก (จุดสีแดง)
@@ -231,37 +231,39 @@ export class MapView implements AfterViewInit, OnDestroy {
 
   // ส่วนต้นของเส้น ยาว part (0 ถึง 1) ของความยาวทั้งเส้น
   cut(points: LatLng[], part: number): L.LatLng[] {
-    const latlngs = points.map((p) => L.latLng(p.lat, p.lng));
+    const latlngs = points.map((point) => L.latLng(point.lat, point.lng));
     let total = 0;
-    for (let i = 1; i < latlngs.length; i++) total = total + latlngs[i - 1].distanceTo(latlngs[i]);
+    for (let i = 1; i < latlngs.length; i++) {
+      total = total + latlngs[i - 1].distanceTo(latlngs[i]); // ความยาวทั้งเส้น (เมตร)
+    }
     let left = total * part; // ระยะที่ต้องวาด (เมตร)
     const result: L.LatLng[] = latlngs.slice(0, 1);
     for (let i = 1; i < latlngs.length; i++) {
-      const a = latlngs[i - 1];
-      const b = latlngs[i];
-      const d = a.distanceTo(b);
-      if (d >= left) {
+      const from = latlngs[i - 1];
+      const to = latlngs[i];
+      const meters = from.distanceTo(to);
+      if (meters >= left) {
         // หยุดกลางทางระหว่างจุด a กับ b
-        const f = d === 0 ? 1 : left / d;
-        result.push(L.latLng(a.lat + (b.lat - a.lat) * f, a.lng + (b.lng - a.lng) * f));
+        const fraction = meters === 0 ? 1 : left / meters;
+        result.push(L.latLng(from.lat + (to.lat - from.lat) * fraction, from.lng + (to.lng - from.lng) * fraction));
         break;
       }
-      result.push(b);
-      left = left - d;
+      result.push(to);
+      left = left - meters;
     }
     return result;
   }
 
   // ลูกศรบอกทิศทางวิ่งบนเส้น (ประมาณทุก 160 พิกเซลบนจอ ไม่เกิน 4 อัน ไม่ให้แผนที่รก)
   drawArrows(line: MapLine) {
-    const latlngs = line.points.map((p) => L.latLng(p.lat, p.lng));
+    const latlngs = line.points.map((point) => L.latLng(point.lat, point.lng));
     const gaps: number[] = [];
     let total = 0;
     let pixels = 0; // ความยาวเส้นบนจอตอนนี้
     for (let i = 1; i < latlngs.length; i++) {
-      const d = latlngs[i - 1].distanceTo(latlngs[i]);
-      gaps.push(d);
-      total = total + d;
+      const meters = latlngs[i - 1].distanceTo(latlngs[i]);
+      gaps.push(meters);
+      total = total + meters;
       pixels = pixels + this.map.latLngToLayerPoint(latlngs[i - 1]).distanceTo(this.map.latLngToLayerPoint(latlngs[i]));
     }
     if (pixels < 50) return; // เส้นสั้นมากบนจอ ไม่ต้องมีลูกศร
@@ -273,20 +275,20 @@ export class MapView implements AfterViewInit, OnDestroy {
         at = at - gaps[i];
         i++;
       }
-      const a = latlngs[i];
-      const b = latlngs[i + 1];
-      const f = gaps[i] ? at / gaps[i] : 0;
+      const from = latlngs[i];
+      const to = latlngs[i + 1];
+      const fraction = gaps[i] ? at / gaps[i] : 0;
       // มุมของเส้นบนจอ (แปลงพิกัดเป็นจุดบนภาพแผนที่ก่อน มุมจะตรงทุกระดับซูม)
-      const pa = this.map.project(a, 18);
-      const pb = this.map.project(b, 18);
-      const angle = (Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180) / Math.PI;
+      const pixelFrom = this.map.project(from, 18);
+      const pixelTo = this.map.project(to, 18);
+      const angle = (Math.atan2(pixelTo.y - pixelFrom.y, pixelTo.x - pixelFrom.x) * 180) / Math.PI;
       const icon = L.divIcon({
         className: '',
         html: `<div class="map-arrow" style="background:${line.color}"><span style="transform:rotate(${angle}deg)">➜</span></div>`,
         iconSize: [18, 18],
         iconAnchor: [9, 9],
       });
-      L.marker([a.lat + (b.lat - a.lat) * f, a.lng + (b.lng - a.lng) * f], {
+      L.marker([from.lat + (to.lat - from.lat) * fraction, from.lng + (to.lng - from.lng) * fraction], {
         icon: icon,
         interactive: false,
         zIndexOffset: -1000, // อยู่ใต้หมุดจุดส่ง

@@ -49,6 +49,6 @@ export class Notify {
   }
 
   close(id: number) {
-    this.messages.set(this.messages().filter((m) => m.id !== id));
+    this.messages.set(this.messages().filter((message) => message.id !== id));
   }
 }

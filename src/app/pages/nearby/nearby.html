@@ -63,18 +63,18 @@
         <!-- ผลค้นหาลูกค้า -->
         <h2 class="font-display px-5 pt-4 pb-2">ลูกค้าในระยะ 1 กม. (พบ {{ customerResults().length }} คน)</h2>
         <ul class="divide-y divide-base-200 max-h-[50vh] overflow-y-auto">
-          @for (c of customerResults(); track c.id) {
+          @for (customer of customerResults(); track customer.id) {
             <li
               class="px-5 py-3 flex gap-3 cursor-pointer hover:bg-base-200"
-              (click)="showOnMap(c.latitude, c.longitude)"
+              (click)="showOnMap(customer.latitude, customer.longitude)"
             >
-              <span class="badge badge-neutral">ID {{ c.id }}</span>
+              <span class="badge badge-neutral">ID {{ customer.id }}</span>
               <div class="flex-1 min-w-0">
-                <div class="font-medium">{{ c.first_name }} {{ c.last_name }}</div>
-                <div class="text-sm text-base-content/70">{{ c.phone }}</div>
-                <div class="text-sm text-base-content/70 truncate">{{ c.address }}</div>
+                <div class="font-medium">{{ customer.first_name }} {{ customer.last_name }}</div>
+                <div class="text-sm text-base-content/70">{{ customer.phone }}</div>
+                <div class="text-sm text-base-content/70 truncate">{{ customer.address }}</div>
               </div>
-              <span class="text-sm font-semibold whitespace-nowrap">{{ c.distance_km.toFixed(2) }} กม.</span>
+              <span class="text-sm font-semibold whitespace-nowrap">{{ customer.distance_km.toFixed(2) }} กม.</span>
             </li>
           } @empty {
             <li class="px-5 pb-6 text-base-content/70">ไม่มีลูกค้าใกล้จุดนี้</li>
@@ -86,24 +86,24 @@
           ออเดอร์ในระยะ 2 กม. (พบ {{ orderResults().length }} รายการ · {{ totalBoxes() }} กล่อง)
         </h2>
         <ul class="divide-y divide-base-200 max-h-[50vh] overflow-y-auto">
-          @for (o of orderResults(); track o.id) {
+          @for (order of orderResults(); track order.id) {
             <li
               class="px-5 py-3 flex gap-3 cursor-pointer hover:bg-base-200"
-              (click)="showOnMap(o.delivery_latitude, o.delivery_longitude)"
+              (click)="showOnMap(order.delivery_latitude, order.delivery_longitude)"
             >
-              <span class="badge badge-neutral">ID {{ o.id }}</span>
+              <span class="badge badge-neutral">ID {{ order.id }}</span>
               <div class="flex-1 min-w-0">
-                <div class="font-medium">{{ customerName(o.customer_id) }} (ลูกค้า ID {{ o.customer_id }})</div>
+                <div class="font-medium">{{ customerName(order.customer_id) }} (ลูกค้า ID {{ order.customer_id }})</div>
                 <div class="text-sm text-base-content/70">
-                  ออเดอร์ ID {{ o.id }} · {{ o.quantity }} กล่อง · ส่ง {{ thaiDate(o.delivery_date) }}
+                  ออเดอร์ ID {{ order.id }} · {{ order.quantity }} กล่อง · ส่ง {{ thaiDate(order.delivery_date) }}
                 </div>
-                <div class="text-sm text-base-content/70 truncate">{{ o.delivery_address }}</div>
+                <div class="text-sm text-base-content/70 truncate">{{ order.delivery_address }}</div>
                 <div class="flex gap-2 mt-1">
-                  <span class="badge badge-sm {{ statusBadge[o.status] }}">{{ statusLabel[o.status] }}</span>
-                  <a class="link link-primary text-sm" [routerLink]="['/orders', o.id]">ดูออเดอร์</a>
+                  <span class="badge badge-sm {{ statusBadge[order.status] }}">{{ statusLabel[order.status] }}</span>
+                  <a class="link link-primary text-sm" [routerLink]="['/orders', order.id]">ดูออเดอร์</a>
                 </div>
               </div>
-              <span class="text-sm font-semibold whitespace-nowrap">{{ o.distance_km.toFixed(2) }} กม.</span>
+              <span class="text-sm font-semibold whitespace-nowrap">{{ order.distance_km.toFixed(2) }} กม.</span>
             </li>
           } @empty {
             <li class="px-5 pb-6 text-base-content/70">ไม่มีออเดอร์ใกล้จุดนี้</li>

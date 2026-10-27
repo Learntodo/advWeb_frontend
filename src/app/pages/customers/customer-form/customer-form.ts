@@ -63,16 +63,16 @@ export class CustomerForm {
 
   ngOnInit() {
     // ถ้าเป็นการแก้ไข ให้นำข้อมูลเดิมมาใส่ในฟอร์ม
-    const c = this.customer();
-    if (c) {
-      this.firstName.set(c.first_name);
-      this.lastName.set(c.last_name);
-      this.phone.set(c.phone);
-      this.email.set(c.email ?? '');
-      this.address.set(c.address);
-      this.latitude.set(Number(c.latitude));
-      this.longitude.set(Number(c.longitude));
-      this.startPoint.set({ lat: Number(c.latitude), lng: Number(c.longitude) });
+    const customer = this.customer();
+    if (customer) {
+      this.firstName.set(customer.first_name);
+      this.lastName.set(customer.last_name);
+      this.phone.set(customer.phone);
+      this.email.set(customer.email ?? '');
+      this.address.set(customer.address);
+      this.latitude.set(Number(customer.latitude));
+      this.longitude.set(Number(customer.longitude));
+      this.startPoint.set({ lat: Number(customer.latitude), lng: Number(customer.longitude) });
     }
   }
 
@@ -131,12 +131,12 @@ export class CustomerForm {
 
     this.saving.set(true);
     try {
-      const c = this.customer();
-      if (c === null) {
+      const customer = this.customer();
+      if (customer === null) {
         await this.customersApi.add(data); // POST /customers
         this.notify.success(`เพิ่มลูกค้า ${data.first_name} แล้ว`);
       } else {
-        await this.customersApi.update(c.id, data); // PUT /customers/{id}
+        await this.customersApi.update(customer.id, data); // PUT /customers/{id}
         this.notify.success(`บันทึกข้อมูล ${data.first_name} แล้ว`);
       }
       this.saved.emit();

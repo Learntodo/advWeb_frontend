@@ -30,7 +30,7 @@ export class Riders {
   riders = signal<RiderGetResponse[]>([]);
   loading = signal(true);
   simulating = signal(false); // กำลังจำลองไรเดอร์
-  activeCount = computed(() => this.riders().filter((r) => r.is_active === 1).length);
+  activeCount = computed(() => this.riders().filter((rider) => rider.is_active === 1).length);
 
   // ฟอร์มเพิ่ม / แก้ไข
   formOpen = signal(false);
@@ -70,8 +70,8 @@ export class Riders {
     this.formOpen.set(true);
   }
 
-  openEdit(r: RiderGetResponse) {
-    this.editingRider.set(r);
+  openEdit(rider: RiderGetResponse) {
+    this.editingRider.set(rider);
     this.formOpen.set(true);
   }
 
@@ -82,11 +82,11 @@ export class Riders {
   }
 
   // เปิด / ปิดการใช้งาน (PUT ส่งแค่ is_active) ไรเดอร์ที่ปิดอยู่จะ login ไม่ได้
-  async toggleActive(r: RiderGetResponse) {
-    const isActive = r.is_active === 1 ? 0 : 1;
+  async toggleActive(rider: RiderGetResponse) {
+    const isActive = rider.is_active === 1 ? 0 : 1;
     try {
-      await this.ridersApi.update(r.id, { is_active: isActive });
-      this.notify.success(`${isActive ? 'เปิด' : 'ปิด'}การใช้งาน ${r.first_name} แล้ว`);
+      await this.ridersApi.update(rider.id, { is_active: isActive });
+      this.notify.success(`${isActive ? 'เปิด' : 'ปิด'}การใช้งาน ${rider.first_name} แล้ว`);
     } catch (err) {
       this.notify.apiError(err, 'เปลี่ยนสถานะไม่สำเร็จ');
     }
@@ -94,13 +94,13 @@ export class Riders {
   }
 
   // DELETE /riders/{id} ลบไรเดอร์
-  async remove(r: RiderGetResponse) {
-    if (!confirm(`ลบไรเดอร์ ${r.first_name} ${r.last_name} ใช่หรือไม่?`)) {
+  async remove(rider: RiderGetResponse) {
+    if (!confirm(`ลบไรเดอร์ ${rider.first_name} ${rider.last_name} ใช่หรือไม่?`)) {
       return;
     }
     try {
-      await this.ridersApi.delete(r.id);
-      this.notify.success(`ลบ ${r.first_name} แล้ว`);
+      await this.ridersApi.delete(rider.id);
+      this.notify.success(`ลบ ${rider.first_name} แล้ว`);
       this.loadRiders();
     } catch (err) {
       this.notify.apiError(err, 'ลบไม่สำเร็จ');

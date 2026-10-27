@@ -11,20 +11,24 @@
         <span class="loading loading-dots loading-lg text-primary"></span>
       </div>
     } @else {
-      @for (j of jobs(); track j.code) {
-        <a [routerLink]="['/job']" [queryParams]="{ code: j.code }" class="card bg-base-100 shadow-sm hover:shadow-md">
+      @for (job of jobs(); track job.code) {
+        <a
+          [routerLink]="['/job']"
+          [queryParams]="{ code: job.code }"
+          class="card bg-base-100 shadow-sm hover:shadow-md"
+        >
           <div class="card-body p-5 gap-2">
             <div class="flex items-center justify-between">
-              <span class="font-display text-lg">ออกจากร้าน {{ j.start_time }} น.</span>
-              @if (delivered(j) === j.stops.length) {
+              <span class="font-display text-lg">ออกจากร้าน {{ job.start_time }} น.</span>
+              @if (delivered(job) === job.stops.length) {
                 <span class="badge badge-success"><fa-icon [icon]="faCircleCheck"></fa-icon>ส่งครบแล้ว</span>
               } @else {
-                <span class="badge badge-warning">ส่งแล้ว {{ delivered(j) }} จาก {{ j.stops.length }} บ้าน</span>
+                <span class="badge badge-warning">ส่งแล้ว {{ delivered(job) }} จาก {{ job.stops.length }} บ้าน</span>
               }
             </div>
             <p class="text-lg">
-              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ j.boxes }} กล่อง</b> ไปส่ง
-              {{ j.stops.length }} บ้าน
+              <fa-icon [icon]="faBowlRice"></fa-icon> หยิบข้าว <b>{{ job.boxes }} กล่อง</b> ไปส่ง
+              {{ job.stops.length }} บ้าน
             </p>
             <span class="btn btn-primary btn-lg w-full mt-1"
               ><fa-icon [icon]="faClipboardList"></fa-icon>เปิดใบงาน</span
