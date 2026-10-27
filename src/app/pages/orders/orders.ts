@@ -3,8 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
+  faBowlRice,
   faBroom,
   faCalendarDay,
+  faChartLine,
+  faCoins,
   faEye,
   faFlask,
   faLock,
@@ -12,6 +15,7 @@ import {
   faMinus,
   faPen,
   faPlus,
+  faReceipt,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 // ชื่อ class ซ้ำกับ component นี้ (Orders) จึงตั้งชื่อใหม่ว่า OrdersApi
@@ -58,6 +62,10 @@ export class Orders {
   faMinus = faMinus;
   faPen = faPen;
   faTrash = faTrash;
+  faReceipt = faReceipt;
+  faBowlRice = faBowlRice;
+  faCoins = faCoins;
+  faChartLine = faChartLine;
   faEye = faEye;
   faFlask = faFlask;
   faBroom = faBroom;

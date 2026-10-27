@@ -1,101 +1,137 @@
-<header class="bg-neutral text-neutral-content shadow-md sticky top-0 z-[1000]">
-  <div class="navbar max-w-7xl mx-auto px-3 sm:px-6 min-h-16">
-    <div class="navbar-start w-auto gap-1">
-      <!-- เมนูมือถือ (เฉพาะเจ้าของร้าน) -->
-      @if (auth.isOwner()) {
-        <div class="dropdown lg:hidden">
-          <button
-            tabindex="0"
-            class="btn btn-ghost btn-square text-neutral-content hover:bg-neutral-content/10"
-            aria-label="เมนู"
-          >
-            <fa-icon [icon]="faBars" size="lg"></fa-icon>
-          </button>
-          <ul
-            tabindex="0"
-            class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-56 p-2 shadow-lg"
-          >
-            @for (menu of menus; track menu.path) {
-              <li>
-                <a
-                  [routerLink]="menu.path"
-                  routerLinkActive="menu-active"
-                  [routerLinkActiveOptions]="{ exact: menu.exact }"
-                >
-                  <fa-icon [icon]="menu.icon" class="w-4"></fa-icon>{{ menu.label }}
-                </a>
-              </li>
-            }
-          </ul>
+<!-- เมนูด้านข้าง (จอคอม เฉพาะเจ้าของร้าน) -->
+@if (auth.isOwner()) {
+  <aside
+    class="hidden lg:flex fixed inset-y-0 left-0 z-[900] w-64 flex-col bg-base-100 border-r border-base-300"
+    aria-label="เมนูหลัก"
+  >
+    <a [routerLink]="auth.homePath()" class="flex items-center gap-3 px-5 h-20 shrink-0">
+      <!-- โลโก้ร้าน (ไฟล์ public/logo.svg) -->
+      <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-11 h-11 -rotate-6" />
+      <span class="font-display text-xl whitespace-nowrap">ส่งด่วนมื้อเที่ยง</span>
+    </a>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-2">
+      <ul class="flex flex-col gap-1">
+        @for (menu of menus; track menu.path) {
+          <li>
+            <a
+              [routerLink]="menu.path"
+              routerLinkActive="!bg-primary/10 !text-primary"
+              [routerLinkActiveOptions]="{ exact: menu.exact }"
+              class="flex items-center gap-3 rounded-xl px-4 h-12 font-medium text-base-content hover:bg-base-200 transition-colors"
+            >
+              <fa-icon [icon]="menu.icon" class="w-5 text-center"></fa-icon>{{ menu.label }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <!-- ผู้ใช้ที่ login อยู่ + เปลี่ยนรหัสผ่าน / ออกจากระบบ -->
+    @if (auth.user(); as user) {
+      <div class="border-t border-base-300 p-3">
+        <div class="flex items-center gap-3 px-2 py-2">
+          <span class="grid place-items-center w-10 h-10 shrink-0 rounded-full bg-secondary text-secondary-content">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </span>
+          <span class="min-w-0 leading-tight">
+            <span class="block font-medium truncate">{{ user.first_name }} {{ user.last_name }}</span>
+            <span class="block text-sm text-base-content/70">เจ้าของร้าน · {{ user.phone }}</span>
+          </span>
         </div>
-      }
+        <button class="btn btn-ghost w-full justify-start mt-1" (click)="passwordOpen.set(true)">
+          <fa-icon [icon]="faKey" class="w-5"></fa-icon>เปลี่ยนรหัสผ่าน
+        </button>
+        <button class="btn btn-ghost w-full justify-start text-error" (click)="auth.logout()">
+          <fa-icon [icon]="faRightFromBracket" class="w-5"></fa-icon>ออกจากระบบ
+        </button>
+      </div>
+    }
+  </aside>
+}
 
-      <a [routerLink]="auth.homePath()" class="flex items-center gap-3">
-        <!-- โลโก้ร้าน (ไฟล์ public/logo.svg) -->
-        <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-10 h-10 -rotate-6" />
-        <span class="leading-tight">
-          <span class="block font-display text-lg sm:text-xl text-secondary whitespace-nowrap">ส่งด่วนมื้อเที่ยง</span>
-        </span>
-      </a>
-    </div>
+<!-- แถบบน: มือถือของเจ้าของร้าน / ทุกจอของไรเดอร์และหน้าที่ไม่ต้อง login -->
+<header
+  class="sticky top-0 z-[900] bg-base-100/95 backdrop-blur border-b border-base-300"
+  [class.lg:hidden]="auth.isOwner()"
+>
+  <div class="max-w-7xl mx-auto flex items-center gap-2 px-3 sm:px-6 h-16">
+    @if (auth.isOwner()) {
+      <button class="btn btn-ghost btn-square" aria-label="เปิดเมนู" (click)="menuOpen.set(true)">
+        <fa-icon [icon]="faBars" size="lg"></fa-icon>
+      </button>
+    }
 
-    <div class="navbar-end w-auto flex-1 gap-1">
-      @if (auth.isOwner()) {
-        <nav class="hidden lg:flex">
-          <ul class="menu menu-horizontal gap-1 px-1">
-            @for (menu of menus; track menu.path) {
-              <li>
-                <a
-                  [routerLink]="menu.path"
-                  routerLinkActive="!bg-secondary !text-secondary-content"
-                  [routerLinkActiveOptions]="{ exact: menu.exact }"
-                  class="rounded-lg"
-                >
-                  <fa-icon [icon]="menu.icon"></fa-icon>{{ menu.label }}
-                </a>
-              </li>
-            }
-          </ul>
-        </nav>
-      }
+    <a [routerLink]="auth.homePath()" class="flex items-center gap-2 mr-auto">
+      <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-10 h-10 -rotate-6" />
+      <span class="font-display text-lg sm:text-xl whitespace-nowrap">ส่งด่วนมื้อเที่ยง</span>
+    </a>
 
-      <!-- เมนูผู้ใช้: ชื่อ, เปลี่ยนรหัสผ่าน, ออกจากระบบ (แสดงเมื่อ login แล้ว) -->
-      @if (auth.user(); as user) {
-        <div class="dropdown dropdown-end">
-          <button
-            tabindex="0"
-            class="btn btn-ghost text-neutral-content hover:bg-neutral-content/10 px-2"
-            aria-label="เมนูผู้ใช้"
-          >
-            <fa-icon [icon]="faCircleUser" size="lg"></fa-icon>
-            <span class="hidden sm:inline max-w-32 truncate">{{ user.first_name }}</span>
-          </button>
-          <ul
-            tabindex="0"
-            class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-56 p-2 shadow-lg"
-          >
-            <li class="menu-title">
-              {{ user.first_name }} {{ user.last_name }}
-              <span class="font-normal"
-                >{{ user.role === 'owner' ? 'เจ้าของร้าน' : 'ไรเดอร์' }} · {{ user.phone }}</span
-              >
-            </li>
-            <li>
-              <button (click)="passwordOpen.set(true)">
-                <fa-icon [icon]="faKey" class="w-4"></fa-icon>เปลี่ยนรหัสผ่าน
-              </button>
-            </li>
-            <li>
-              <button class="text-error" (click)="auth.logout()">
-                <fa-icon [icon]="faRightFromBracket" class="w-4"></fa-icon>ออกจากระบบ
-              </button>
-            </li>
-          </ul>
-        </div>
-      }
-    </div>
+    <!-- เมนูผู้ใช้: ชื่อ, เปลี่ยนรหัสผ่าน, ออกจากระบบ (แสดงเมื่อ login แล้ว) -->
+    @if (auth.user(); as user) {
+      <div class="dropdown dropdown-end">
+        <button tabindex="0" class="btn btn-ghost px-2 gap-2" aria-label="เมนูผู้ใช้">
+          <span class="grid place-items-center w-9 h-9 rounded-full bg-secondary text-secondary-content">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </span>
+          <span class="hidden sm:inline max-w-32 truncate">{{ user.first_name }}</span>
+        </button>
+        <ul
+          tabindex="0"
+          class="menu dropdown-content bg-base-100 rounded-box border border-base-300 z-10 mt-2 w-60 p-2 shadow-lg"
+        >
+          <li class="menu-title text-base-content">
+            {{ user.first_name }} {{ user.last_name }}
+            <span class="font-normal text-base-content/70"
+              >{{ user.role === 'owner' ? 'เจ้าของร้าน' : 'ไรเดอร์' }} · {{ user.phone }}</span
+            >
+          </li>
+          <li>
+            <button class="py-3" (click)="passwordOpen.set(true)">
+              <fa-icon [icon]="faKey" class="w-4"></fa-icon>เปลี่ยนรหัสผ่าน
+            </button>
+          </li>
+          <li>
+            <button class="py-3 text-error" (click)="auth.logout()">
+              <fa-icon [icon]="faRightFromBracket" class="w-4"></fa-icon>ออกจากระบบ
+            </button>
+          </li>
+        </ul>
+      </div>
+    }
   </div>
 </header>
+
+<!-- เมนูมือถือ: เลื่อนออกมาจากด้านซ้าย (เฉพาะเจ้าของร้าน) -->
+@if (auth.isOwner() && menuOpen()) {
+  <div class="lg:hidden fixed inset-0 z-[1100]">
+    <button class="absolute inset-0 bg-neutral/50" aria-label="ปิดเมนู" (click)="menuOpen.set(false)"></button>
+    <nav class="relative h-full w-72 max-w-[85vw] bg-base-100 shadow-xl flex flex-col" aria-label="เมนูหลัก">
+      <div class="flex items-center gap-3 px-4 h-16 border-b border-base-300">
+        <img src="logo.svg" alt="" class="w-9 h-9 -rotate-6" />
+        <span class="font-display text-lg mr-auto">ส่งด่วนมื้อเที่ยง</span>
+        <button class="btn btn-ghost btn-square" aria-label="ปิดเมนู" (click)="menuOpen.set(false)">
+          <fa-icon [icon]="faXmark" size="lg"></fa-icon>
+        </button>
+      </div>
+      <ul class="flex flex-col gap-1 p-3 overflow-y-auto">
+        @for (menu of menus; track menu.path) {
+          <li>
+            <a
+              [routerLink]="menu.path"
+              routerLinkActive="!bg-primary/10 !text-primary"
+              [routerLinkActiveOptions]="{ exact: menu.exact }"
+              class="flex items-center gap-3 rounded-xl px-4 h-13 text-lg font-medium hover:bg-base-200"
+              (click)="menuOpen.set(false)"
+            >
+              <fa-icon [icon]="menu.icon" class="w-6 text-center"></fa-icon>{{ menu.label }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+}
 
 <!-- ฟอร์มเปลี่ยนรหัสผ่าน -->
 @if (passwordOpen()) {

@@ -86,14 +86,14 @@
 
   @if (current(); as plan) {
     <!-- สรุปค่าใช้จ่าย กำไร และเวลา -->
-    <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-5">
-      <div class="card bg-base-100 shadow-sm">
+    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 mb-5">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ใช้ไรเดอร์</span>
           <span class="font-display text-2xl">{{ plan.riders }} คน</span>
         </div>
       </div>
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">{{ isDraft() ? 'ใช้เวลาส่ง' : 'ส่งเสร็จประมาณ' }}</span>
           <span class="font-display text-2xl" [class.text-error]="plan.late_orders > 0">{{
@@ -101,25 +101,25 @@
           }}</span>
         </div>
       </div>
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ระยะทางรวม</span>
           <span class="font-display text-2xl">{{ plan.total_km.toFixed(1) }} กม.</span>
         </div>
       </div>
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ยอดขาย</span>
           <span class="font-display text-2xl">{{ baht(plan.sales) }}</span>
         </div>
       </div>
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">ค่าจ้างไรเดอร์</span>
           <span class="font-display text-2xl">{{ baht(plan.rider_cost) }}</span>
         </div>
       </div>
-      <div class="card bg-base-100 shadow-sm">
+      <div class="card bg-base-100">
         <div class="card-body p-4 gap-1">
           <span class="text-sm text-base-content/70">{{ plan.profit >= 0 ? 'กำไร' : 'ขาดทุน' }}</span>
           <span class="font-display text-2xl">{{ baht(plan.profit) }}</span>
@@ -127,12 +127,12 @@
       </div>
     </div>
 
-    <div class="grid gap-5 lg:grid-cols-3">
+    <div class="grid gap-5 xl:grid-cols-5">
       <!-- แผนที่ขนาดใหญ่ เส้นทางแยกสีตามไรเดอร์ -->
-      <section class="lg:col-span-2 card bg-base-100 shadow-sm">
+      <section class="xl:col-span-3 card bg-base-100">
         <div class="card-body p-3 gap-2">
           <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-            <h2 class="font-display">
+            <h2 class="font-display text-lg">
               @if (onlyLabel(); as label) {
                 เส้นทางของ {{ label }}
               } @else {
@@ -163,7 +163,7 @@
       </section>
 
       <!-- ใบงานของไรเดอร์แต่ละคน แยกตามรอบที่ออกส่ง พับ / กางได้ -->
-      <section class="flex flex-col gap-3 lg:max-h-[calc(60vh+4rem)] lg:overflow-y-auto">
+      <section class="xl:col-span-2 flex flex-col gap-3 xl:max-h-[calc(60vh+4rem)] xl:overflow-y-auto">
         @if (isDraft()) {
           @for (route of plan.routes; track route.route_no) {
             <ng-container *ngTemplateOutlet="routeCard; context: { $implicit: route }"></ng-container>
@@ -211,7 +211,7 @@
     </div>
   } @else {
     <!-- ยังไม่ได้จัดเส้นทาง: บอกว่าพร้อมไหม ขาดอะไร -->
-    <div class="card bg-base-100 shadow-sm">
+    <div class="card bg-base-100">
       <div class="card-body items-center text-center py-12 gap-4">
         <fa-icon [icon]="faRoute" size="3x" class="text-base-content/30"></fa-icon>
         <h2 class="font-display text-xl">วันที่ {{ thaiDate(date()) }} ยังไม่ได้จัดเส้นทาง</h2>
@@ -268,7 +268,7 @@
 <!-- การ์ดใบงานของไรเดอร์ 1 คน (ใช้ทั้งแผนที่เสนอ และใบงานที่ออกส่งแล้ว) -->
 <ng-template #routeCard let-route>
   <div
-    class="card bg-base-100 shadow-sm border-l-8 cursor-pointer"
+    class="card bg-base-100 border-l-8 cursor-pointer"
     [style.border-left-color]="color(route)"
     [class.ring-2]="onlyRoute() === route.route_no"
     (click)="toggleRoute(route)"

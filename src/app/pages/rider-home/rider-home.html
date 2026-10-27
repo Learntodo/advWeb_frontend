@@ -12,11 +12,7 @@
       </div>
     } @else {
       @for (job of jobs(); track job.code) {
-        <a
-          [routerLink]="['/job']"
-          [queryParams]="{ code: job.code }"
-          class="card bg-base-100 shadow-sm hover:shadow-md"
-        >
+        <a [routerLink]="['/job']" [queryParams]="{ code: job.code }" class="card bg-base-100 hover:shadow-md">
           <div class="card-body p-5 gap-2">
             <div class="flex items-center justify-between">
               <span class="font-display text-lg">ออกจากร้าน {{ job.start_time }} น.</span>
@@ -36,7 +32,7 @@
           </div>
         </a>
       } @empty {
-        <div class="card bg-base-100 shadow-sm">
+        <div class="card bg-base-100">
           <div class="card-body p-5 items-center text-center gap-2">
             <fa-icon [icon]="faClipboardList" size="2x" class="text-base-content/30"></fa-icon>
             <p>วันนี้ยังไม่มีใบงานของคุณ</p>
@@ -48,7 +44,7 @@
     }
 
     <!-- กรณีร้านบอกเลขใบงานมา -->
-    <details class="collapse collapse-arrow bg-base-100 shadow-sm">
+    <details class="collapse collapse-arrow bg-base-100 border border-base-300">
       <summary class="collapse-title">มีเลขใบงานจากร้าน? กดตรงนี้เพื่อพิมพ์เลข</summary>
       <form class="collapse-content flex flex-col gap-3" (submit)="open(); $event.preventDefault()">
         <input

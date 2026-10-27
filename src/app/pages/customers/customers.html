@@ -2,7 +2,9 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ลูกค้า</h1>
-    <p class="text-base-content/70 text-sm">ทั้งหมด {{ allCustomers().length }} คน · กดที่ชื่อเพื่อดูบ้านบนแผนที่</p>
+    <p class="text-base-content/70 text-sm mt-1">
+      ทั้งหมด {{ allCustomers().length }} คน · กดที่ชื่อเพื่อดูบ้านบนแผนที่
+    </p>
   </div>
   <div class="flex flex-wrap gap-2">
     <button class="btn btn-outline" (click)="simulate()" [disabled]="simulating()">
@@ -12,9 +14,9 @@
   </div>
 </div>
 
-<div class="grid gap-5 lg:grid-cols-5">
+<div class="grid gap-5 xl:grid-cols-5">
   <!-- ฝั่งซ้าย: ช่องค้นหา + ตารางลูกค้า -->
-  <section class="lg:col-span-3 flex flex-col gap-3 min-w-0">
+  <section class="xl:col-span-3 flex flex-col gap-3 min-w-0">
     <form class="flex gap-2" (submit)="search(); $event.preventDefault()">
       <label class="input outline-0 flex-1">
         <fa-icon [icon]="faMagnifyingGlass" class="opacity-50"></fa-icon>
@@ -32,7 +34,7 @@
       </div>
     }
 
-    <div class="card bg-base-100 shadow-sm overflow-hidden">
+    <div class="card bg-base-100 overflow-hidden">
       @if (loading()) {
         <div class="p-10 flex justify-center">
           <span class="loading loading-dots loading-lg text-primary"></span>
@@ -74,7 +76,7 @@
                   <td>
                     <!-- stopPropagation: กดปุ่มแล้วไม่ให้นับเป็นการคลิกแถว -->
                     <div
-                      class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap"
+                      class="flex flex-col sm:flex-row xl:flex-col 2xl:flex-row items-end sm:justify-end gap-1 whitespace-nowrap"
                       (click)="$event.stopPropagation()"
                     >
                       <button class="btn btn-sm btn-ghost text-accent" (click)="orderFor(customer)">
@@ -98,12 +100,12 @@
   </section>
 
   <!-- ฝั่งขวา: แผนที่บ้านลูกค้า -->
-  <section class="lg:col-span-2">
-    <div class="card bg-base-100 shadow-sm lg:sticky lg:top-24">
+  <section class="xl:col-span-2">
+    <div class="card bg-base-100 xl:sticky xl:top-6">
       <div class="card-body p-3 gap-2">
-        <h2 class="font-display px-1">บ้านลูกค้าบนแผนที่ (เลขในวงกลม = ID ลูกค้า)</h2>
+        <h2 class="font-display text-lg px-1">บ้านลูกค้าบนแผนที่ (เลขในวงกลม = ID ลูกค้า)</h2>
         <app-map-view
-          class="h-80 lg:h-[60vh]"
+          class="h-80 xl:h-[60vh]"
           [markers]="markers()"
           [focus]="focus()"
           [zone]="api.DELIVERY_ZONE"

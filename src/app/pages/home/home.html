@@ -1,19 +1,24 @@
-<!-- แถบหัว: วันที่ + ปุ่มจำลอง/ล้างออเดอร์ -->
-<section class="rounded-box bg-neutral text-neutral-content p-5 sm:p-7 mb-6 relative overflow-hidden">
-  <div class="absolute -right-6 -bottom-8 text-[9rem] opacity-10 rotate-12">
+<!-- แถบหัว: วันที่ + ปุ่มจัดเส้นทาง / จำลอง / ล้างออเดอร์ -->
+<section
+  class="relative overflow-hidden rounded-box border border-base-300 bg-linear-to-br from-secondary/30 via-base-100 to-base-100 p-5 sm:p-7 mb-6"
+>
+  <div
+    class="absolute -right-4 -bottom-10 text-[9rem] text-primary/10 rotate-12 pointer-events-none"
+    aria-hidden="true"
+  >
     <fa-icon [icon]="faBowlRice"></fa-icon>
   </div>
 
-  <p class="text-sm opacity-70">{{ todayText }}</p>
-  <h1 class="font-display text-3xl sm:text-4xl text-secondary mt-1">ออเดอร์วันนี้</h1>
+  <p class="text-base-content/70">{{ todayText }}</p>
+  <h1 class="font-display text-3xl sm:text-4xl mt-1">ออเดอร์วันนี้</h1>
 
   <div class="flex flex-wrap gap-2 mt-5 relative">
     <a routerLink="/routes" class="btn btn-primary"><fa-icon [icon]="faRoute"></fa-icon>จัดเส้นทางส่ง</a>
-    <button class="btn btn-secondary" (click)="simulate()" [disabled]="working()">
+    <button class="btn btn-outline border-base-300 bg-base-100" (click)="simulate()" [disabled]="working()">
       <fa-icon [icon]="faFlask"></fa-icon>จำลองออเดอร์ 20–30 รายการ
     </button>
     <button
-      class="btn btn-outline text-neutral-content border-neutral-content/40"
+      class="btn btn-ghost text-error"
       (click)="clearSimulated()"
       [disabled]="working() || simulatedCount() === 0"
     >
@@ -31,52 +36,66 @@
 }
 
 <!-- ตัวเลขสรุปวันนี้ -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ออเดอร์วันนี้</span>
-      <span class="font-display text-3xl">{{ summary().orders }} ออเดอร์</span>
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-primary/10 text-primary"><fa-icon [icon]="faReceipt"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ออเดอร์วันนี้</div>
+        <div class="font-display text-2xl sm:text-3xl">{{ summary().orders }} ออเดอร์</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำวันนี้</span>
-      <span class="font-display text-3xl">{{ summary().boxes }} กล่อง</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-secondary/30 text-amber-800"
+        ><fa-icon [icon]="faBowlRice"></fa-icon
+      ></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำวันนี้</div>
+        <div class="font-display text-2xl sm:text-3xl">{{ summary().boxes }} กล่อง</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ยอดขายวันนี้</span>
-      <span class="font-display text-3xl">{{ baht(summary().sales) }}</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-success/10 text-success"><fa-icon [icon]="faCoins"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ยอดขายวันนี้</div>
+        <div class="font-display text-2xl sm:text-3xl">{{ baht(summary().sales) }}</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ลูกค้าทั้งหมด</span>
-      <span class="font-display text-3xl">{{ customers().length }} คน</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-info/10 text-info"><fa-icon [icon]="faUsers"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ลูกค้าทั้งหมด</div>
+        <div class="font-display text-2xl sm:text-3xl">{{ customers().length }} คน</div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="grid gap-5 lg:grid-cols-5">
+<div class="grid gap-5 xl:grid-cols-5">
   <!-- แผนที่จุดส่งวันนี้ -->
-  <section class="lg:col-span-3 card bg-base-100 shadow-sm">
+  <section class="xl:col-span-3 card bg-base-100 min-w-0">
     <div class="card-body p-3 gap-2">
       <div class="flex items-center justify-between px-1">
-        <h2 class="font-display">บ้านที่ต้องส่งวันนี้ (เลขในวงกลม = จำนวนกล่อง)</h2>
+        <h2 class="font-display text-lg">บ้านที่ต้องส่งวันนี้ (เลขในวงกลม = จำนวนกล่อง)</h2>
         <a routerLink="/nearby" class="btn btn-sm btn-ghost">
           <fa-icon [icon]="faLocationCrosshairs"></fa-icon>ค้นหาตามระยะ
         </a>
       </div>
-      <app-map-view class="h-80 lg:h-[26rem]" [markers]="markers()"></app-map-view>
+      <app-map-view class="h-80 xl:h-[26rem]" [markers]="markers()"></app-map-view>
     </div>
   </section>
 
   <!-- ออเดอร์ล่าสุด -->
-  <section class="lg:col-span-2 card bg-base-100 shadow-sm">
+  <section class="xl:col-span-2 card bg-base-100 min-w-0">
     <div class="card-body p-0">
       <div class="flex items-center justify-between px-5 pt-4">
-        <h2 class="font-display">ออเดอร์ล่าสุด</h2>
+        <h2 class="font-display text-lg">ออเดอร์ล่าสุด</h2>
         <a routerLink="/orders" class="btn btn-sm btn-ghost"> ดูทั้งหมด <fa-icon [icon]="faArrowRight"></fa-icon> </a>
       </div>
 
@@ -85,11 +104,13 @@
           <span class="loading loading-dots text-primary"></span>
         </div>
       } @else {
-        <ul class="divide-y divide-base-200">
+        <ul class="divide-y divide-base-200 mt-2">
           @for (order of latestOrders(); track order.id) {
             <li>
               <a [routerLink]="['/orders', order.id]" class="flex items-center gap-3 px-5 py-3 hover:bg-base-200">
-                <span class="grid place-items-center w-9 h-9 rounded-lg bg-primary/10 text-primary font-display">
+                <span
+                  class="grid place-items-center w-10 h-10 shrink-0 rounded-xl bg-primary/10 text-primary font-display text-lg"
+                >
                   {{ order.quantity }}
                 </span>
                 <span class="flex-1 min-w-0">

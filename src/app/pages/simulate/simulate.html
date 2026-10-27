@@ -2,7 +2,7 @@
   <!-- หัวหน้า -->
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">จำลองระบบ</h1>
-    <p class="text-base-content/70">
+    <p class="text-base-content/70 mt-1">
       สร้างข้อมูลตัวอย่างไว้ทดลองใช้งาน ทำตามขั้นที่ 1–6 ด้านล่าง ข้อมูลจำลองลบทิ้งได้ทีหลัง ข้อมูลจริงไม่หาย
     </p>
   </div>
@@ -13,25 +13,25 @@
     </div>
   } @else {
     <!-- เริ่มเร็ว: เลือกวัน + ปุ่มเดียวครบชุด -->
-    <div class="card bg-neutral text-neutral-content shadow-sm">
+    <div class="card bg-linear-to-br from-secondary/30 via-base-100 to-base-100">
       <div class="card-body p-5 gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <label for="sim-date" class="font-display text-lg">วันที่ส่งของ</label>
           <input
             id="sim-date"
             type="date"
-            class="input w-auto text-base-content"
+            class="input w-auto"
             [ngModel]="date()"
             (ngModelChange)="changeDate($event)"
           />
-          <span class="text-sm opacity-80">{{ thaiDate(date()) }}</span>
+          <span class="text-sm text-base-content/70">{{ thaiDate(date()) }}</span>
         </div>
-        <p class="opacity-90">
+        <p>
           อยากลองเร็วๆ กดปุ่มนี้ปุ่มเดียว ระบบจะสร้างลูกค้า ออเดอร์ {{ ORDER_COUNT }} รายการ และไรเดอร์ให้พอส่ง
           แล้วไปขั้นที่ 4 ต่อได้เลย
         </p>
         <button
-          class="btn btn-secondary btn-lg w-full sm:w-auto sm:self-start"
+          class="btn btn-primary btn-lg w-full sm:w-auto sm:self-start"
           (click)="quickStart()"
           [disabled]="working()"
         >
@@ -46,7 +46,7 @@
     </div>
 
     <!-- ทำทีละขั้น -->
-    <ol class="card bg-base-100 shadow-sm divide-y divide-base-200">
+    <ol class="card bg-base-100 divide-y divide-base-200">
       <!-- 1. ลูกค้า -->
       <li class="step-row" [class.step-next]="nextStep() === 1">
         <span class="step-dot" [class.step-done]="done()[0]">
@@ -230,7 +230,7 @@
     </ol>
 
     <!-- ล้างข้อมูลจำลอง -->
-    <div class="card bg-base-100 shadow-sm border border-error/30">
+    <div class="card bg-base-100 border border-error/30">
       <div class="card-body p-5 flex-row flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-display text-lg">ลบข้อมูลจำลองทั้งหมด</h2>

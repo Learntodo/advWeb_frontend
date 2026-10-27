@@ -1,49 +1,51 @@
-/* ฟอนต์ภาษาไทย ต้อง import ที่บรรทัดแรก ก่อน tailwindcss */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300..800&family=Mitr:wght@400;500;600&display=swap');
+/* ฟอนต์ภาษาไทย ต้อง import ที่บรรทัดแรก ก่อน tailwindcss
+   Anuphan = หัวข้อและตัวเลข (ทันสมัย อ่านง่าย), Noto Sans Thai = เนื้อหา */
+@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @plugin "daisyui" {
   themes: false;
 }
 
 /* ธีมของร้าน "ส่งด่วนมื้อเที่ยง" (ปรับสีแบบเดียวกับ https://daisyui.com/theme-generator)
-   แดงกล่องข้าว / เหลืองป้ายร้าน / น้ำตาลเข้มผ้าใบ */
+   พื้นสว่างสะอาดตา / ส้มอิฐเป็นสีหลัก (ปุ่มสำคัญ) / เหลืองป้ายร้านเป็นสีรอง
+   ตัวหนังสือสีเข้มบนพื้นขาว อ่านง่ายสำหรับทุกวัย (ความต่างสีไม่ต่ำกว่า 4.5:1) */
 @plugin "daisyui/theme" {
   name: 'lunchbox';
   default: true;
   prefersdark: false;
   color-scheme: light;
-  --color-base-100: oklch(99% 0.006 75);
-  --color-base-200: oklch(96.5% 0.014 75);
-  --color-base-300: oklch(91% 0.025 70);
-  --color-base-content: oklch(26% 0.035 45);
-  --color-primary: oklch(55% 0.19 32);
-  --color-primary-content: oklch(98% 0.01 75);
-  --color-secondary: oklch(85% 0.16 90);
-  --color-secondary-content: oklch(28% 0.05 50);
-  --color-accent: oklch(58% 0.13 150);
-  --color-accent-content: oklch(98% 0.01 150);
-  --color-neutral: oklch(30% 0.04 45);
-  --color-neutral-content: oklch(96% 0.01 75);
-  --color-info: oklch(60% 0.12 240);
-  --color-info-content: oklch(98% 0.01 240);
-  --color-success: oklch(60% 0.14 150);
-  --color-success-content: oklch(98% 0.01 150);
-  --color-warning: oklch(78% 0.15 75);
-  --color-warning-content: oklch(28% 0.05 50);
-  --color-error: oklch(56% 0.2 25);
-  --color-error-content: oklch(98% 0.01 25);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
+  --color-base-100: #ffffff;
+  --color-base-200: #f6f5f2;
+  --color-base-300: #e7e4de;
+  --color-base-content: #1c1917;
+  --color-primary: #c2410c;
+  --color-primary-content: #ffffff;
+  --color-secondary: #fbbf24;
+  --color-secondary-content: #1c1917;
+  --color-accent: #15803d;
+  --color-accent-content: #ffffff;
+  --color-neutral: #292524;
+  --color-neutral-content: #fafaf9;
+  --color-info: #1d4ed8;
+  --color-info-content: #ffffff;
+  --color-success: #15803d;
+  --color-success-content: #ffffff;
+  --color-warning: #fbbf24;
+  --color-warning-content: #1c1917;
+  --color-error: #b91c1c;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.625rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
-  --depth: 1;
+  --depth: 0;
   --noise: 0;
 }
 
 @theme {
-  --font-display: 'Mitr', 'Noto Sans Thai', sans-serif;
+  --font-display: 'Anuphan', 'Noto Sans Thai', sans-serif;
 }
 
 :root {
@@ -52,6 +54,102 @@
 
 body {
   font-family: var(--main-font);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ปรับหน้าตาส่วนประกอบของ DaisyUI (อยู่ใน layer components เพื่อให้ class ของ Tailwind ในหน้าเว็บยังใช้ทับได้) */
+@layer components {
+  /* หัวข้อใช้ฟอนต์หัวข้อ ตัวหนาพอดี */
+  .font-display {
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  /* การ์ด: พื้นขาว ขอบบาง เงาจาง ๆ (ดูเรียบ ทันสมัย) */
+  .card {
+    border: 1px solid var(--color-base-300);
+    box-shadow: 0 1px 2px rgb(28 25 23 / 0.04);
+  }
+
+  /* ชื่อช่องในฟอร์ม ใหญ่และเข้มพออ่านง่าย */
+  .fieldset-legend {
+    font-size: 0.9375rem;
+    color: var(--color-base-content);
+  }
+
+  /* หัวตาราง: พื้นเทาอ่อน ตัวหนังสือเข้ม */
+  .table thead tr {
+    color: var(--color-base-content);
+    font-size: 0.875rem;
+  }
+
+  /* ปุ่ม: ตัวหนาขึ้นเล็กน้อย กดแล้วมีการตอบสนอง */
+  .btn {
+    font-weight: 600;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  /* เส้นรอบปุ่ม/ช่องกรอกตอนใช้แป้นพิมพ์ ให้เห็นชัด */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--color-primary) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* ช่องไอคอนสีอ่อนบนการ์ดตัวเลขสรุป */
+  .stat-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
+  }
+}
+
+/* ขนาดตัวหนังสือของ DaisyUI ที่อยู่ใน layer utilities (ต้องทับใน layer เดียวกัน) */
+@layer utilities {
+  /* ตัวหนังสือบนปุ่มและป้ายใหญ่ขึ้นจากค่าเดิมของ DaisyUI ให้อ่านง่าย */
+  .btn {
+    --fontsize: 0.9375rem;
+  }
+  .btn-xs {
+    --fontsize: 0.8125rem;
+  }
+  .btn-sm {
+    --fontsize: 0.875rem;
+  }
+  .btn-lg {
+    --fontsize: 1.0625rem;
+  }
+  .badge-sm {
+    font-size: 0.8125rem;
+  }
+
+  /* ตัวหนังสือในตารางแบบ table-sm ใหญ่ขึ้น (เดิม 12px เล็กไป) */
+  .table-sm :not(thead, tfoot) tr {
+    font-size: 0.9375rem;
+  }
+
+  /* แท็บที่ยังไม่ได้เลือก ตัวหนังสือยังเข้มพออ่านได้ */
+  .tab:not(.tab-active) {
+    color: color-mix(in oklab, var(--color-base-content) 80%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 }
 
 /* หมุดบนแผนที่ (Leaflet divIcon) */

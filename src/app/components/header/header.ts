@@ -4,7 +4,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faBars,
   faBoxOpen,
-  faCircleUser,
   faFlask,
   faHouse,
   faKey,
@@ -12,7 +11,9 @@ import {
   faMotorcycle,
   faRightFromBracket,
   faRoute,
+  faUser,
   faUsers,
+  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../services/auth';
 import { PasswordForm } from '../password-form/password-form';
@@ -27,11 +28,13 @@ export class Header {
   auth = inject(Auth);
 
   faBars = faBars;
-  faCircleUser = faCircleUser;
   faKey = faKey;
   faRightFromBracket = faRightFromBracket;
+  faXmark = faXmark;
+  faUser = faUser;
 
   passwordOpen = signal(false); // เปิดฟอร์มเปลี่ยนรหัสผ่าน
+  menuOpen = signal(false); // เปิดเมนูด้านข้างบนมือถือ
 
   // เมนูหลักของฝั่งเจ้าของร้าน (ไรเดอร์ไม่เห็นเมนูนี้)
   menus = [

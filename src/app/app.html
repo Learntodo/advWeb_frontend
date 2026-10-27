@@ -1,9 +1,12 @@
-<!-- Header อยู่นอก router-outlet จึงแสดงทุกหน้า -->
+<!-- Header (เมนูด้านข้าง / แถบบน) อยู่นอก router-outlet จึงแสดงทุกหน้า -->
 <app-header></app-header>
 
-<main class="max-w-7xl mx-auto px-3 sm:px-6 py-6">
-  <router-outlet></router-outlet>
-</main>
+<!-- เจ้าของร้านมีเมนูด้านข้างกว้าง 16rem บนจอคอม จึงเว้นที่ด้านซ้ายไว้ -->
+<div [class.lg:pl-64]="auth.isOwner()">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+    <router-outlet></router-outlet>
+  </main>
+</div>
 
 <!-- ข้อความแจ้งเตือนมุมขวาล่าง -->
 <app-toast></app-toast>

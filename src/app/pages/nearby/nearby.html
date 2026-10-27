@@ -1,14 +1,14 @@
 <div class="mb-5">
   <h1 class="font-display text-2xl sm:text-3xl">ค้นหาตามระยะ</h1>
-  <p class="text-base-content/70 text-sm">
+  <p class="text-base-content/70 text-sm mt-1">
     กดตรงไหนก็ได้บนแผนที่ ระบบจะหาลูกค้าและออเดอร์ที่อยู่ใกล้จุดนั้นให้ · เลขในวงกลม = ID ลูกค้า / ID ออเดอร์
   </p>
 </div>
 
-<div class="grid gap-5 lg:grid-cols-5">
+<div class="grid gap-5 xl:grid-cols-5">
   <!-- ฝั่งซ้าย: ตัวเลือก + ผลการค้นหา -->
-  <section class="lg:col-span-2 flex flex-col gap-4 min-w-0">
-    <div class="card bg-base-100 shadow-sm">
+  <section class="xl:col-span-2 flex flex-col gap-4 min-w-0">
+    <div class="card bg-base-100">
       <div class="card-body gap-4">
         <!-- แท็บ ลูกค้า / ออเดอร์ -->
         <div role="tablist" class="tabs tabs-box">
@@ -58,10 +58,10 @@
     </div>
 
     <!-- ผลการค้นหา -->
-    <div class="card bg-base-100 shadow-sm overflow-hidden">
+    <div class="card bg-base-100 overflow-hidden">
       @if (mode() === 'customers') {
         <!-- ผลค้นหาลูกค้า -->
-        <h2 class="font-display px-5 pt-4 pb-2">ลูกค้าในระยะ 1 กม. (พบ {{ customerResults().length }} คน)</h2>
+        <h2 class="font-display text-lg px-5 pt-4 pb-2">ลูกค้าในระยะ 1 กม. (พบ {{ customerResults().length }} คน)</h2>
         <ul class="divide-y divide-base-200 max-h-[50vh] overflow-y-auto">
           @for (customer of customerResults(); track customer.id) {
             <li
@@ -82,7 +82,7 @@
         </ul>
       } @else {
         <!-- ผลค้นหาออเดอร์ -->
-        <h2 class="font-display px-5 pt-4 pb-2">
+        <h2 class="font-display text-lg px-5 pt-4 pb-2">
           ออเดอร์ในระยะ 2 กม. (พบ {{ orderResults().length }} รายการ · {{ totalBoxes() }} กล่อง)
         </h2>
         <ul class="divide-y divide-base-200 max-h-[50vh] overflow-y-auto">
@@ -114,11 +114,11 @@
   </section>
 
   <!-- ฝั่งขวา: แผนที่ -->
-  <section class="lg:col-span-3">
-    <div class="card bg-base-100 shadow-sm lg:sticky lg:top-24">
+  <section class="xl:col-span-3">
+    <div class="card bg-base-100 xl:sticky xl:top-6">
       <div class="card-body p-3">
         <app-map-view
-          class="h-96 lg:h-[72vh]"
+          class="h-96 xl:h-[72vh]"
           [markers]="markers()"
           [picked]="center()"
           [circle]="circle()"

@@ -5,9 +5,12 @@ import {
   faArrowRight,
   faBowlRice,
   faBroom,
+  faCoins,
   faFlask,
   faLocationCrosshairs,
+  faReceipt,
   faRoute,
+  faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { Customers as CustomersApi } from '../../services/api/customers';
 import { Orders as OrdersApi } from '../../services/api/orders';
@@ -37,6 +40,9 @@ export class Home {
   faArrowRight = faArrowRight;
   faLocationCrosshairs = faLocationCrosshairs;
   faRoute = faRoute;
+  faReceipt = faReceipt;
+  faCoins = faCoins;
+  faUsers = faUsers;
 
   baht = baht;
   statusLabel = statusLabel;

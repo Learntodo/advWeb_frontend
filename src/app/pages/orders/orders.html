@@ -9,7 +9,7 @@
 </div>
 
 <!-- เลือกวันที่ส่ง + ค้นหา -->
-<div class="card bg-base-100 shadow-sm mb-4">
+<div class="card bg-base-100 mb-4">
   <div class="card-body p-4 gap-3">
     <div class="flex flex-wrap items-center gap-2">
       <span class="font-medium">วันที่ส่ง</span>
@@ -56,36 +56,50 @@
 </div>
 
 <!-- สรุปยอดของออเดอร์ที่แสดงอยู่ -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">จำนวนออเดอร์</span>
-      <span class="font-display text-2xl">{{ summary().count }} รายการ</span>
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-5">
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-primary/10 text-primary"><fa-icon [icon]="faReceipt"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">จำนวนออเดอร์</div>
+        <div class="font-display text-2xl">{{ summary().count }} รายการ</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำ</span>
-      <span class="font-display text-2xl">{{ summary().boxes }} กล่อง</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-secondary/30 text-amber-800"
+        ><fa-icon [icon]="faBowlRice"></fa-icon
+      ></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ข้าวกล่องที่ต้องทำ</div>
+        <div class="font-display text-2xl">{{ summary().boxes }} กล่อง</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">ยอดขาย</span>
-      <span class="font-display text-2xl">{{ baht(summary().sales) }}</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-success/10 text-success"><fa-icon [icon]="faCoins"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">ยอดขาย</div>
+        <div class="font-display text-2xl">{{ baht(summary().sales) }}</div>
+      </div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm">
-    <div class="card-body p-4 gap-1">
-      <span class="text-sm text-base-content/70">กำไร (ยังไม่หักค่าไรเดอร์)</span>
-      <span class="font-display text-2xl">{{ baht(summary().profit) }}</span>
+  <div class="card bg-base-100">
+    <div class="card-body p-4 flex-row items-center gap-3">
+      <span class="stat-icon hidden sm:grid bg-info/10 text-info"><fa-icon [icon]="faChartLine"></fa-icon></span>
+      <div class="min-w-0">
+        <div class="text-sm text-base-content/70">กำไร (ยังไม่หักค่าไรเดอร์)</div>
+        <div class="font-display text-2xl">{{ baht(summary().profit) }}</div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="grid gap-5 xl:grid-cols-5">
   <!-- ตารางออเดอร์ -->
-  <section class="xl:col-span-3 card bg-base-100 shadow-sm overflow-hidden min-w-0">
+  <section class="xl:col-span-3 card bg-base-100 overflow-hidden min-w-0">
     @if (loading()) {
       <div class="p-10 flex justify-center">
         <span class="loading loading-dots loading-lg text-primary"></span>
@@ -211,10 +225,10 @@
 
   <!-- แผนที่จุดส่ง -->
   <section class="xl:col-span-2">
-    <div class="card bg-base-100 shadow-sm xl:sticky xl:top-24">
+    <div class="card bg-base-100 xl:sticky xl:top-6">
       <div class="card-body p-3 gap-2">
         <div class="flex flex-wrap items-center justify-between gap-2 px-1">
-          <h2 class="font-display">จุดส่งบนแผนที่ (เลขในวงกลม = ID ออเดอร์)</h2>
+          <h2 class="font-display text-lg">จุดส่งบนแผนที่ (เลขในวงกลม = ID ออเดอร์)</h2>
           <div class="flex gap-1">
             @for (option of statuses; track option) {
               <span class="badge badge-sm {{ statusBadge[option] }}">{{ statusLabel[option] }}</span>
@@ -234,7 +248,7 @@
 </div>
 
 <!-- ข้อมูลทดลอง (HW-5 ข้อ 3.1 / 3.2) -->
-<div class="card bg-base-100 shadow-sm mt-5">
+<div class="card bg-base-100 mt-5">
   <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
     <span class="font-medium mr-2">ข้อมูลจำลอง (ไว้ทดลอง)</span>
     <span class="text-sm text-base-content/70 mr-auto">มีออเดอร์จำลอง {{ simulatedCount() }} รายการ</span>

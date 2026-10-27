@@ -1,33 +1,39 @@
 <div class="min-h-[75vh] flex items-center justify-center">
-  <div class="card bg-base-100 shadow-md w-full max-w-sm">
-    <form class="card-body gap-3" (submit)="login(); $event.preventDefault()">
+  <div class="card bg-base-100 shadow-xl shadow-base-300/40 w-full max-w-md">
+    <form class="card-body gap-4 p-6 sm:p-8" (submit)="login(); $event.preventDefault()">
       <div class="flex flex-col items-center text-center gap-2 mb-2">
-        <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-16 h-16 -rotate-6" />
-        <h1 class="font-display text-2xl">เข้าสู่ระบบ</h1>
-        <p class="text-sm text-base-content/70">ใส่เบอร์โทรและรหัสผ่านของคุณ</p>
+        <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-20 h-20 -rotate-6" />
+        <h1 class="font-display text-3xl mt-2">เข้าสู่ระบบ</h1>
+        <p class="text-base-content/70">ใส่เบอร์โทรและรหัสผ่านของคุณ</p>
       </div>
 
-      <label class="input outline-0 w-full">
-        <fa-icon [icon]="faPhone" class="opacity-50"></fa-icon>
-        <input type="tel" name="phone" placeholder="เบอร์โทร" autocomplete="username" [(ngModel)]="phone" />
-      </label>
+      <fieldset class="fieldset p-0">
+        <legend class="fieldset-legend text-base">เบอร์โทร</legend>
+        <label class="input input-lg outline-0 w-full">
+          <fa-icon [icon]="faPhone" class="opacity-50"></fa-icon>
+          <input type="tel" name="phone" placeholder="เช่น 0812345678" autocomplete="username" [(ngModel)]="phone" />
+        </label>
+      </fieldset>
 
-      <label class="input outline-0 w-full">
-        <fa-icon [icon]="faLock" class="opacity-50"></fa-icon>
-        <input
-          type="password"
-          name="password"
-          placeholder="รหัสผ่าน"
-          autocomplete="current-password"
-          [(ngModel)]="password"
-        />
-      </label>
+      <fieldset class="fieldset p-0">
+        <legend class="fieldset-legend text-base">รหัสผ่าน</legend>
+        <label class="input input-lg outline-0 w-full">
+          <fa-icon [icon]="faLock" class="opacity-50"></fa-icon>
+          <input
+            type="password"
+            name="password"
+            placeholder="รหัสผ่าน"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+          />
+        </label>
+      </fieldset>
 
       @if (errorMessage()) {
-        <div role="alert" class="alert alert-error text-sm py-2">{{ errorMessage() }}</div>
+        <div role="alert" class="alert alert-error alert-soft py-2">{{ errorMessage() }}</div>
       }
 
-      <button type="submit" class="btn btn-primary w-full mt-1" [disabled]="loading()">
+      <button type="submit" class="btn btn-primary btn-lg w-full mt-2" [disabled]="loading()">
         @if (loading()) {
           <span class="loading loading-spinner loading-sm"></span>
         }
@@ -35,7 +41,8 @@
       </button>
 
       <!-- ไรเดอร์ที่ได้เลขใบงานจากร้าน เปิดใบงานได้เลยไม่ต้อง login -->
-      <a routerLink="/job" class="btn btn-ghost btn-sm w-full">ไรเดอร์ที่มีเลขใบงาน กดตรงนี้เพื่อดูใบงาน</a>
+      <div class="divider my-0 text-sm text-base-content/70">หรือ</div>
+      <a routerLink="/job" class="btn btn-outline border-base-300 w-full">ไรเดอร์ที่มีเลขใบงาน กดตรงนี้เพื่อดูใบงาน</a>
     </form>
   </div>
 </div>

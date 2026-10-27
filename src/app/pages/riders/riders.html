@@ -2,7 +2,7 @@
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ไรเดอร์</h1>
-    <p class="text-base-content/70 text-sm">
+    <p class="text-base-content/70 text-sm mt-1">
       ทั้งหมด {{ riders().length }} คน · ใช้งานอยู่ {{ activeCount() }} คน · ไรเดอร์ 1 คน ส่งได้ไม่เกิน 3 ออเดอร์ต่อรอบ
     </p>
   </div>
@@ -14,7 +14,7 @@
   </div>
 </div>
 
-<div class="card bg-base-100 shadow-sm overflow-hidden">
+<div class="card bg-base-100 overflow-hidden">
   @if (loading()) {
     <div class="p-10 flex justify-center">
       <span class="loading loading-dots loading-lg text-primary"></span>
