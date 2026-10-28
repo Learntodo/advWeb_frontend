@@ -88,7 +88,9 @@ export class RoutePlan {
   date = signal(today()); // วันที่ส่ง
   plans = signal<PlanInfo[]>([]); // แผนที่ระบบเสนอ (ยังไม่บันทึก)
   selected = signal(0); // แผนที่เลือกดูอยู่
-  round = signal(0); // ครั้งที่กดคำนวณใหม่
+  seen = signal<string[]>([]); // ชื่อแผนที่ดูไปแล้ว (กด "ขอดูแบบอื่น" จะไม่ได้แบบเดิมซ้ำ)
+  firstNo = signal(1); // แผนแรกที่แสดงอยู่เป็นแบบที่เท่าไร
+  planTotal = signal(0); // จำนวนแผนทั้งหมดที่ระบบหาได้
   saved = signal<SavedPlanResponse | null>(null); // ใบงานทุกรอบที่บันทึกแล้วของวันนี้
   riders = signal<RiderGetResponse[]>([]); // ไรเดอร์ที่เปิดใช้งาน (ใช้เลือกคนรับใบงาน)
   onlyRoute = signal<number | null>(null); // ดูเฉพาะเที่ยวเดียว (null = ดูทุกเที่ยว)
@@ -340,16 +342,25 @@ export class RoutePlan {
     this.loadSaved();
   }
 
-  // ปุ่ม "จัดเส้นทาง" (round = 0) และ "ดูแผนอื่น" (round + 1)
+  // ปุ่ม "จัดเส้นทาง" (เริ่มดูใหม่) และ "ขอดูแบบอื่น" (ส่งแผนที่ดูไปแล้ว ได้ 3 แบบถัดไปที่ไม่ซ้ำ)
   async calculate(again: boolean) {
-    const round = again ? this.round() + 1 : 0;
+    const seen = again ? this.seen() : [];
     this.working.set(true);
     try {
-      const res = await this.routesApi.plan(this.date(), round);
+      const res = await this.routesApi.plan(this.date(), seen);
+      if (res.restart) {
+        // ดูครบทุกแบบแล้ว ระบบกลับมาเริ่มที่แบบแรก
+        this.notify.success(`ดูครบทั้ง ${res.plan_total} แบบแล้ว กลับมาเริ่มที่แบบที่ 1`);
+        this.seen.set(res.plan_keys);
+        this.firstNo.set(1);
+      } else {
+        this.firstNo.set(seen.length + 1);
+        this.seen.set([...seen, ...res.plan_keys]);
+      }
+      this.planTotal.set(res.plan_total);
       this.plans.set(res.plans);
       this.roadDistance.set(res.road_distance);
       this.selected.set(0);
-      this.round.set(round);
       this.onlyRoute.set(null);
     } catch (err) {
       this.notify.apiError(err, 'จัดเส้นทางไม่สำเร็จ');

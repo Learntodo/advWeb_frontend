@@ -23,20 +23,33 @@
           <div role="tablist" class="tabs tabs-box">
             @for (option of plans(); track $index) {
               <button role="tab" class="tab" [class.tab-active]="selected() === $index" (click)="selectPlan($index)">
-                แบบที่ {{ $index + 1 }} · ไรเดอร์ {{ option.riders }} คน · ค่าจ้าง {{ baht(option.rider_cost) }}
+                แบบที่ {{ firstNo() + $index }} · ไรเดอร์ {{ option.riders }} คน · ค่าจ้าง {{ baht(option.rider_cost) }}
               </button>
             }
           </div>
           <button class="btn btn-success" (click)="savePlan()" [disabled]="working()">
             <fa-icon [icon]="faCheck"></fa-icon>ออกส่งเลย
           </button>
-          <button class="btn btn-outline" (click)="calculate(true)" [disabled]="working()">
-            <fa-icon [icon]="faArrowsRotate"></fa-icon>ขอดูแบบอื่น
-          </button>
+          <!-- มีแบบอื่นให้ดู (เกิน 3 แบบ) จึงแสดงปุ่ม ไม่งั้นบอกว่าจัดได้กี่แบบ -->
+          @if (planTotal() > plans().length) {
+            <button class="btn btn-outline" (click)="calculate(true)" [disabled]="working()">
+              @if (working()) {
+                <span class="loading loading-spinner"></span>
+              } @else {
+                <fa-icon [icon]="faArrowsRotate"></fa-icon>
+              }
+              ขอดูแบบอื่น
+            </button>
+          }
           <button class="btn btn-ghost" (click)="plans.set([])" [disabled]="working()">
             {{ saved()?.routes?.length ? 'กลับไปหน้าเดิม' : 'ยกเลิก' }}
           </button>
         </div>
+        @if (planTotal() <= plans().length) {
+          <p class="text-sm">ออเดอร์ชุดนี้จัดเส้นทางได้ {{ planTotal() }} แบบเท่านั้น</p>
+        } @else {
+          <p class="text-sm">มีให้เลือกทั้งหมด {{ planTotal() }} แบบ กด “ขอดูแบบอื่น” เพื่อดูแบบถัดไป</p>
+        }
       </div>
     </div>
   } @else if (saved()?.routes?.length) {

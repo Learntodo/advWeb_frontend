@@ -65,6 +65,9 @@ export interface PlanResponse {
   date: string;
   road_distance: boolean; // true = ระยะตามถนนจริง, false = ระยะโดยประมาณ (เชื่อมต่อแผนที่ถนนไม่ได้)
   riders_available: number; // ไรเดอร์ที่เปิดใช้งานอยู่ในระบบ
+  plan_total: number; // จำนวนแผนทั้งหมดที่ระบบหาได้
+  plan_keys: string[]; // ชื่อของแต่ละแผนใน plans (ส่งกลับไปตอนกด "ขอดูแบบอื่น" จะได้ไม่ซ้ำแบบเดิม)
+  restart: boolean; // true = ดูครบทุกแบบแล้ว ระบบกลับมาเริ่มที่แบบแรก
   plans: PlanInfo[];
 }
 

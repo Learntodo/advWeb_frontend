@@ -14,10 +14,10 @@ export class DeliveryRoutes {
   api = inject(Api);
   apiEndpoint = this.api.API_ENDPOINT;
 
-  // POST /routes/plan คำนวณแผนเส้นทาง 3 แบบ (round = ครั้งที่กดคำนวณใหม่)
-  public async plan(date: string, round: number) {
+  // POST /routes/plan คำนวณแผนเส้นทางครั้งละ 3 แบบ (seen = ชื่อแผนที่ดูไปแล้ว ระบบจะเสนอแบบอื่นที่ยังไม่เคยดู)
+  public async plan(date: string, seen: string[]) {
     const url = `${this.apiEndpoint}/routes/plan`;
-    const response = await lastValueFrom(this.http.post(url, { date: date, round: round }));
+    const response = await lastValueFrom(this.http.post(url, { date: date, seen: seen }));
     return response as PlanResponse;
   }
 
