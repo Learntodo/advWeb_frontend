@@ -4,7 +4,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faBars,
   faBoxOpen,
-  faFlask,
   faHouse,
   faKey,
   faLocationCrosshairs,
@@ -58,6 +57,5 @@ export class Header {
     { path: '/routes', label: 'จัดเส้นทาง', icon: faRoute, exact: false },
     { path: '/nearby', label: 'ค้นหาตามระยะ', icon: faLocationCrosshairs, exact: false },
     { path: '/riders', label: 'ไรเดอร์', icon: faMotorcycle, exact: false },
-    { path: '/simulate', label: 'จำลองระบบ', icon: faFlask, exact: false },
   ];
 }
