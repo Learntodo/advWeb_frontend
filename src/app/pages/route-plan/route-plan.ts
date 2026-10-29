@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -64,9 +64,6 @@ export class RoutePlan {
   notify = inject(Notify);
   api = inject(Api);
   road = inject(Road);
-
-  // ?date=YYYY-MM-DD จากลิงก์ในหน้าจำลองระบบ
-  dateQuery = input<string>(undefined, { alias: 'date' });
 
   faRoute = faRoute;
   faArrowsRotate = faArrowsRotate;
@@ -237,12 +234,8 @@ export class RoutePlan {
     });
   }
 
-  // เปิดหน้า: ใช้วันที่จากลิงก์ (ถ้ามี) แล้วโหลดใบงาน
+  // เปิดหน้า: โหลดใบงานของวันนี้
   ngOnInit() {
-    const date = this.dateQuery();
-    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      this.date.set(date);
-    }
     this.loadSaved();
   }
 

@@ -253,7 +253,6 @@
           <p class="text-base-content/70">ยังไม่มีออเดอร์ของวันนี้ ให้เพิ่มออเดอร์ก่อน</p>
           <div class="flex flex-wrap justify-center gap-2">
             <a routerLink="/orders" class="btn btn-primary">ไปหน้าออเดอร์</a>
-            <a routerLink="/simulate" [queryParams]="{ date: date() }" class="btn btn-outline">ทดลองด้วยข้อมูลจำลอง</a>
           </div>
         } @else if (ridersAvailable() < ridersNeeded()) {
           <p class="text-error font-medium">
@@ -261,7 +260,6 @@
           </p>
           <div class="flex flex-wrap justify-center gap-2">
             <a routerLink="/riders" class="btn btn-primary"><fa-icon [icon]="faMotorcycle"></fa-icon>ไปเพิ่มไรเดอร์</a>
-            <a routerLink="/simulate" [queryParams]="{ date: date() }" class="btn btn-outline">เพิ่มไรเดอร์จำลอง</a>
           </div>
         } @else {
           <p class="text-base-content/70">กดปุ่มนี้ ระบบจะแบ่งออเดอร์ให้ไรเดอร์ และเรียงลำดับที่ไปส่งให้เอง</p>
