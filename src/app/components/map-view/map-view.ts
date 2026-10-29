@@ -33,7 +33,7 @@ export interface MapMarker {
 export interface MapLine {
   points: LatLng[];
   color: string;
-  step?: number; // ลำดับช่วง (1 = ร้าน -> จุด 1, 2 = จุด 1 -> จุด 2, ...) มีค่า = ค่อยๆ วาดทีละช่วงตามลำดับ + มีลูกศรบอกทิศ
+  step?: number; // ลำดับช่วง (1 = ร้าน -> จุด 1, 2 = จุด 1 -> จุด 2, ...) มีค่า = ค่อยๆ วาดทีละช่วงตามลำดับ
 }
 
 // เวลาที่ใช้วาดเส้น 1 ช่วง (มิลลิวินาที)
@@ -207,7 +207,7 @@ export class MapView implements AfterViewInit, OnDestroy {
   }
 
   // ค่อยๆ วาดเส้นทีละช่วง: ช่วงที่ 1 ก่อน (ร้าน -> จุด 1) จบแล้วจึงวาดช่วงที่ 2 ต่อ ...
-  // ไรเดอร์ดูแล้วรู้ว่าต้องไปจุดไหนก่อน ช่วงไหนวาดเสร็จแล้วใส่ลูกศรบอกทิศทางวิ่ง
+  // ไรเดอร์ดูแล้วรู้ว่าต้องไปจุดไหนก่อน
   grow(list: { shape: L.Polyline; line: MapLine }[]) {
     if (list.length === 0) return;
     const done = new Set<L.Polyline>();
@@ -219,10 +219,7 @@ export class MapView implements AfterViewInit, OnDestroy {
         // ช่วงที่ n เริ่มวาดเมื่อผ่านไป n-1 ช่วง ได้ส่วนที่วาดแล้ว 0 ถึง 1
         const part = Math.min(1, Math.max(0, passed - ((item.line.step as number) - 1)));
         item.shape.setLatLngs(this.cut(item.line.points, part));
-        if (part >= 1) {
-          done.add(item.shape);
-          this.drawArrows(item.line);
-        }
+        if (part >= 1) done.add(item.shape);
       }
       if (done.size < list.length) this.animation = requestAnimationFrame(frame);
     };
@@ -252,48 +249,6 @@ export class MapView implements AfterViewInit, OnDestroy {
       left = left - meters;
     }
     return result;
-  }
-
-  // ลูกศรบอกทิศทางวิ่งบนเส้น (ประมาณทุก 160 พิกเซลบนจอ ไม่เกิน 4 อัน ไม่ให้แผนที่รก)
-  drawArrows(line: MapLine) {
-    const latlngs = line.points.map((point) => L.latLng(point.lat, point.lng));
-    const gaps: number[] = [];
-    let total = 0;
-    let pixels = 0; // ความยาวเส้นบนจอตอนนี้
-    for (let i = 1; i < latlngs.length; i++) {
-      const meters = latlngs[i - 1].distanceTo(latlngs[i]);
-      gaps.push(meters);
-      total = total + meters;
-      pixels = pixels + this.map.latLngToLayerPoint(latlngs[i - 1]).distanceTo(this.map.latLngToLayerPoint(latlngs[i]));
-    }
-    if (pixels < 50) return; // เส้นสั้นมากบนจอ ไม่ต้องมีลูกศร
-    const count = Math.min(4, Math.max(1, Math.round(pixels / 160)));
-    for (let n = 0; n < count; n++) {
-      let at = (total * (n + 0.5)) / count; // ตำแหน่งลูกศร (เมตรจากต้นเส้น)
-      let i = 0;
-      while (i < gaps.length - 1 && at > gaps[i]) {
-        at = at - gaps[i];
-        i++;
-      }
-      const from = latlngs[i];
-      const to = latlngs[i + 1];
-      const fraction = gaps[i] ? at / gaps[i] : 0;
-      // มุมของเส้นบนจอ (แปลงพิกัดเป็นจุดบนภาพแผนที่ก่อน มุมจะตรงทุกระดับซูม)
-      const pixelFrom = this.map.project(from, 18);
-      const pixelTo = this.map.project(to, 18);
-      const angle = (Math.atan2(pixelTo.y - pixelFrom.y, pixelTo.x - pixelFrom.x) * 180) / Math.PI;
-      const icon = L.divIcon({
-        className: '',
-        html: `<div class="map-arrow" style="background:${line.color}"><span style="transform:rotate(${angle}deg)">➜</span></div>`,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-      });
-      L.marker([from.lat + (to.lat - from.lat) * fraction, from.lng + (to.lng - from.lng) * fraction], {
-        icon: icon,
-        interactive: false,
-        zIndexOffset: -1000, // อยู่ใต้หมุดจุดส่ง
-      }).addTo(this.layer);
-    }
   }
 
   // หมุดร้าน (สี่เหลี่ยมสีเข้ม)

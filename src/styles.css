@@ -225,25 +225,6 @@ body {
 }
 
 /* หมุดบนแผนที่ (Leaflet divIcon) */
-/* ลูกศรบอกทิศทางวิ่งบนเส้นทาง */
-.map-arrow {
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 2px solid white;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
-  color: white;
-  font-size: 10px;
-  line-height: 1;
-}
-
-.map-arrow span {
-  display: block;
-}
-
 .map-pin {
   width: 28px;
   height: 28px;
