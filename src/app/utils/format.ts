@@ -30,18 +30,18 @@ export function thaiDate(value: string): string {
   });
 }
 
-// ลิงก์เปิด Google Maps เพื่อนำทางไปยังพิกัด
+// ลิงก์เปิด Google Maps นำทางจากตำแหน่งปัจจุบันไปยังพิกัด
 export function googleMapsLink(lat: string | number, lng: string | number): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  return `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${lat},${lng}`;
 }
 
-// ลิงก์เปิด Google Maps นำทางหลายจุดตามลำดับ (จุดแรก = ต้นทาง, จุดสุดท้าย = ปลายทาง, ที่เหลือ = จุดแวะ)
+// ลิงก์เปิด Google Maps นำทางหลายจุดตามลำดับ เริ่มจากตำแหน่งปัจจุบัน
+// (จุดสุดท้าย = ปลายทาง, จุดก่อนหน้า = จุดแวะ)
 export function googleMapsRouteLink(points: { lat: number; lng: number }[]): string {
   const text = points.map((point) => `${point.lat},${point.lng}`);
-  const origin = text[0];
   const destination = text[text.length - 1];
-  const waypoints = text.slice(1, -1).join('|');
-  let url = `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${origin}&destination=${destination}`;
+  const waypoints = text.slice(0, -1).join('|');
+  let url = `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${destination}`;
   if (waypoints !== '') {
     url = url + `&waypoints=${encodeURIComponent(waypoints)}`;
   }

@@ -63,15 +63,20 @@ export class JobSheet {
   // ส่งถึงแล้วกี่จุด
   deliveredCount = computed(() => (this.job()?.stops ?? []).filter((stop) => stop.status === 'delivered').length);
 
-  // ลิงก์ Google Maps ทั้งเส้นทาง: ร้าน -> จุด 1 -> จุด 2 -> ... -> กลับร้าน
+  // ลิงก์ Google Maps ทั้งเส้นทาง: ตำแหน่งปัจจุบัน -> บ้านที่ยังไม่ได้ส่ง ตามลำดับ (ไม่วนกลับร้าน)
   routeLink = computed(() => {
     const job = this.job();
     if (!job) return '';
-    const points = [job.shop];
+    const points: { lat: number; lng: number }[] = [];
     for (const stop of job.stops) {
-      points.push({ lat: stop.latitude, lng: stop.longitude });
+      if (stop.status !== 'delivered') {
+        points.push({ lat: stop.latitude, lng: stop.longitude });
+      }
     }
-    points.push(job.shop);
+    // ส่งครบทุกบ้านแล้ว -> นำทางกลับร้าน
+    if (points.length === 0) {
+      points.push(job.shop);
+    }
     return googleMapsRouteLink(points);
   });
 
