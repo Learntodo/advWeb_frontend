@@ -45,10 +45,12 @@ export class OrderDetail {
   statusLabel = statusLabel;
   statusBadge = statusBadge;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   order = signal<OrderGetResponse | null>(null);
   loading = signal(true);
   notFound = signal(false);
 
+  // ========== ส่วนที่ 2: โหลดออเดอร์ ==========
   ngOnInit() {
     this.loadOrder();
   }
@@ -65,6 +67,7 @@ export class OrderDetail {
     this.loading.set(false);
   }
 
+  // ========== ส่วนที่ 3: ปุ่มจำนวนกล่อง / สถานะ / ลบ ==========
   // PATCH /orders/{id} เพิ่ม/ลดจำนวนกล่อง
   async changeQuantity(order: OrderGetResponse, change: number) {
     try {

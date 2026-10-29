@@ -1,4 +1,4 @@
-<!-- หัวหน้า -->
+<!-- ===== ส่วนที่ 1: หัวหน้า ชื่อหน้า + ปุ่มจำลองไรเดอร์ / เพิ่มไรเดอร์ ===== -->
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ไรเดอร์</h1>
@@ -11,16 +11,20 @@
   </div>
 </div>
 
+<!-- ===== ส่วนที่ 2: ตารางรายชื่อไรเดอร์ ===== -->
 <div class="card bg-base-100 overflow-hidden">
   @if (loading()) {
+    <!-- กำลังโหลด -->
     <div class="p-10 flex justify-center">
       <span class="loading loading-dots loading-lg text-primary"></span>
     </div>
   } @else if (riders().length === 0) {
+    <!-- ยังไม่มีไรเดอร์ -->
     <div class="p-10 text-center text-base-content/70">ยังไม่มีไรเดอร์ กด “เพิ่มไรเดอร์” เพื่อเริ่ม</div>
   } @else {
     <div class="overflow-x-auto">
       <table class="table table-sm sm:table-md">
+        <!-- หัวตาราง -->
         <thead>
           <tr class="bg-base-200">
             <th class="hidden sm:table-cell">ID</th>
@@ -31,9 +35,11 @@
           </tr>
         </thead>
         <tbody>
+          <!-- 1 แถว = ไรเดอร์ 1 คน (ปิดใช้งาน = แถวจางลง) -->
           @for (rider of riders(); track rider.id) {
             <tr [class.opacity-60]="rider.is_active !== 1">
               <td class="hidden sm:table-cell text-base-content/70">{{ rider.id }}</td>
+              <!-- ชื่อ + เบอร์โทร (จอมือถือแสดงทะเบียนรถและ ID ใต้ชื่อ) -->
               <td>
                 <div class="font-medium">{{ rider.first_name }} {{ rider.last_name }}</div>
                 <div class="text-sm text-base-content/70">
@@ -48,6 +54,7 @@
               <td class="hidden sm:table-cell">
                 <fa-icon [icon]="faMotorcycle" class="text-base-content/70"></fa-icon> {{ rider.license_plate || '-' }}
               </td>
+              <!-- สวิตช์เปิด / ปิดใช้งาน (ปิดแล้ว ไรเดอร์ login ไม่ได้ และไม่ถูกเลือกไปส่ง) -->
               <td>
                 <input
                   type="checkbox"
@@ -57,6 +64,7 @@
                   (change)="toggleActive(rider)"
                 />
               </td>
+              <!-- ปุ่มแก้ไข / ลบ -->
               <td>
                 <div class="flex flex-col sm:flex-row items-end sm:justify-end gap-1 whitespace-nowrap">
                   <button class="btn btn-sm btn-ghost px-2 sm:px-3" (click)="openEdit(rider)">
@@ -75,7 +83,7 @@
   }
 </div>
 
-<!-- ฟอร์มเพิ่ม / แก้ไขไรเดอร์ (component ย่อย) -->
+<!-- ===== ส่วนที่ 3: ฟอร์มเพิ่ม / แก้ไขไรเดอร์ (component ย่อย rider-form) ===== -->
 @if (formOpen()) {
   <app-rider-form [rider]="editingRider()" (saved)="onSaved()" (closed)="formOpen.set(false)"></app-rider-form>
 }

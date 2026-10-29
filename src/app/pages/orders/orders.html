@@ -1,4 +1,4 @@
-<!-- หัวหน้า + ปุ่มหลัก -->
+<!-- ===== ส่วนที่ 1: หัวหน้า ชื่อหน้า + ปุ่มเพิ่มออเดอร์ ===== -->
 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
   <div>
     <h1 class="font-display text-2xl sm:text-3xl">ออเดอร์</h1>
@@ -8,9 +8,10 @@
   </button>
 </div>
 
-<!-- เลือกวันที่ส่ง + ค้นหา -->
+<!-- ===== ส่วนที่ 2: ตัวกรอง เลือกวันที่ส่ง + ค้นหา + แท็บสถานะ ===== -->
 <div class="card bg-base-100 mb-4">
   <div class="card-body p-4 gap-3">
+    <!-- ปุ่มวันนี้ / ทุกวัน + เลือกวันที่ + ช่องค้นหา -->
     <div class="flex flex-wrap items-center gap-2">
       <span class="font-medium">วันที่ส่ง</span>
       <div class="join">
@@ -55,7 +56,7 @@
   </div>
 </div>
 
-<!-- สรุปยอดของออเดอร์ที่แสดงอยู่ -->
+<!-- ===== ส่วนที่ 3: การ์ดสรุปยอดของออเดอร์ที่แสดงอยู่ ===== -->
 <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-5">
   <div class="card bg-base-100">
     <div class="card-body p-4 flex-row items-center gap-3">
@@ -97,13 +98,15 @@
   </div>
 </div>
 
-<!-- ตารางออเดอร์ -->
+<!-- ===== ส่วนที่ 4: ตารางออเดอร์ (กดแถว = ดูรายละเอียด) ===== -->
 <section class="card bg-base-100 overflow-hidden min-w-0">
   @if (loading()) {
+    <!-- กำลังโหลด -->
     <div class="p-10 flex justify-center">
       <span class="loading loading-dots loading-lg text-primary"></span>
     </div>
   } @else if (filteredOrders().length === 0) {
+    <!-- ไม่มีออเดอร์ตามที่เลือก -->
     <div class="p-10 text-center text-base-content/70 flex flex-col items-center gap-3">
       <span>ไม่มีออเดอร์ตามที่เลือก</span>
       <div class="flex flex-wrap justify-center gap-2">
@@ -116,6 +119,7 @@
   } @else {
     <div class="overflow-x-auto max-h-[70vh]">
       <table class="table table-sm table-pin-rows">
+        <!-- หัวตาราง (ดูทุกวัน = มีคอลัมน์วันส่งเพิ่ม) -->
         <thead>
           <tr class="bg-base-200">
             <th>ID</th>
@@ -131,7 +135,9 @@
         </thead>
         <tbody>
           @for (order of filteredOrders(); track order.id) {
+            <!-- 1 แถว = ออเดอร์ 1 รายการ -->
             <tr [id]="'order-' + order.id" class="cursor-pointer hover:bg-base-200" (click)="goDetail(order)">
+              <!-- ID + ป้ายจำลอง / นอกเขตส่ง -->
               <td>
                 <span class="font-semibold">{{ order.id }}</span>
                 @if (order.is_simulated === 1) {
@@ -142,6 +148,7 @@
                 }
               </td>
 
+              <!-- ชื่อลูกค้า + เบอร์โทร -->
               <td class="min-w-32">
                 <div class="font-medium">{{ order.first_name }} {{ order.last_name }}</div>
                 <div class="text-sm text-base-content/70">ลูกค้า ID {{ order.customer_id }} · {{ order.phone }}</div>
@@ -175,6 +182,7 @@
                 }
               </td>
 
+              <!-- ราคารวม + วันส่ง -->
               <td class="text-right whitespace-nowrap">{{ baht(order.total_price) }}</td>
               @if (dateFilter() === '') {
                 <td class="hidden sm:table-cell whitespace-nowrap">{{ thaiDate(order.delivery_date) }}</td>
@@ -196,6 +204,7 @@
                 </select>
               </td>
 
+              <!-- ปุ่มดู / แก้ไข / ลบ -->
               <td (click)="$event.stopPropagation()">
                 <div class="flex flex-col xl:flex-row items-end xl:items-center xl:justify-end whitespace-nowrap">
                   <button class="btn btn-sm btn-ghost" (click)="goDetail(order)">
@@ -217,7 +226,7 @@
   }
 </section>
 
-<!-- ข้อมูลทดลอง (HW-5 ข้อ 3.1 / 3.2) -->
+<!-- ===== ส่วนที่ 5: ข้อมูลจำลอง (HW-5 ข้อ 3.1 / 3.2) ดูเฉพาะของจริง / จำลอง + ปุ่มจำลอง / ล้าง ===== -->
 <div class="card bg-base-100 mt-5">
   <div class="card-body p-4 flex-row flex-wrap items-center gap-2">
     <span class="font-medium mr-2">ข้อมูลจำลอง (ไว้ทดลอง)</span>
@@ -250,7 +259,7 @@
   </div>
 </div>
 
-<!-- ฟอร์มเพิ่มออเดอร์ (component ย่อย) -->
+<!-- ===== ส่วนที่ 6: ฟอร์มเพิ่มออเดอร์ (component ย่อย order-add-form) ===== -->
 @if (addOpen()) {
   <app-order-add-form
     [customers]="customers()"
@@ -260,7 +269,7 @@
   ></app-order-add-form>
 }
 
-<!-- ฟอร์มแก้ไขออเดอร์ (component ย่อย) -->
+<!-- ===== ส่วนที่ 7: ฟอร์มแก้ไขออเดอร์ (component ย่อย order-edit-form) ===== -->
 @if (editingOrder(); as order) {
   <app-order-edit-form [order]="order" (saved)="onSaved()" (closed)="editingOrder.set(null)"></app-order-edit-form>
 }

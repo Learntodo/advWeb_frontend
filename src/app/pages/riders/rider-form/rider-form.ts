@@ -25,6 +25,7 @@ export class RiderForm {
 
   faXmark = faXmark;
 
+  // ========== ส่วนที่ 1: ข้อมูลในฟอร์ม ==========
   // ข้อมูลในฟอร์ม (ผูกกับช่องกรอกด้วย [(ngModel)])
   firstName = signal('');
   lastName = signal('');
@@ -36,6 +37,7 @@ export class RiderForm {
   errorMessage = signal('');
   saving = signal(false);
 
+  // ========== ส่วนที่ 2: เปิดฟอร์ม (แก้ไข = ใส่ข้อมูลเดิม) ==========
   ngOnInit() {
     // ถ้าเป็นการแก้ไข ให้นำข้อมูลเดิมมาใส่ในฟอร์ม (รหัสผ่านเว้นว่าง = ไม่เปลี่ยน)
     const rider = this.rider();
@@ -48,6 +50,7 @@ export class RiderForm {
     }
   }
 
+  // ========== ส่วนที่ 3: ตรวจข้อมูล และบันทึก (POST / PUT /riders) ==========
   // ตรวจข้อมูลก่อนบันทึก ถ้าผิดจะคืนข้อความบอกว่าผิดอะไร ถ้าถูกคืน ''
   validate(): string {
     if (this.firstName().trim() === '') return 'กรุณากรอกชื่อ';

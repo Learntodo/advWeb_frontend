@@ -1,11 +1,14 @@
+<!-- หน้าเข้าสู่ระบบ (ใช้ทั้งเจ้าของร้านและไรเดอร์ login ด้วยเบอร์โทร + รหัสผ่าน) -->
 <div class="min-h-[75vh] flex items-center justify-center">
   <div class="card bg-base-100 shadow-xl shadow-base-300/40 w-full max-w-md">
     <form class="card-body gap-4 p-6 sm:p-8" (submit)="login(); $event.preventDefault()">
+      <!-- ===== ส่วนที่ 1: โลโก้ + ชื่อหน้า ===== -->
       <div class="flex flex-col items-center text-center gap-2 mb-2">
         <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-20 h-20 -rotate-6" />
         <h1 class="font-display text-3xl mt-2">เข้าสู่ระบบ</h1>
       </div>
 
+      <!-- ===== ส่วนที่ 2: ช่องกรอกเบอร์โทร และรหัสผ่าน ===== -->
       <fieldset class="fieldset p-0">
         <legend class="fieldset-legend text-base">เบอร์โทร</legend>
         <label class="input input-lg outline-0 w-full">
@@ -28,10 +31,12 @@
         </label>
       </fieldset>
 
+      <!-- ข้อความผิดพลาด เช่น เบอร์หรือรหัสผ่านไม่ถูก -->
       @if (errorMessage()) {
         <div role="alert" class="alert alert-error alert-soft py-2">{{ errorMessage() }}</div>
       }
 
+      <!-- ===== ส่วนที่ 3: ปุ่มเข้าสู่ระบบ ===== -->
       <button type="submit" class="btn btn-primary btn-lg w-full mt-2" [disabled]="loading()">
         @if (loading()) {
           <span class="loading loading-spinner loading-sm"></span>
@@ -39,7 +44,7 @@
         เข้าสู่ระบบ
       </button>
 
-      <!-- ไรเดอร์ที่ได้เลขใบงานจากร้าน เปิดใบงานได้เลยไม่ต้อง login -->
+      <!-- ===== ส่วนที่ 4: ไรเดอร์ที่ได้เลขใบงานจากร้าน เปิดใบงานได้เลยไม่ต้อง login ===== -->
       <div class="divider my-0 text-sm text-base-content/70">หรือ</div>
       <a routerLink="/job" class="btn btn-outline border-base-300 w-full">ไรเดอร์ที่มีเลขใบงาน กดตรงนี้เพื่อดูใบงาน</a>
     </form>

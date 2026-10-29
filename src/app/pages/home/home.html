@@ -1,7 +1,8 @@
-<!-- แถบหัว: วันที่ + ปุ่มจัดเส้นทาง / จำลอง / ล้างออเดอร์ -->
+<!-- ===== ส่วนที่ 1: แถบหัว วันที่ + ปุ่มจัดเส้นทาง / จำลองออเดอร์ / ล้างออเดอร์จำลอง ===== -->
 <section
   class="relative overflow-hidden rounded-box border border-base-300 bg-linear-to-br from-secondary/30 via-base-100 to-base-100 p-5 sm:p-7 mb-6"
 >
+  <!-- รูปข้าวกล่องจางๆ มุมขวาล่าง (ตกแต่ง) -->
   <div
     class="absolute -right-4 -bottom-10 text-[9rem] text-primary/10 rotate-12 pointer-events-none"
     aria-hidden="true"
@@ -12,6 +13,7 @@
   <p class="text-base-content/70">{{ todayText }}</p>
   <h1 class="font-display text-3xl sm:text-4xl mt-1">ออเดอร์วันนี้</h1>
 
+  <!-- ปุ่มต่างๆ -->
   <div class="flex flex-wrap gap-2 mt-5 relative">
     <a routerLink="/routes" class="btn btn-primary"><fa-icon [icon]="faRoute"></fa-icon>จัดเส้นทางส่ง</a>
     <button class="btn btn-outline border-base-300 bg-base-100" (click)="simulate()" [disabled]="working()">
@@ -27,7 +29,7 @@
   </div>
 </section>
 
-<!-- เรียก API ไม่ได้ -->
+<!-- ===== ส่วนที่ 2: เรียก API ไม่ได้ ให้กดลองใหม่ ===== -->
 @if (apiError()) {
   <div role="alert" class="alert alert-error alert-vertical sm:alert-horizontal mb-6">
     <span>ติดต่อระบบไม่ได้ ตรวจดูอินเทอร์เน็ต แล้วกด “ลองใหม่”</span>
@@ -35,7 +37,7 @@
   </div>
 }
 
-<!-- ตัวเลขสรุปวันนี้ -->
+<!-- ===== ส่วนที่ 3: การ์ดตัวเลขสรุปวันนี้ (ออเดอร์ กล่อง ยอดขาย ลูกค้า) ===== -->
 <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
   <div class="card bg-base-100">
     <div class="card-body p-4 flex-row items-center gap-3">
@@ -78,7 +80,7 @@
 </div>
 
 <div class="grid gap-5 xl:grid-cols-5">
-  <!-- แผนที่จุดส่งวันนี้ -->
+  <!-- ===== ส่วนที่ 4: แผนที่บ้านที่ต้องส่งวันนี้ ===== -->
   <section class="xl:col-span-3 card bg-base-100 min-w-0">
     <div class="card-body p-3 gap-2">
       <div class="flex items-center justify-between px-1">
@@ -91,7 +93,7 @@
     </div>
   </section>
 
-  <!-- ออเดอร์ล่าสุด -->
+  <!-- ===== ส่วนที่ 5: ออเดอร์ล่าสุด (กดเพื่อดูรายละเอียดออเดอร์) ===== -->
   <section class="xl:col-span-2 card bg-base-100 min-w-0">
     <div class="card-body p-0">
       <div class="flex items-center justify-between px-5 pt-4">
@@ -99,6 +101,7 @@
         <a routerLink="/orders" class="btn btn-sm btn-ghost"> ดูทั้งหมด <fa-icon [icon]="faArrowRight"></fa-icon> </a>
       </div>
 
+      <!-- กำลังโหลด -->
       @if (loading()) {
         <div class="p-10 flex justify-center">
           <span class="loading loading-dots text-primary"></span>
@@ -107,6 +110,7 @@
         <ul class="divide-y divide-base-200 mt-2">
           @for (order of latestOrders(); track order.id) {
             <li>
+              <!-- 1 แถว = ออเดอร์ 1 รายการ: จำนวนกล่อง ชื่อลูกค้า สถานะ -->
               <a [routerLink]="['/orders', order.id]" class="flex items-center gap-3 px-5 py-3 hover:bg-base-200">
                 <span
                   class="grid place-items-center w-10 h-10 shrink-0 rounded-xl bg-primary/10 text-primary font-display text-lg"

@@ -32,6 +32,7 @@ export class OrderEditForm {
   statusLabel = statusLabel;
   quantityChoices = [1, 2, 3];
 
+  // ========== ส่วนที่ 1: ข้อมูลในฟอร์ม ==========
   // ข้อมูลในฟอร์ม
   quantity = signal(1);
   unitPrice = signal(0);
@@ -44,6 +45,7 @@ export class OrderEditForm {
   saving = signal(false);
   startPoint = signal<LatLng | null>(null);
 
+  // ========== ส่วนที่ 2: เปิดฟอร์ม และจุดส่งบนแผนที่ ==========
   deliveryPoint = computed(() => {
     return { lat: this.lat(), lng: this.lng() };
   });
@@ -71,6 +73,7 @@ export class OrderEditForm {
     this.lng.set(point.lng);
   }
 
+  // ========== ส่วนที่ 3: บันทึก (PUT /orders/{id}) ==========
   async save() {
     if (this.address().trim() === '' || this.deliveryDate() === '') {
       this.notify.error('กรุณากรอกที่อยู่และวันที่ส่งให้ครบ');

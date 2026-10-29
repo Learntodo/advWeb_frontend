@@ -1,9 +1,10 @@
+<!-- ===== ส่วนที่ 1: หัวหน้า ชื่อหน้า ===== -->
 <div class="mb-5">
   <h1 class="font-display text-2xl sm:text-3xl">ค้นหาตามระยะ</h1>
 </div>
 
 <div class="grid gap-5 xl:grid-cols-5">
-  <!-- ฝั่งซ้าย: ตัวเลือก + ผลการค้นหา -->
+  <!-- ===== ส่วนที่ 2 (ฝั่งซ้าย): ตัวเลือกการค้นหา ===== -->
   <section class="xl:col-span-2 flex flex-col gap-4 min-w-0">
     <div class="card bg-base-100">
       <div class="card-body gap-4">
@@ -55,6 +56,7 @@
                 <fa-icon [icon]="faLocationCrosshairs" class="text-primary"></fa-icon>ที่ฉันอยู่
               </button>
             </div>
+            <!-- ช่องพิมพ์พิกัดเอง -->
             <div class="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2">
               <label class="input outline-0 w-full">
                 <span class="label">lat</span>
@@ -66,6 +68,7 @@
               </label>
             </div>
           </fieldset>
+          <!-- ปุ่มค้นหา -->
           <button type="submit" class="btn btn-primary btn-lg w-full" [disabled]="loading()">
             @if (loading()) {
               <span class="loading loading-spinner loading-sm"></span>
@@ -78,7 +81,7 @@
       </div>
     </div>
 
-    <!-- ผลการค้นหา -->
+    <!-- ===== ส่วนที่ 3 (ฝั่งซ้าย): ผลการค้นหา (กดรายการ = ไปที่จุดนั้นบนแผนที่) ===== -->
     <div class="card bg-base-100 overflow-hidden">
       @if (mode() === 'customers') {
         <!-- ผลค้นหาลูกค้า -->
@@ -136,7 +139,7 @@
     </div>
   </section>
 
-  <!-- ฝั่งขวา: แผนที่ -->
+  <!-- ===== ส่วนที่ 4 (ฝั่งขวา): แผนที่ วงรัศมีค้นหา + หมุดผลลัพธ์ (กดแผนที่ = ย้ายจุดศูนย์กลาง) ===== -->
   <section class="xl:col-span-3">
     <div class="card bg-base-100 xl:sticky xl:top-6">
       <div class="card-body p-3">

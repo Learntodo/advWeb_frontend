@@ -34,6 +34,7 @@ export class OrderAddForm {
   baht = baht;
   quantityChoices = [1, 2, 3]; // สั่งได้ไม่เกิน 3 กล่อง
 
+  // ========== ส่วนที่ 1: ข้อมูลในฟอร์ม ==========
   // ข้อมูลในฟอร์ม
   selectedId = signal<number | null>(null); // รหัสลูกค้าที่เลือก
   searchText = signal(''); // ช่องค้นหาลูกค้าเก่า
@@ -47,6 +48,7 @@ export class OrderAddForm {
   lng = signal<number | null>(null);
   saving = signal(false);
 
+  // ========== ส่วนที่ 2: ค่าที่คำนวณ (ลูกค้าที่เลือก ผลค้นหา จุดส่ง ระยะจากร้าน) ==========
   // ข้อมูลลูกค้าที่เลือก
   selectedCustomer = computed(() => {
     return this.customers().find((customer) => customer.id === this.selectedId()) ?? null;
@@ -93,6 +95,7 @@ export class OrderAddForm {
     return point ? this.api.shopKm(point) : null;
   });
 
+  // ========== ส่วนที่ 3: เลือกลูกค้า และจุดส่ง ==========
   ngOnInit() {
     this.selectedId.set(this.customerId());
   }
@@ -121,6 +124,7 @@ export class OrderAddForm {
     }
   }
 
+  // ========== ส่วนที่ 4: บันทึก (POST /orders) ==========
   async save() {
     const customer = this.selectedCustomer();
     if (customer === null) {

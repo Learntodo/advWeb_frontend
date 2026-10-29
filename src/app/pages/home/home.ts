@@ -48,12 +48,14 @@ export class Home {
   statusLabel = statusLabel;
   statusBadge = statusBadge;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   customers = signal<CustomerGetResponse[]>([]);
   orders = signal<OrderGetResponse[]>([]);
   loading = signal(true);
   apiError = signal(false); // true = เรียก API ไม่ได้
   working = signal(false); // กำลังจำลอง / ล้างออเดอร์
 
+  // ========== ส่วนที่ 2: ค่าที่คำนวณจากข้อมูล (วันที่ การ์ดสรุป ออเดอร์ล่าสุด หมุดบนแผนที่) ==========
   // วันที่วันนี้แบบไทย เช่น "วันเสาร์ที่ 10 ตุลาคม 2569"
   todayText = new Date().toLocaleDateString('th-TH', {
     weekday: 'long',
@@ -111,6 +113,7 @@ export class Home {
     return markers;
   });
 
+  // ========== ส่วนที่ 3: โหลดข้อมูล ==========
   ngOnInit() {
     this.loadData();
   }
@@ -130,6 +133,7 @@ export class Home {
     this.loading.set(false);
   }
 
+  // ========== ส่วนที่ 4: ปุ่มจำลอง / ล้างออเดอร์จำลอง ==========
   // 3.1 จำลองออเดอร์ 20-30 รายการ
   async simulate() {
     if (this.customers().length === 0) {

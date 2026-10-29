@@ -53,7 +53,7 @@ export interface MapCircle {
 export class MapView implements AfterViewInit, OnDestroy {
   api = inject(Api);
 
-  // ---------- ข้อมูลที่รับมาจาก component แม่ ----------
+  // ========== ส่วนที่ 1: ข้อมูลที่รับมาจาก component แม่ ==========
   markers = input<MapMarker[]>([]); // หมุดที่จะแสดง
   picked = input<LatLng | null>(null); // จุดที่ผู้ใช้เลือก (แสดงเป็นจุดสีแดง)
   circle = input<MapCircle | null>(null); // วงกลมรัศมี (ซูมให้เห็นทั้งวง)
@@ -62,16 +62,18 @@ export class MapView implements AfterViewInit, OnDestroy {
   focus = input<LatLng | null>(null); // ถ้ามีค่า แผนที่จะเลื่อนไปที่จุดนี้
   autoZoom = input(true); // true = ซูมให้เห็นหมุดทั้งหมด
 
-  // ---------- เหตุการณ์ที่ส่งกลับไปให้ component แม่ ----------
+  // ========== ส่วนที่ 2: เหตุการณ์ที่ส่งกลับไปให้ component แม่ ==========
   mapClick = output<LatLng>(); // คลิกบนแผนที่
   markerClick = output<number>(); // คลิกหมุด (ส่ง id ของหมุด)
 
+  // ========== ส่วนที่ 3: ตัวแผนที่ Leaflet ==========
   mapDiv = viewChild.required<ElementRef<HTMLDivElement>>('map');
   map!: L.Map;
   layer = L.layerGroup(); // เก็บหมุดทั้งหมดไว้ในกลุ่มเดียว ลบแล้ววาดใหม่ได้ง่าย
   ready = signal(false); // แผนที่สร้างเสร็จแล้วหรือยัง
   resizeTimer = 0; // รหัสของ setTimeout (ใช้ยกเลิกตอนปิดแผนที่)
 
+  // ========== ส่วนที่ 4: สร้าง / ปิดแผนที่ ==========
   constructor() {
     // effect จะทำงานใหม่ทุกครั้งที่ input ที่ถูกอ่านข้างใน (markers, picked, circle) เปลี่ยน
     effect(() => {
@@ -121,6 +123,7 @@ export class MapView implements AfterViewInit, OnDestroy {
     this.map.remove();
   }
 
+  // ========== ส่วนที่ 5: วาดหมุด เส้นทาง และวงกลม ==========
   // ลบทุกอย่างบนแผนที่ แล้ววาดใหม่ทั้งหมด
   draw() {
     this.layer.clearLayers();

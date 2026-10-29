@@ -46,12 +46,14 @@ export class JobSheet {
   thaiDate = thaiDate;
   googleMapsLink = googleMapsLink;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   codeText = signal(''); // เลขใบงานที่พิมพ์
   job = signal<JobSheetData | null>(null);
   loading = signal(false);
   errorMessage = signal('');
   saving = signal<number | null>(null); // รหัสออเดอร์ที่กำลังบันทึกว่าส่งแล้ว
 
+  // ========== ส่วนที่ 2: ค่าที่คำนวณ (กดส่งได้ไหม ส่งแล้วกี่บ้าน ลิงก์ Google Maps) ==========
   // กด "ส่งถึงแล้ว" ได้ไหม: ต้อง login เป็นไรเดอร์เจ้าของใบงาน หรือเจ้าของร้าน
   canDeliver = computed(() => {
     const user = this.auth.user();
@@ -80,6 +82,7 @@ export class JobSheet {
     return googleMapsRouteLink(points);
   });
 
+  // ========== ส่วนที่ 3: เปิดใบงาน ==========
   ngOnInit() {
     const code = this.code();
     if (code) {
@@ -112,6 +115,7 @@ export class JobSheet {
     this.loading.set(false);
   }
 
+  // ========== ส่วนที่ 4: ปุ่มส่งถึงแล้ว / เปิดใบงานอื่น ==========
   // PUT /jobs/{code}/stops/{orderId} กด "ส่งถึงแล้ว" (delivered = false คือกดผิด ย้อนกลับ)
   async markDelivered(stop: RouteStop, delivered: boolean) {
     const job = this.job();

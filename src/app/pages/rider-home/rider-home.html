@@ -1,17 +1,21 @@
+<!-- หน้าแรกของไรเดอร์ (หลัง login) แสดงใบงานของตัวเองวันนี้ -->
 @if (auth.user(); as user) {
   <div class="max-w-md mx-auto flex flex-col gap-4">
+    <!-- ===== ส่วนที่ 1: คำทักทาย ===== -->
     <div>
       <h1 class="font-display text-2xl">สวัสดี คุณ{{ user.first_name }}</h1>
     </div>
 
-    <!-- ใบงานของฉันวันนี้ -->
+    <!-- ===== ส่วนที่ 2: ใบงานของฉันวันนี้ (กดการ์ดเพื่อเปิดใบงาน) ===== -->
     <h2 class="font-display text-xl">ใบงานวันนี้ ({{ thaiDate(todayDate) }})</h2>
     @if (loading()) {
+      <!-- กำลังโหลด -->
       <div class="p-10 flex justify-center">
         <span class="loading loading-dots loading-lg text-primary"></span>
       </div>
     } @else {
       @for (job of jobs(); track job.code) {
+        <!-- การ์ดใบงาน 1 ใบ: เวลาออกจากร้าน สถานะ จำนวนกล่อง -->
         <a [routerLink]="['/job']" [queryParams]="{ code: job.code }" class="card bg-base-100 hover:shadow-md">
           <div class="card-body p-5 gap-2">
             <div class="flex items-center justify-between">
@@ -32,6 +36,7 @@
           </div>
         </a>
       } @empty {
+        <!-- ยังไม่มีใบงาน -->
         <div class="card bg-base-100">
           <div class="card-body p-5 items-center text-center gap-2">
             <fa-icon [icon]="faClipboardList" size="2x" class="text-base-content/30"></fa-icon>
@@ -43,7 +48,7 @@
       }
     }
 
-    <!-- กรณีร้านบอกเลขใบงานมา -->
+    <!-- ===== ส่วนที่ 3: กรณีร้านบอกเลขใบงานมา พิมพ์เลขเพื่อเปิดใบงาน ===== -->
     <details class="collapse collapse-arrow bg-base-100 border border-base-300">
       <summary class="collapse-title">มีเลขใบงานจากร้าน? กดตรงนี้เพื่อพิมพ์เลข</summary>
       <form class="collapse-content flex flex-col gap-3" (submit)="open(); $event.preventDefault()">

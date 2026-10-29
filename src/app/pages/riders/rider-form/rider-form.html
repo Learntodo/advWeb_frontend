@@ -1,6 +1,7 @@
+<!-- หน้าต่างฟอร์มเพิ่ม / แก้ไขไรเดอร์ (เปิดจากหน้าไรเดอร์) -->
 <div class="modal modal-open" role="dialog">
   <div class="modal-box max-w-lg">
-    <!-- หัวฟอร์ม -->
+    <!-- ===== ส่วนที่ 1: หัวฟอร์ม (เพิ่มใหม่ / แก้ไข) + ปุ่มปิด ===== -->
     <div class="flex items-center justify-between">
       <h3 class="font-display text-xl">
         @if (rider(); as editingRider) {
@@ -14,7 +15,9 @@
       </button>
     </div>
 
+    <!-- ===== ส่วนที่ 2: ช่องกรอกข้อมูลไรเดอร์ ===== -->
     <form class="mt-3" (submit)="save(); $event.preventDefault()">
+      <!-- ชื่อ + นามสกุล -->
       <div class="grid grid-cols-2 gap-3">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">ชื่อ *</legend>
@@ -26,6 +29,7 @@
         </fieldset>
       </div>
 
+      <!-- เบอร์โทร (ใช้ login) + ทะเบียนรถ -->
       <div class="grid grid-cols-2 gap-3">
         <fieldset class="fieldset">
           <legend class="fieldset-legend">เบอร์โทร * (ใช้เข้าระบบ)</legend>
@@ -37,6 +41,7 @@
         </fieldset>
       </div>
 
+      <!-- รหัสผ่าน (ตอนแก้ไข ปล่อยว่าง = ไม่เปลี่ยน) -->
       <fieldset class="fieldset">
         <legend class="fieldset-legend">
           @if (rider()) {
@@ -54,6 +59,7 @@
         />
       </fieldset>
 
+      <!-- สวิตช์เปิด / ปิดใช้งาน (มีเฉพาะตอนแก้ไข) -->
       @if (rider()) {
         <label class="label mt-3 gap-2 cursor-pointer">
           <input type="checkbox" class="toggle toggle-success toggle-sm" name="isActive" [(ngModel)]="isActive" />
@@ -66,7 +72,7 @@
         <div role="alert" class="alert alert-error mt-3">{{ errorMessage() }}</div>
       }
 
-      <!-- ปุ่ม -->
+      <!-- ===== ส่วนที่ 3: ปุ่มยกเลิก / บันทึก ===== -->
       <div class="flex justify-end gap-2 pt-4">
         <button type="button" class="btn btn-ghost" (click)="closed.emit()">ยกเลิก</button>
         <button type="submit" class="btn btn-primary min-w-32" [disabled]="saving()">
@@ -78,5 +84,6 @@
       </div>
     </form>
   </div>
+  <!-- กดพื้นหลังด้านนอก = ปิดหน้าต่าง -->
   <div class="modal-backdrop" (click)="closed.emit()"></div>
 </div>

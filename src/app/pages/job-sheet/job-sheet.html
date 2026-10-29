@@ -1,6 +1,8 @@
+<!-- ใบงานไรเดอร์ (/job?code=...) เปิดได้ทั้งตอน login และไม่ login แต่กด "ส่งถึงแล้ว" ได้เฉพาะไรเดอร์เจ้าของใบงาน -->
 <div class="max-w-md mx-auto flex flex-col gap-4">
+  <!-- มีใบงานแล้ว: แสดงใบงาน -->
   @if (job(); as sheet) {
-    <!-- หัวใบงาน -->
+    <!-- ===== ส่วนที่ 1: หัวใบงาน ชื่อไรเดอร์ จำนวนกล่อง ส่งแล้วกี่บ้าน ===== -->
     <div class="card bg-linear-to-br from-secondary/30 via-base-100 to-base-100">
       <div class="card-body p-5 gap-1">
         <p class="text-base-content/70">ใบงานวันที่ {{ thaiDate(sheet.delivery_date) }}</p>
@@ -23,6 +25,7 @@
       </div>
     </div>
 
+    <!-- ===== ส่วนที่ 2: แจ้งว่ากด "ส่งถึงแล้ว" ไม่ได้ (ยังไม่ login / ไม่ใช่ใบงานของตัวเอง) ===== -->
     @if (!canDeliver()) {
       <div role="alert" class="alert alert-soft py-2">
         @if (auth.user() === null) {
@@ -37,13 +40,14 @@
       </div>
     }
 
-    <!-- ปุ่มเปิดแผนที่ทั้งเส้นทาง -->
+    <!-- ===== ส่วนที่ 3: ปุ่มเปิด Google Maps ขับตามเส้นทาง (จากที่อยู่ตอนนี้ ไปบ้านที่ยังไม่ได้ส่ง) ===== -->
     <a class="btn btn-primary btn-lg" [href]="routeLink()" target="_blank" rel="noopener">
       <fa-icon [icon]="faMapLocationDot"></fa-icon>เปิดแผนที่ขับตามเส้นทาง
     </a>
 
-    <!-- จุดส่งเรียงตามลำดับ -->
+    <!-- ===== ส่วนที่ 4: จุดส่งเรียงตามลำดับ ===== -->
     <ol class="flex flex-col gap-3">
+      <!-- จุดเริ่ม: ร้าน -->
       <li class="flex items-center gap-3 px-1 text-base-content/70">
         <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
           ><fa-icon [icon]="faHouse"></fa-icon
@@ -51,6 +55,7 @@
         ออกจากร้าน {{ sheet.start_time }} น.
       </li>
       @for (stop of sheet.stops; track stop.order_id) {
+        <!-- บ้าน 1 หลัง: ลำดับ ชื่อ ที่อยู่ จำนวนกล่อง -->
         <li class="card bg-base-100" [class.opacity-75]="stop.status === 'delivered'">
           <div class="card-body p-4 gap-2">
             <div class="flex items-start gap-3">
@@ -73,6 +78,7 @@
                 <p class="font-bold">{{ stop.quantity }} กล่อง</p>
               </div>
             </div>
+            <!-- ปุ่มโทรหาลูกค้า / นำทางไปบ้านนี้ -->
             <div class="grid grid-cols-2 gap-2">
               <a class="btn btn-outline" href="tel:{{ stop.phone }}"><fa-icon [icon]="faPhone"></fa-icon>โทรหาลูกค้า</a>
               <a
@@ -84,6 +90,7 @@
                 <fa-icon [icon]="faLocationArrow"></fa-icon>นำทาง
               </a>
             </div>
+            <!-- ส่งแล้ว: แสดง "ส่งถึงแล้ว" + ปุ่มกดผิด / ยังไม่ส่ง: ปุ่ม "ส่งถึงแล้ว" -->
             @if (stop.status === 'delivered') {
               <div class="flex items-center justify-between gap-2">
                 <span class="text-success font-bold"><fa-icon [icon]="faCircleCheck"></fa-icon> ส่งถึงแล้ว</span>
@@ -110,6 +117,7 @@
           </div>
         </li>
       }
+      <!-- จุดสุดท้าย: กลับร้าน -->
       <li class="flex items-center gap-3 px-1 text-base-content/70">
         <span class="grid place-items-center w-9 h-9 rounded-full bg-base-300"
           ><fa-icon [icon]="faHouse"></fa-icon
@@ -118,9 +126,10 @@
       </li>
     </ol>
 
+    <!-- ===== ส่วนที่ 5: ปุ่มเปิดใบงานอื่น ===== -->
     <button class="btn btn-ghost" (click)="reset()">เปิดใบงานอื่น</button>
   } @else {
-    <!-- กรอกเลขใบงาน -->
+    <!-- ===== ส่วนที่ 6: ยังไม่ได้เปิดใบงาน กรอกเลขใบงาน ===== -->
     <div class="card bg-base-100 mt-6">
       <form class="card-body gap-3" (submit)="open(); $event.preventDefault()">
         <div class="flex flex-col items-center text-center gap-2 mb-2">

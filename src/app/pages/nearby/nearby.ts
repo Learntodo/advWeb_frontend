@@ -43,6 +43,7 @@ export class Nearby {
   statusLabel = statusLabel;
   statusBadge = statusBadge;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   mode = signal('customers'); // 'customers' = ค้นลูกค้า, 'orders' = ค้นออเดอร์
   lat = signal(this.api.SHOP_LOCATION.lat); // จุดศูนย์กลาง (เริ่มที่ร้าน)
   lng = signal(this.api.SHOP_LOCATION.lng);
@@ -53,6 +54,7 @@ export class Nearby {
   allCustomers = signal<CustomerGetResponse[]>([]); // ใช้หาชื่อลูกค้าของออเดอร์
   focus = signal<LatLng | null>(null);
 
+  // ========== ส่วนที่ 2: สิ่งที่แสดงบนแผนที่ (จุดศูนย์กลาง วงรัศมี หมุด) ==========
   // จุดศูนย์กลาง
   center = computed(() => {
     return { lat: this.lat(), lng: this.lng() };
@@ -102,6 +104,7 @@ export class Nearby {
     return total;
   });
 
+  // ========== ส่วนที่ 3: โหลดข้อมูล ==========
   async ngOnInit() {
     // โหลดรายชื่อลูกค้าไว้ เพราะ API /orders/nearby ไม่ได้ส่งชื่อลูกค้ามา
     try {
@@ -121,6 +124,7 @@ export class Nearby {
     return 'ลูกค้า ID ' + customerId;
   }
 
+  // ========== ส่วนที่ 4: เลือกแท็บ และจุดศูนย์กลาง ==========
   // สลับแท็บ ลูกค้า / ออเดอร์
   setMode(mode: string) {
     this.mode.set(mode);
@@ -150,6 +154,7 @@ export class Nearby {
     );
   }
 
+  // ========== ส่วนที่ 5: ค้นหาตามระยะ และแสดงผลบนแผนที่ ==========
   // เรียก API ค้นหาตามระยะ
   async search() {
     this.loading.set(true);

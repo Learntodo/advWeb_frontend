@@ -1,6 +1,7 @@
+<!-- หน้าต่างฟอร์มเพิ่ม / แก้ไขลูกค้า (เปิดจากหน้าลูกค้า) -->
 <div class="modal modal-open" role="dialog">
   <div class="modal-box max-w-4xl">
-    <!-- หัวฟอร์ม -->
+    <!-- ===== ส่วนที่ 1: หัวฟอร์ม (เพิ่มใหม่ / แก้ไข) + ปุ่มปิด ===== -->
     <div class="flex items-center justify-between">
       <h3 class="font-display text-xl">
         @if (customer(); as editingCustomer) {
@@ -15,8 +16,9 @@
     </div>
 
     <form class="grid md:grid-cols-2 gap-x-6 mt-3" (submit)="save(); $event.preventDefault()">
-      <!-- ฝั่งซ้าย: ข้อมูลลูกค้า -->
+      <!-- ===== ส่วนที่ 2 (ฝั่งซ้าย): ข้อมูลลูกค้า ===== -->
       <div>
+        <!-- ชื่อ + นามสกุล -->
         <div class="grid grid-cols-2 gap-3">
           <fieldset class="fieldset">
             <legend class="fieldset-legend">ชื่อ *</legend>
@@ -28,16 +30,19 @@
           </fieldset>
         </div>
 
+        <!-- เบอร์โทร -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">เบอร์โทร *</legend>
           <input class="input outline-0 w-full" name="phone" type="tel" placeholder="0812345678" [(ngModel)]="phone" />
         </fieldset>
 
+        <!-- อีเมล -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">อีเมล (ไม่ใส่ก็ได้)</legend>
           <input class="input outline-0 w-full" name="email" type="email" [(ngModel)]="email" />
         </fieldset>
 
+        <!-- ที่อยู่ -->
         <fieldset class="fieldset">
           <legend class="fieldset-legend">ที่อยู่ *</legend>
           <textarea
@@ -50,7 +55,7 @@
         </fieldset>
       </div>
 
-      <!-- ฝั่งขวา: เลือกพิกัดบ้านบนแผนที่ -->
+      <!-- ===== ส่วนที่ 3 (ฝั่งขวา): เลือกพิกัดบ้านบนแผนที่ ===== -->
       <fieldset class="fieldset">
         <legend class="fieldset-legend">ตำแหน่งบ้าน * (กดบนแผนที่ตรงบ้านลูกค้า)</legend>
         <app-map-view
@@ -61,6 +66,7 @@
           [autoZoom]="false"
           (mapClick)="pickLocation($event)"
         ></app-map-view>
+        <!-- ระยะจากร้าน (เกิน 3 กม. = ตัวแดง ร้านส่งไม่ถึง) -->
         @if (shopDistance() !== null) {
           <p
             class="label"
@@ -72,6 +78,7 @@
           </p>
         }
 
+        <!-- ช่องพิมพ์ละติจูด / ลองจิจูดเอง -->
         <div class="grid grid-cols-2 gap-3 mt-2">
           <label class="input outline-0 w-full">
             <span class="label">ละติจูด</span>
@@ -83,6 +90,7 @@
           </label>
         </div>
 
+        <!-- ปุ่มใช้ตำแหน่งปัจจุบัน / เปิดดูใน Google Maps -->
         <div class="flex gap-2 mt-1">
           <button type="button" class="btn btn-sm btn-ghost" (click)="useMyLocation()">
             <fa-icon [icon]="faLocationDot"></fa-icon>ใช้ตำแหน่งที่ฉันอยู่ตอนนี้
@@ -100,7 +108,7 @@
         <div role="alert" class="alert alert-error md:col-span-2 mt-3">{{ errorMessage() }}</div>
       }
 
-      <!-- ปุ่ม -->
+      <!-- ===== ส่วนที่ 4: ปุ่มยกเลิก / บันทึก ===== -->
       <div class="md:col-span-2 flex justify-end gap-2 pt-4">
         <button type="button" class="btn btn-ghost" (click)="closed.emit()">ยกเลิก</button>
         <button type="submit" class="btn btn-primary min-w-32" [disabled]="saving()">
@@ -112,5 +120,6 @@
       </div>
     </form>
   </div>
+  <!-- กดพื้นหลังด้านนอก = ปิดหน้าต่าง -->
   <div class="modal-backdrop" (click)="closed.emit()"></div>
 </div>

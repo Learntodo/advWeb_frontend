@@ -47,6 +47,7 @@ export class Customers {
   faCartPlus = faCartPlus;
   faFlask = faFlask;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   allCustomers = signal<CustomerGetResponse[]>([]); // ลูกค้าทั้งหมด
   customers = signal<CustomerGetResponse[]>([]); // ลูกค้าที่แสดงในตาราง (อาจเป็นผลค้นหา)
   loading = signal(true);
@@ -60,6 +61,7 @@ export class Customers {
   formOpen = signal(false);
   editingCustomer = signal<CustomerGetResponse | null>(null); // null = เพิ่มใหม่
 
+  // ========== ส่วนที่ 2: หมุดบนแผนที่ และเช็กนอกเขตส่ง ==========
   // สร้างหมุดบนแผนที่จากลูกค้าที่แสดงอยู่
   markers = computed(() => {
     const markers: MapMarker[] = [];
@@ -81,6 +83,7 @@ export class Customers {
     return this.api.shopKm({ lat: Number(customer.latitude), lng: Number(customer.longitude) }) > this.api.MAX_KM;
   }
 
+  // ========== ส่วนที่ 3: โหลดข้อมูล และจำลองลูกค้า ==========
   ngOnInit() {
     this.loadCustomers();
     if (this.add()) {
@@ -116,6 +119,7 @@ export class Customers {
     this.simulating.set(false);
   }
 
+  // ========== ส่วนที่ 4: ค้นหา และเลือกลูกค้า (ตาราง <-> แผนที่) ==========
   // ค้นหาลูกค้า
   // - พิมพ์ตัวเลข = ค้นจากเบอร์โทร (กรองจากข้อมูลที่โหลดมาแล้ว)
   // - พิมพ์ตัวอักษร = 2.2 ค้นจากชื่อ/นามสกุล ผ่าน API /customers/search
@@ -161,6 +165,7 @@ export class Customers {
     document.getElementById('customer-' + id)?.scrollIntoView({ block: 'center' });
   }
 
+  // ========== ส่วนที่ 5: ปุ่มเพิ่ม / แก้ไข / ลบ / สั่งข้าว ==========
   openAdd() {
     this.editingCustomer.set(null);
     this.formOpen.set(true);

@@ -80,6 +80,7 @@ export class Orders {
   statusBadge = statusBadge;
   statusColor = statusColor;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า (ออเดอร์ ตัวกรอง ฟอร์ม) ==========
   orders = signal<OrderGetResponse[]>([]);
   customers = signal<CustomerGetResponse[]>([]);
   loading = signal(true);
@@ -96,6 +97,7 @@ export class Orders {
   addCustomerId = signal<number | null>(null); // ลูกค้าที่เลือกไว้ก่อนเปิดฟอร์มเพิ่ม
   editingOrder = signal<OrderGetResponse | null>(null); // ออเดอร์ที่กำลังแก้ไข
 
+  // ========== ส่วนที่ 2: ค่าที่คำนวณ (ออเดอร์ที่ผ่านตัวกรอง จำนวนบนแท็บ สรุปยอด) ==========
   // ออเดอร์ที่ผ่านตัวกรอง (เรียงจากใหม่ไปเก่า)
   filteredOrders = computed(() => {
     const result: OrderGetResponse[] = [];
@@ -145,6 +147,7 @@ export class Orders {
     );
   }
 
+  // ========== ส่วนที่ 3: โหลดข้อมูล ==========
   async ngOnInit() {
     await this.loadData();
 
@@ -181,6 +184,7 @@ export class Orders {
     }
   }
 
+  // ========== ส่วนที่ 4: ตัวกรอง ==========
   // ตรวจว่าออเดอร์นี้ผ่านตัวกรองทุกข้อหรือไม่ (ignoreStatus = ไม่ดูตัวกรองสถานะ ใช้นับจำนวนบนแท็บ)
   matchFilter(order: OrderGetResponse, ignoreStatus = false): boolean {
     const keyword = this.keyword().trim();
@@ -210,6 +214,7 @@ export class Orders {
     this.typeFilter.set('all');
   }
 
+  // ========== ส่วนที่ 5: ปุ่มในตาราง (จำนวนกล่อง สถานะ) ==========
   // 3.1.3 ปุ่ม − / + จำนวนกล่อง (PATCH /orders/{id})
   async changeQuantity(order: OrderGetResponse, change: number) {
     const newQuantity = order.quantity + change;
@@ -235,6 +240,7 @@ export class Orders {
     }
   }
 
+  // ========== ส่วนที่ 6: ปุ่มข้อมูลจำลอง ==========
   // 3.1 จำลองออเดอร์ 20-30 รายการ
   async simulate() {
     if (this.customers().length === 0) {
@@ -268,6 +274,7 @@ export class Orders {
     this.working.set(false);
   }
 
+  // ========== ส่วนที่ 7: ลบ / เปิดฟอร์ม / ไปหน้ารายละเอียด ==========
   // ลบออเดอร์ 1 รายการ
   async remove(order: OrderGetResponse) {
     if (!confirm(`ลบออเดอร์ ID ${order.id} ของ ${order.first_name} ใช่หรือไม่?`)) {

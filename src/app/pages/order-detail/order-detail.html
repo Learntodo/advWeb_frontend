@@ -1,13 +1,16 @@
+<!-- หน้ารายละเอียดออเดอร์ 1 รายการ (/orders/:id) -->
+<!-- ===== ส่วนที่ 1: ปุ่มกลับไปหน้าออเดอร์ ===== -->
 <a routerLink="/orders" class="btn btn-ghost btn-sm mb-3 -ml-2">
   <fa-icon [icon]="faArrowLeft"></fa-icon>กลับไปหน้าออเดอร์
 </a>
 
 @if (loading()) {
+  <!-- กำลังโหลด -->
   <div class="p-16 flex justify-center">
     <span class="loading loading-dots loading-lg text-primary"></span>
   </div>
 } @else if (notFound()) {
-  <!-- ไม่พบออเดอร์ -->
+  <!-- ===== ส่วนที่ 2: ไม่พบออเดอร์ (ถูกลบไปแล้ว) ===== -->
   <div class="card bg-base-100">
     <div class="card-body items-center text-center py-16">
       <h1 class="font-display text-2xl">ไม่พบออเดอร์ ID {{ id() }}</h1>
@@ -16,10 +19,11 @@
     </div>
   </div>
 } @else if (order(); as currentOrder) {
-  <!-- ข้อมูลออเดอร์ -->
+  <!-- ===== ส่วนที่ 3: ข้อมูลออเดอร์ ===== -->
   <section class="max-w-2xl mx-auto">
     <div class="card bg-base-100">
       <div class="card-body gap-3">
+        <!-- ชื่อลูกค้า + วันที่ส่ง + สถานะ -->
         <div class="flex items-start justify-between gap-2">
           <div>
             <p class="text-sm text-base-content/70">
@@ -35,11 +39,13 @@
           <fa-icon [icon]="faPhone"></fa-icon>{{ currentOrder.phone }}
         </a>
 
+        <!-- ที่อยู่ส่ง -->
         <div class="rounded-box bg-base-200 p-4">
           <p class="text-sm text-base-content/70">ส่งที่</p>
           <p>{{ currentOrder.delivery_address }}</p>
         </div>
 
+        <!-- หมายเหตุ (ถ้ามี) -->
         @if (currentOrder.note) {
           <div class="alert alert-warning py-2">หมายเหตุ: {{ currentOrder.note }}</div>
         }
@@ -92,7 +98,7 @@
           </div>
         </div>
 
-        <!-- ปุ่มอื่นๆ -->
+        <!-- ปุ่มนำทาง / แก้ไข / ลบ -->
         <div class="flex flex-wrap gap-2 pt-2 border-t border-base-300">
           <a
             class="btn btn-primary w-full"

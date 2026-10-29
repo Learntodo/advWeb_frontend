@@ -27,6 +27,7 @@ export class Riders {
   faMotorcycle = faMotorcycle;
   faFlask = faFlask;
 
+  // ========== ส่วนที่ 1: ข้อมูลของหน้า ==========
   riders = signal<RiderGetResponse[]>([]);
   loading = signal(true);
   simulating = signal(false); // กำลังจำลองไรเดอร์
@@ -35,6 +36,7 @@ export class Riders {
   formOpen = signal(false);
   editingRider = signal<RiderGetResponse | null>(null); // null = เพิ่มใหม่
 
+  // ========== ส่วนที่ 2: โหลดข้อมูล และจำลองไรเดอร์ ==========
   ngOnInit() {
     this.loadRiders();
   }
@@ -64,6 +66,7 @@ export class Riders {
     this.loading.set(false);
   }
 
+  // ========== ส่วนที่ 3: ปุ่มเพิ่ม / แก้ไข / เปิดปิดใช้งาน / ลบ ==========
   openAdd() {
     this.editingRider.set(null);
     this.formOpen.set(true);

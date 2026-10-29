@@ -1,5 +1,7 @@
+<!-- ข้อความแจ้งเตือนมุมขวาล่าง (มาจาก Notify service หายไปเองใน 4-8 วินาที) -->
 <div class="toast toast-end toast-bottom z-[2000]">
   @for (message of notify.messages(); track message.id) {
+    <!-- สำเร็จ = กล่องสีเขียว -->
     @if (message.type === 'success') {
       <div role="alert" class="alert alert-success shadow-lg max-w-sm">
         <fa-icon [icon]="faCircleCheck"></fa-icon>
@@ -9,6 +11,7 @@
         </button>
       </div>
     } @else {
+      <!-- ผิดพลาด = กล่องสีแดง -->
       <div role="alert" class="alert alert-error shadow-lg max-w-sm">
         <fa-icon [icon]="faCircleExclamation"></fa-icon>
         <span class="whitespace-normal">{{ message.text }}</span>

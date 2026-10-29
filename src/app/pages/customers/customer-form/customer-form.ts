@@ -32,6 +32,7 @@ export class CustomerForm {
   faLocationDot = faLocationDot;
   googleMapsLink = googleMapsLink;
 
+  // ========== ส่วนที่ 1: ข้อมูลในฟอร์ม ==========
   // ข้อมูลในฟอร์ม (ผูกกับช่องกรอกด้วย [(ngModel)])
   firstName = signal('');
   lastName = signal('');
@@ -45,6 +46,7 @@ export class CustomerForm {
   saving = signal(false);
   startPoint = signal<LatLng | null>(null); // จุดเริ่มต้นของแผนที่ในฟอร์ม
 
+  // ========== ส่วนที่ 2: ค่าที่คำนวณ (จุดบนแผนที่ ระยะจากร้าน) ==========
   // จุดที่เลือกบนแผนที่ (มีค่าเมื่อกรอกพิกัดครบ)
   pickedPoint = computed(() => {
     const lat = this.latitude();
@@ -61,6 +63,7 @@ export class CustomerForm {
     return point ? this.api.shopKm(point) : null;
   });
 
+  // ========== ส่วนที่ 3: เปิดฟอร์ม และเลือกพิกัดบ้าน ==========
   ngOnInit() {
     // ถ้าเป็นการแก้ไข ให้นำข้อมูลเดิมมาใส่ในฟอร์ม
     const customer = this.customer();
@@ -97,6 +100,7 @@ export class CustomerForm {
     );
   }
 
+  // ========== ส่วนที่ 4: ตรวจข้อมูล และบันทึก ==========
   // ตรวจข้อมูลก่อนบันทึก ถ้าผิดจะคืนข้อความบอกว่าผิดอะไร ถ้าถูกคืน ''
   validate(): string {
     if (this.firstName().trim() === '') return 'กรุณากรอกชื่อ';
