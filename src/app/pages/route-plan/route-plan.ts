@@ -165,7 +165,6 @@ export class RoutePlan {
   });
 
   // เส้นที่แสดงบนแผนที่ ตามถนนจริง แยกเป็นช่วง (ร้าน -> จุด 1, จุด 1 -> จุด 2, ...)
-  // แผนที่จะค่อยๆ วาดทีละช่วงตามลำดับ ให้รู้ว่าไปจุดไหนก่อน
   // วาดเมื่อได้เส้นถนนครบแล้วเท่านั้น (ไม่วาดเส้นตรงก่อน) ถ้าโหลดเส้นถนนไม่ได้ จึงวาดเป็นเส้นตรง
   lines = computed(() => {
     const lines: MapLine[] = [];
@@ -174,7 +173,7 @@ export class RoutePlan {
     for (const route of this.visibleRoutes()) {
       const points = this.stopPoints(route);
       const legs = paths[this.road.key(points)] ?? this.road.straight(points);
-      legs.forEach((leg, i) => lines.push({ points: leg, color: this.color(route), step: i + 1 }));
+      legs.forEach((leg) => lines.push({ points: leg, color: this.color(route) }));
     }
     return lines;
   });

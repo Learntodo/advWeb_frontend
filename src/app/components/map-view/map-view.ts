@@ -33,11 +33,7 @@ export interface MapMarker {
 export interface MapLine {
   points: LatLng[];
   color: string;
-  step?: number; // ลำดับช่วง (1 = ร้าน -> จุด 1, 2 = จุด 1 -> จุด 2, ...) มีค่า = ค่อยๆ วาดทีละช่วงตามลำดับ
 }
-
-// เวลาที่ใช้วาดเส้น 1 ช่วง (มิลลิวินาที)
-const STEP_MS = 800;
 
 // วงกลมรัศมี (ใช้ในหน้าค้นหาตามระยะ)
 export interface MapCircle {
@@ -75,7 +71,6 @@ export class MapView implements AfterViewInit, OnDestroy {
   layer = L.layerGroup(); // เก็บหมุดทั้งหมดไว้ในกลุ่มเดียว ลบแล้ววาดใหม่ได้ง่าย
   ready = signal(false); // แผนที่สร้างเสร็จแล้วหรือยัง
   resizeTimer = 0; // รหัสของ setTimeout (ใช้ยกเลิกตอนปิดแผนที่)
-  animation = 0; // รหัสของ requestAnimationFrame ที่กำลังวาดเส้นทีละช่วง (ใช้ยกเลิกตอนวาดใหม่)
 
   constructor() {
     // effect จะทำงานใหม่ทุกครั้งที่ input ที่ถูกอ่านข้างใน (markers, picked, circle) เปลี่ยน
@@ -123,28 +118,21 @@ export class MapView implements AfterViewInit, OnDestroy {
   // ปิดหน้า / ปิด modal -> ลบแผนที่ทิ้ง
   ngOnDestroy() {
     clearTimeout(this.resizeTimer);
-    cancelAnimationFrame(this.animation);
     this.map.remove();
   }
 
   // ลบทุกอย่างบนแผนที่ แล้ววาดใหม่ทั้งหมด
   draw() {
-    cancelAnimationFrame(this.animation);
     this.layer.clearLayers();
     this.drawShop();
 
     // 0) เส้นทางวิ่ง (วาดก่อนหมุด หมุดจะได้อยู่ด้านบนเส้น)
-    // เส้นที่มีลำดับช่วง เริ่มจากเส้นว่าง แล้วค่อยๆ ยืดออกทีละช่วงใน grow()
     const points: L.LatLngExpression[] = [];
-    const growing: { shape: L.Polyline; line: MapLine }[] = [];
     for (const line of this.lines()) {
       const latlngs: L.LatLngExpression[] = line.points.map((point) => [point.lat, point.lng]);
-      const shape = L.polyline(line.step ? [] : latlngs, { color: line.color, weight: 5, opacity: 0.85 });
-      shape.addTo(this.layer);
-      if (line.step) growing.push({ shape: shape, line: line });
+      L.polyline(latlngs, { color: line.color, weight: 5, opacity: 0.85 }).addTo(this.layer);
       for (const point of latlngs) points.push(point);
     }
-    this.grow(growing);
 
     // 1) หมุดลูกค้า / ออเดอร์
     for (const pin of this.markers()) {
@@ -204,51 +192,6 @@ export class MapView implements AfterViewInit, OnDestroy {
       points.push([shop.lat, shop.lng]);
       this.map.fitBounds(L.latLngBounds(points), { padding: [36, 36], maxZoom: 16, animate: false });
     }
-  }
-
-  // ค่อยๆ วาดเส้นทีละช่วง: ช่วงที่ 1 ก่อน (ร้าน -> จุด 1) จบแล้วจึงวาดช่วงที่ 2 ต่อ ...
-  // ไรเดอร์ดูแล้วรู้ว่าต้องไปจุดไหนก่อน
-  grow(list: { shape: L.Polyline; line: MapLine }[]) {
-    if (list.length === 0) return;
-    const done = new Set<L.Polyline>();
-    const start = performance.now();
-    const frame = (now: number) => {
-      const passed = (now - start) / STEP_MS; // วาดผ่านไปแล้วกี่ช่วง (มีเศษ)
-      for (const item of list) {
-        if (done.has(item.shape)) continue;
-        // ช่วงที่ n เริ่มวาดเมื่อผ่านไป n-1 ช่วง ได้ส่วนที่วาดแล้ว 0 ถึง 1
-        const part = Math.min(1, Math.max(0, passed - ((item.line.step as number) - 1)));
-        item.shape.setLatLngs(this.cut(item.line.points, part));
-        if (part >= 1) done.add(item.shape);
-      }
-      if (done.size < list.length) this.animation = requestAnimationFrame(frame);
-    };
-    this.animation = requestAnimationFrame(frame);
-  }
-
-  // ส่วนต้นของเส้น ยาว part (0 ถึง 1) ของความยาวทั้งเส้น
-  cut(points: LatLng[], part: number): L.LatLng[] {
-    const latlngs = points.map((point) => L.latLng(point.lat, point.lng));
-    let total = 0;
-    for (let i = 1; i < latlngs.length; i++) {
-      total = total + latlngs[i - 1].distanceTo(latlngs[i]); // ความยาวทั้งเส้น (เมตร)
-    }
-    let left = total * part; // ระยะที่ต้องวาด (เมตร)
-    const result: L.LatLng[] = latlngs.slice(0, 1);
-    for (let i = 1; i < latlngs.length; i++) {
-      const from = latlngs[i - 1];
-      const to = latlngs[i];
-      const meters = from.distanceTo(to);
-      if (meters >= left) {
-        // หยุดกลางทางระหว่างจุด a กับ b
-        const fraction = meters === 0 ? 1 : left / meters;
-        result.push(L.latLng(from.lat + (to.lat - from.lat) * fraction, from.lng + (to.lng - from.lng) * fraction));
-        break;
-      }
-      result.push(to);
-      left = left - meters;
-    }
-    return result;
   }
 
   // หมุดร้าน (สี่เหลี่ยมสีเข้ม)
