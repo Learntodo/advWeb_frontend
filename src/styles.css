@@ -44,42 +44,6 @@
   --noise: 0;
 }
 
-/* ธีมมืด (กดปุ่มรูปพระจันทร์ที่เมนู) พื้นเทาเข้ม ตัวหนังสือสีอ่อน สีหลักส้มสว่างขึ้นให้เห็นชัดบนพื้นมืด */
-@plugin "daisyui/theme" {
-  name: 'lunchbox-dark';
-  default: false;
-  prefersdark: false;
-  color-scheme: dark;
-  --color-base-100: #1f1d1b;
-  --color-base-200: #151311;
-  --color-base-300: #3a3632;
-  --color-base-content: #f5f5f4;
-  --color-primary: #f97316;
-  --color-primary-content: #1c1917;
-  --color-secondary: #fbbf24;
-  --color-secondary-content: #1c1917;
-  --color-accent: #22c55e;
-  --color-accent-content: #052e16;
-  --color-neutral: #44403c;
-  --color-neutral-content: #fafaf9;
-  --color-info: #60a5fa;
-  --color-info-content: #0b1b36;
-  --color-success: #22c55e;
-  --color-success-content: #052e16;
-  --color-warning: #fbbf24;
-  --color-warning-content: #1c1917;
-  --color-error: #f87171;
-  --color-error-content: #2a0a0a;
-  --radius-selector: 0.625rem;
-  --radius-field: 0.75rem;
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
-
 @theme {
   --font-display: 'Anuphan', 'Noto Sans Thai', sans-serif;
 }
@@ -87,10 +51,6 @@
 :root {
   --main-font: 'Noto Sans Thai', sans-serif;
   --icon-amber: #92400e; /* สีไอคอนกล่องข้าวบนการ์ดสรุป */
-}
-
-[data-theme='lunchbox-dark'] {
-  --icon-amber: #fcd34d;
 }
 
 body {

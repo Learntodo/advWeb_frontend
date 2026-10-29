@@ -39,10 +39,7 @@
             <span class="block text-sm text-base-content/70">{{ user.phone }}</span>
           </span>
         </div>
-        <button class="btn btn-ghost w-full justify-start mt-1" (click)="toggleTheme()">
-          <fa-icon [icon]="isDark() ? faSun : faMoon" class="w-5"></fa-icon>{{ isDark() ? 'ธีมสว่าง' : 'ธีมมืด' }}
-        </button>
-        <button class="btn btn-ghost w-full justify-start" (click)="passwordOpen.set(true)">
+        <button class="btn btn-ghost w-full justify-start mt-1" (click)="passwordOpen.set(true)">
           <fa-icon [icon]="faKey" class="w-5"></fa-icon>เปลี่ยนรหัสผ่าน
         </button>
         <button class="btn btn-ghost w-full justify-start text-error" (click)="auth.logout()">
@@ -69,16 +66,6 @@
       <img src="logo.svg" alt="โลโก้ส่งด่วนมื้อเที่ยง" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 -rotate-6" />
       <span class="font-display text-base min-[400px]:text-lg sm:text-xl truncate">ส่งด่วนมื้อเที่ยง</span>
     </a>
-
-    <!-- ปุ่มสลับธีมสว่าง / มืด -->
-    <button
-      class="btn btn-ghost btn-square"
-      [attr.aria-label]="isDark() ? 'เปลี่ยนเป็นธีมสว่าง' : 'เปลี่ยนเป็นธีมมืด'"
-      [title]="isDark() ? 'ธีมสว่าง' : 'ธีมมืด'"
-      (click)="toggleTheme()"
-    >
-      <fa-icon [icon]="isDark() ? faSun : faMoon" size="lg"></fa-icon>
-    </button>
 
     <!-- เมนูผู้ใช้: ชื่อ, เปลี่ยนรหัสผ่าน, ออกจากระบบ (แสดงเมื่อ login แล้ว) -->
     @if (auth.user(); as user) {
